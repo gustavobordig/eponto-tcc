@@ -122,6 +122,13 @@ export default function Home() {
     return delayMinutes;
   };
 
+  const handleMarkPoint = () => {
+    const currentPoint = getCurrentPoint();
+    if (currentPoint) {
+      setPoints([...points, { type: currentPoint, timestamp: new Date().toISOString() }]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <PageEntrance>
@@ -175,7 +182,7 @@ export default function Home() {
                   backgroundColor="bg-[#002085]"
                   className="w-full"
                   textColor="text-white"
-                  onClick={() => {}}
+                  onClick={handleMarkPoint}
                 />
                 <Button
                   text="Editar localização"

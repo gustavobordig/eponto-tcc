@@ -17,7 +17,6 @@ interface RegistroPonto {
 
 export default function HistoricoContainer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRegistro, setSelectedRegistro] = useState<RegistroPonto | null>(null);
 
   const registros: RegistroPonto[] = [
     { data: "Dom - 23/02", entradaSaida: "9:00 - 18:00", horasExtras: "00:00", faltantes: "00:00", saldo: "00:00" },
@@ -26,17 +25,24 @@ export default function HistoricoContainer() {
     { data: "Dom - 23/02", entradaSaida: "9:00 - 18:00", horasExtras: "00:30", faltantes: "00:00", saldo: "00:00" },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleEditClick = (registro: RegistroPonto) => {
-    setSelectedRegistro(registro);
     setIsModalOpen(true);
+    // TODO: Use registro data to populate modal
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setSelectedRegistro(null);
   };
 
-  const handleModalSubmit = (data: any) => {
+  interface TimeAdjustmentData {
+    entrada: { time: string; location: string };
+    inicioAlmoco: { time: string; location: string };
+    fimAlmoco: { time: string; location: string };
+    saida: { time: string; location: string };
+  }
+
+  const handleModalSubmit = (data: TimeAdjustmentData) => {
     console.log('Adjustment data:', data);
     // TODO: Implement the adjustment logic
     handleModalClose();
