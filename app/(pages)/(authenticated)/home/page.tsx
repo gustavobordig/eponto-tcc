@@ -2,34 +2,29 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { format, differenceInMinutes } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import * as Tooltip from '@radix-ui/react-tooltip';
-
+import { getAllTimeRecords } from "@/services/timeRecord";
+import { tokenUtils } from "@/utils/token";
 
 // Assets
 import UserImage from "@/public/images/User.png";
 // Icons
-import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar, AlertCircle } from "lucide-react";
+import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from "lucide-react";
 
 // Components
 import { HoursBalanceChart } from "@/app/components/atoms/HoursBalanceChart";
 import { PunctualityChart } from "@/app/components/atoms/PunctualityChart";
 import Button from "@/app/components/atoms/Button";
 import { PageEntrance } from "@/app/Animations/pageEntrance";
+import { DailyStatus, Point, PointType } from "@/app/components/atoms/DailyStatus";
 
-type PointType = "entrada" | "inicio_almoco" | "fim_almoco" | "saida";
-
-interface Point {
-  type: PointType;
-  timestamp: string;
+interface ApiRegistroPonto {
+  id_Usuario: number;
+  horaRegistro: string;
+  dataRegistro: string;
+  idTipoRegistroPonto: number;
 }
-
-// Dados mockados para demonstração
-const mockPoints: Point[] = [
-  { type: "entrada", timestamp: "2024-03-20T08:15:00" },
-  { type: "inicio_almoco", timestamp: "2024-03-20T12:00:00" },
-];
 
 const mockMonthlyData = {
   hours: [
@@ -46,8 +41,9 @@ export default function Home() {
   const [location, setLocation] = useState<string>("Carregando localização...");
   const [locationError, setLocationError] = useState<string>("");
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [points, setPoints] = useState<Point[]>(mockPoints);
+  const [points, setPoints] = useState<Point[]>([]);
   const [userName, setUserName] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -92,6 +88,70 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const fetchPoints = async () => {
+      try {
+        const userId = tokenUtils.getId();
+        if (!userId) return;
+
+        const response = await getAllTimeRecords();
+        if (response.sucesso && response.registros) {
+          // Filtra apenas os registros do usuário atual e do dia atual
+          const today = new Date().toISOString().split('T')[0];
+          const userRegistros = response.registros.filter(
+            (reg: ApiRegistroPonto) => 
+              reg.id_Usuario === Number(userId) && 
+              reg.dataRegistro.split('T')[0] === today
+          );
+
+          console.log('Registros filtrados:', userRegistros);
+          console.log('IDs de tipo de registro:', userRegistros.map((reg: ApiRegistroPonto) => reg.idTipoRegistroPonto));
+
+          // Converte os registros da API para o formato de Point
+          const pontosConvertidos = userRegistros.map((reg: ApiRegistroPonto) => {
+            const tipo = getPointTypeFromId(reg.idTipoRegistroPonto);
+            console.log('Registro convertido:', {
+              id: reg.idTipoRegistroPonto,
+              tipo,
+              hora: reg.horaRegistro
+            });
+            return {
+              type: tipo,
+              timestamp: reg.horaRegistro
+            };
+          });
+
+          console.log("pontosConvertidos: ", pontosConvertidos);
+
+          setPoints(pontosConvertidos);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar pontos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoints();
+  }, []);
+
+  const getPointTypeFromId = (id: number): PointType => {
+    console.log('Convertendo ID para tipo:', id);
+    switch (id) {
+      case 1:
+        return "entrada";
+      case 2:
+        return "inicio_almoco";
+      case 3:
+        return "fim_almoco";
+      case 4:
+        return "saida";
+      default:
+        console.warn('ID de tipo de registro desconhecido:', id);
+        throw new Error(`ID de tipo de registro inválido: ${id}`);
+    }
+  };
+
   const getGreeting = () => {
     const hour = currentTime.getHours();
     if (hour < 12) return "Bom dia";
@@ -116,20 +176,6 @@ export default function Home() {
     { type: "fim_almoco" as PointType, icon: <UtensilsCrossed className="w-6 h-6" />, label: "Fim Almoço", time: "13:00" },
     { type: "saida" as PointType, icon: <LogOut className="w-6 h-6" />, label: "Saída", time: "17:00" },
   ];
-
-  const getDelayTime = (expectedTime: string, actualTime: string) => {
-    const [expectedHours, expectedMinutes] = expectedTime.split(':').map(Number);
-    const [actualHours, actualMinutes] = actualTime.split(':').map(Number);
-    
-    const expectedDate = new Date();
-    expectedDate.setHours(expectedHours, expectedMinutes);
-    
-    const actualDate = new Date();
-    actualDate.setHours(actualHours, actualMinutes);
-    
-    const delayMinutes = differenceInMinutes(actualDate, expectedDate);
-    return delayMinutes;
-  };
 
   const handleMarkPoint = () => {
     const currentPoint = getCurrentPoint();
@@ -208,74 +254,43 @@ export default function Home() {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-[#002085] mb-4">Pontos do Dia</h2>
               <div className="grid grid-cols-4 gap-4">
-                {timeIndicators.map((indicator, index) => {
-                  const isCurrentPoint = indicator.type === currentPoint;
-                  const isMarked = points.some(point => point.type === indicator.type);
-                  
-                  return (
-                    <div key={index} className="flex flex-col items-center">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                        isCurrentPoint 
-                          ? "bg-green-100 text-green-600" 
-                          : isMarked 
-                            ? "bg-gray-100 text-[#002085]" 
-                            : "bg-gray-50 text-gray-400"
-                      }`}>
-                        {indicator.icon}
+                {loading ? (
+                  <div className="col-span-4 text-center text-gray-500">
+                    Carregando pontos...
+                  </div>
+                ) : (
+                  timeIndicators.map((indicator, index) => {
+                    const isCurrentPoint = indicator.type === currentPoint;
+                    const isMarked = points.some(point => point.type === indicator.type);
+                    const point = points.find(point => point.type === indicator.type);
+                    const time = point ? format(new Date(point.timestamp), "HH:mm") : indicator.time;
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                          isCurrentPoint 
+                            ? "bg-green-100 text-green-600" 
+                            : isMarked 
+                              ? "bg-gray-100 text-[#002085]" 
+                              : "bg-gray-50 text-gray-400"
+                        }`}>
+                          {indicator.icon}
+                        </div>
+                        <span className={`text-xs ${isCurrentPoint ? "text-green-600 font-semibold" : "text-[#002085]"}`}>
+                          {indicator.label}
+                        </span>
+                        <span className={`text-sm font-semibold ${isCurrentPoint ? "text-green-600" : "text-[#002085]"}`}>
+                          {time}
+                        </span>
                       </div>
-                      <span className={`text-xs ${isCurrentPoint ? "text-green-600 font-semibold" : "text-[#002085]"}`}>
-                        {indicator.label}
-                      </span>
-                      <span className={`text-sm font-semibold ${isCurrentPoint ? "text-green-600" : "text-[#002085]"}`}>
-                        {indicator.time}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
 
             {/* Punctuality Status Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Status do Dia</h2>
-              <div className="space-y-4">
-                {points.map((point, index) => {
-                  const expectedTime = timeIndicators.find(i => i.type === point.type)?.time;
-                  const actualTime = format(new Date(point.timestamp), "HH:mm");
-                  const isLate = actualTime > expectedTime!;
-                  const delayMinutes = isLate ? getDelayTime(expectedTime!, actualTime) : 0;
-                  
-                  return (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-black">
-                        {timeIndicators.find(i => i.type === point.type)?.icon}
-                        <span className="text-sm">{timeIndicators.find(i => i.type === point.type)?.label}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-black">{actualTime}</span>
-                        {isLate && (
-                          <Tooltip.Provider>
-                            <Tooltip.Root>
-                              <Tooltip.Trigger asChild>
-                                <AlertCircle className="w-4 h-4 text-red-500 cursor-help" />
-                              </Tooltip.Trigger>
-                              <Tooltip.Portal>
-                                <Tooltip.Content 
-                                  className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-                                  sideOffset={5}
-                                >
-                                  {delayMinutes} {delayMinutes === 1 ? 'minuto' : 'minutos'} de atraso
-                                </Tooltip.Content>
-                              </Tooltip.Portal>
-                            </Tooltip.Root>
-                          </Tooltip.Provider>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <DailyStatus points={points} />
           </div>
 
           {/* Charts Section */}

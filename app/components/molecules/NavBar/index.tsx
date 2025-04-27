@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 // Assets
 import logo from "@/public/images/Logo.png";
@@ -17,7 +18,6 @@ import ConfirmationModal from "../../atoms/ConfirmationModal";
 // Components
 import MobileNav from "./MobileNav";
 import { tokenUtils } from "@/utils/token";
-import router from "next/router";
 
 interface NavBarProps {
     itens: string[];
@@ -25,8 +25,7 @@ interface NavBarProps {
 }
 
 const navItemNames: { [key: string]: string } = {
-    "/home": "Home",
-    "/meu-perfil": "Meu Perfil",
+    "/perfil": "Meu Perfil",
     "/history": "Histórico de Pontos"
 };
 
@@ -34,6 +33,7 @@ export default function NavBar({
     itens,
     userName = "Usuário"
 }: NavBarProps) {
+    const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
@@ -46,7 +46,6 @@ export default function NavBar({
     };
 
     const handleConfirmPonto = () => {
-        // TODO: Implement the logic for confirming the ponto
         handleCloseModal();
     };
 
@@ -74,7 +73,10 @@ export default function NavBar({
             <div className="hidden md:block border-b-2 border-[#002085] fixed top-0 left-0 right-0 z-50 bg-white">
                 <Container>
                     <div className="flex justify-between items-center py-4">
-                        <div>
+                        <div
+                            className="cursor-pointer"
+                            onClick={() => router.push('/home')}
+                        >
                             <Image src={logo.src} alt="logo" width={100} height={100} />
                         </div>
 

@@ -1,6 +1,6 @@
 import React from "react";
-import { MapPin, Pencil } from "lucide-react";
-
+import { Pencil } from "lucide-react";
+// import { MapPin, Pencil } from "lucide-react";
 export interface TimeEntry {
   time: string;
   location: string;
@@ -17,8 +17,9 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({
   value,
   onChange,
 }) => {
-  const [isTimeEditable, setIsTimeEditable] = React.useState(false);
-  const [isLocationEditable, setIsLocationEditable] = React.useState(false);
+  const [isTimeEditable, setIsTimeEditable] = React.useState(!!value.time);
+  // const [isLocationEditable, setIsLocationEditable] = React.useState(!!value.location);
+
 
   return (
     <div className="mb-4">
@@ -43,7 +44,7 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({
             <Pencil className="w-4 h-4" />
           </button>
         </div>
-        <div className="relative">
+        {/* <div className="relative">
           <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
           <input
             type="text"
@@ -60,7 +61,7 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({
           >
             <Pencil className="w-4 h-4" />
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

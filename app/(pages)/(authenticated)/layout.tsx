@@ -15,7 +15,7 @@ export default function AuthenticatedLayout({
     const router = useRouter();
     const navItems = [
         "/home",
-        "/meu-perfil",
+        "/perfil",
         "/history"
     ];
 
@@ -39,7 +39,7 @@ export default function AuthenticatedLayout({
                     const userData = {
                         nome: response.usuario.nome,
                         email: response.usuario.email,
-                        data_Nascimento: response.usuario.data_Nascimento,
+                        dataNascimento: response.usuario.dataNascimento,
                         telefone: response.usuario.telefone
                     };
                     

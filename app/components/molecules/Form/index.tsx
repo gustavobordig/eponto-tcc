@@ -15,6 +15,7 @@ import Button from "@/app/components/atoms/Button";
 import { showErrorToast, showSuccessToast } from "@/utils/toast";
 import { CustomTooltip } from "@/utils/tooltip";
 
+
 interface FormProps {
     logo?: string;
     title?: string;
@@ -25,6 +26,7 @@ export default function Form({
     title,
 }: FormProps) {
     const router = useRouter();
+    
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -112,6 +114,12 @@ export default function Form({
                         />
                     </div>
                 </CustomTooltip>
+                <p 
+                    className="text-sm text-gray-500 cursor-pointer hover:underline"
+                    onClick={() => router.push('/forgot-password')}
+                >
+                    Esqueceu sua senha? clique aqui.
+                </p>
             </div>
         </div>
     );

@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatInTimeZone } from 'date-fns-tz';
 import UserImage from "@/public/images/User.png";
 import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin } from "lucide-react";
 import { SlideUp } from "@/app/Animations/sliderUp";
+import { insertTimeRecord } from "@/services/timeRecord";
 
 // Atoms
 import Button from "@/app/components/atoms/Button";
+import { tokenUtils } from "@/utils/token";
+import { showErrorToast, showSuccessToast } from "@/utils/toast";
 
 type PointType = "entrada" | "inicio_almoco" | "fim_almoco" | "saida";
 
@@ -43,6 +47,8 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   const [location, setLocation] = useState<string>("Carregando localização...");
   const [locationError, setLocationError] = useState<string>("");
+  const [isRegistering, setIsRegistering] = useState(false);
+  
 
   useEffect(() => {
     if (!isOpen) return;
@@ -82,8 +88,9 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
+  const timeZone = 'America/Sao_Paulo';
   const currentTime = new Date();
-  const formattedTime = format(currentTime, "HH:mm");
+  const formattedTime = formatInTimeZone(currentTime, timeZone, "HH:mm");
   const getGreeting = () => {
     const hour = currentTime.getHours();
     if (hour < 12) return "Bom dia";
@@ -131,6 +138,35 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const currentPoint = getCurrentPoint();
+
+  const handleConfirm = async () => {
+    try {
+      setIsRegistering(true);
+      const currentPoint = getCurrentPoint();
+      if (!currentPoint) {
+        alert("Todos os pontos já foram registrados hoje!");
+        return;
+      }
+
+      const now = new Date();
+      const payload = {
+        idUsuario: Number(tokenUtils.getId()),
+        horaRegistro: formatInTimeZone(now, timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+        dataRegistro: formatInTimeZone(now, timeZone, "yyyy-MM-dd"),
+        idTipoRegistroPonto: 1,
+      };
+
+      await insertTimeRecord(payload);
+      showSuccessToast("Ponto registrado com sucesso!");
+      onConfirm();
+      window.location.reload();
+    } catch (error) {
+      console.error("Erro ao registrar ponto:", error);
+      showErrorToast("Erro ao registrar ponto. Tente novamente.");
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -224,11 +260,12 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Buttons */}
             <div className="flex gap-4 w-full">
               <Button
-                text="Confirmar"
+                text={isRegistering ? "Registrando..." : "Confirmar"}
                 backgroundColor="bg-green-500"
                 textColor="text-white"
-                onClick={onConfirm}
+                onClick={handleConfirm}
                 hoverSwapColors={false}
+                disabled={isRegistering}
               />
               <Button
                 text="Cancelar"
@@ -236,6 +273,7 @@ export const Modal: React.FC<ModalProps> = ({
                 textColor="text-white"
                 onClick={onClose}
                 hoverSwapColors={false}
+                disabled={isRegistering}
               />
             </div>
           </div>

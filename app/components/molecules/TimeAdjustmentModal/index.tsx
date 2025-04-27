@@ -20,12 +20,14 @@ interface TimeAdjustmentModalProps {
     fimAlmoco: TimeEntry;
     saida: TimeEntry;
   };
+  selectedDate?: string;
 }
 
 export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  selectedDate,
   initialData = {
     entrada: { time: "", location: "" },
     inicioAlmoco: { time: "", location: "" },
@@ -41,11 +43,21 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
     justificativa: "",
   });
 
+  React.useEffect(() => {
+    setFormData(prevData => ({
+      ...prevData,
+      entrada: initialData.entrada,
+      inicioAlmoco: initialData.inicioAlmoco,
+      fimAlmoco: initialData.fimAlmoco,
+      saida: initialData.saida,
+    }));
+  }, [initialData]);
+
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     onSubmit(formData);
-  };
+  };  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -57,7 +69,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-lg p-6 w-[90%] max-w-lg shadow-xl relative z-10"
+        className="bg-white rounded-lg p-6 w-[90%] max-w-lg shadow-xl relative z-10 h-fit overflow-y-auto"
       >
         {/* Close Button */}
         <button
@@ -68,7 +80,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         </button>
 
         <h2 className="text-2xl font-bold text-[#002085] mb-6">
-          Ajuste de Ponto
+          Ajuste de Ponto {selectedDate && `- ${selectedDate}`}
         </h2>
 
         <div>
@@ -93,7 +105,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
             onChange={(value) => setFormData({ ...formData, saida: value })}
           />
 
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Justificativa
             </label>
@@ -106,7 +118,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002085] min-h-[100px]
               text-gray-800"
             />
-          </div>
+          </div> */}
 
           <div className="flex gap-4">
             <Button

@@ -1,13 +1,15 @@
 import api from './api';
 
-interface UserData {
+export interface UserData {
+  idUsuario: number;
   nome: string;
-  data_Nascimento: string;
+  dataNascimento: string;
   senha: string;
   email: string;
   telefone: number;
-  id_Cargo: number;
-  id_Jornada: number;
+  idCargo: number;
+  idJornada: number;
+  indAtivo: number;
 }
 
 interface UserResponse {
@@ -35,4 +37,31 @@ export const userService = {
       throw error;
     }
   },
+
+  update: async (userData: UserData): Promise<UserResponse> => {
+    try {
+      const response = await api.put<UserResponse>('/api/Usuario/Atualizar', userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAll: async (): Promise<UserResponse> => {
+    try {
+      const response = await api.get<UserResponse>('/api/Usuario/Listar');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  delete: async (userId: number): Promise<UserResponse> => {
+    try {
+      const response = await api.put<UserResponse>(`/api/Usuario/Deletar/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }; 
