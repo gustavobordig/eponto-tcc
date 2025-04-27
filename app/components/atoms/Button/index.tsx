@@ -12,6 +12,8 @@ interface ButtonProps {
   style?: React.CSSProperties;
   fullWidth?: boolean;
   hoverSwapColors?: boolean;
+  disabled?: boolean;
+  isLoading?: boolean;
 }
 
 const Button = ({
@@ -26,11 +28,14 @@ const Button = ({
   style,
   fullWidth = true,
   hoverSwapColors = false,
+  disabled = false,
+  isLoading = false,
 }: ButtonProps) => {
   return (
     <button
       onClick={onClick}
       style={style}
+      disabled={disabled || isLoading}
       className={`
         ${backgroundColor}
         ${textColor}
@@ -50,19 +55,42 @@ const Button = ({
         gap-2
         ${fullWidth ? 'w-full' : 'w-auto px-4'}
         ${className}
-        cursor-pointer
+        ${(disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${hoverSwapColors ? 'hover:bg-[#002085] hover:text-white' : ''}
         transition-all
         duration-300
         ease-in-out
+        relative
+        overflow-hidden
+        before:absolute
+        before:inset-0
+        before:bg-gradient-to-r
+        before:from-transparent
+        before:via-white/10
+        before:to-transparent
+        before:translate-x-[-100%]
+        hover:before:translate-x-[100%]
+        before:transition-transform
+        before:duration-1000
+        shadow-[0_2px_8px_rgba(0,32,133,0.15)]
+        hover:shadow-[0_4px_12px_rgba(0,32,133,0.25)]
       `}
     >
-      {icon && iconPosition === 'left' && (
-        <span className={iconClassName}>{icon}</span>
-      )}
-      {text}
-      {icon && iconPosition === 'right' && (
-        <span className={iconClassName}>{icon}</span>
+      {isLoading ? (
+        <>
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <span>Carregando...</span>
+        </>
+      ) : (
+        <>
+          {icon && iconPosition === 'left' && (
+            <span className={iconClassName}>{icon}</span>
+          )}
+          {text}
+          {icon && iconPosition === 'right' && (
+            <span className={iconClassName}>{icon}</span>
+          )}
+        </>
       )}
     </button>
   );

@@ -12,9 +12,12 @@ import user from "@/public/images/User.png";
 import Container from "../../atoms/container";
 import Button from "../../atoms/Button";
 import { Modal } from "@/app/components/molecules/Modal";
+import ConfirmationModal from "../../atoms/ConfirmationModal";
 
 // Components
 import MobileNav from "./MobileNav";
+import { tokenUtils } from "@/utils/token";
+import router from "next/router";
 
 interface NavBarProps {
     itens: string[];
@@ -32,6 +35,7 @@ export default function NavBar({
     userName = "Usuário"
 }: NavBarProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -44,6 +48,19 @@ export default function NavBar({
     const handleConfirmPonto = () => {
         // TODO: Implement the logic for confirming the ponto
         handleCloseModal();
+    };
+
+    const handleLogoutClick = () => {
+        setIsLogoutModalOpen(true);
+    };
+
+    const handleConfirmLogout = () => {
+        tokenUtils.logout();
+        router.push('/');
+    };
+
+    const handleCloseLogoutModal = () => {
+        setIsLogoutModalOpen(false);
     };
 
     return (
@@ -80,16 +97,29 @@ export default function NavBar({
                                 }}
                             />
                             <Button 
-                                text="Bater Ponto" 
+                                text="Sair" 
                                 backgroundColor="bg-white"
                                 textColor="text-[#002085]"
                                 fullWidth={false}
                                 style={{
+                                    borderRadius: '30px',
+                                    borderColor: '#002085',
+                                    borderWidth: '1px',
+                                    padding: '0.5rem 1.5rem'
+                                 }}
+                                className="px-6 font-medium"
+                                onClick={handleLogoutClick}
+                            />
+                            <Button 
+                                text="Bater Ponto" 
+                                backgroundColor="bg-[#002085]"
+                                textColor="text-white"
+                                fullWidth={false}
+                                style={{
                                    borderRadius: '30px',
-                                   borderColor: '#002085',
-                                   borderWidth: '1px',
+                                   padding: '0.5rem 1.5rem'
                                 }}
-                                hoverSwapColors={true}
+                                hoverSwapColors={false}
                                 onClick={handleOpenModal}
                             />
                         </div>
@@ -102,6 +132,16 @@ export default function NavBar({
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmPonto}
                 userName={userName}
+            />
+
+            <ConfirmationModal
+                isOpen={isLogoutModalOpen}
+                onClose={handleCloseLogoutModal}
+                onConfirm={handleConfirmLogout}
+                title="Confirmar Logout"
+                message="Tem certeza que deseja sair do sistema?"
+                confirmText="Sair"
+                cancelText="Cancelar"
             />
         </>
     )

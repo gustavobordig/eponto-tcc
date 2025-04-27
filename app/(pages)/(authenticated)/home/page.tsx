@@ -47,6 +47,15 @@ export default function Home() {
   const [locationError, setLocationError] = useState<string>("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [points, setPoints] = useState<Point[]>(mockPoints);
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const { nome } = JSON.parse(userData);
+      setUserName(nome);
+    }
+  }, []);
 
   useEffect(() => {
     // Atualizar horário a cada minuto
@@ -143,7 +152,7 @@ export default function Home() {
                     <Image src={UserImage} alt="User" fill className="object-cover" />
                   </div>
                   <div className="flex flex-col gap-2 items-center md:items-start">
-                    <h1 className="text-2xl font-bold text-[#002085]">{getGreeting()}, João!</h1>
+                    <h1 className="text-2xl font-bold text-[#002085]">{getGreeting()}, {userName}!</h1>
                     <p className="text-gray-500 text-sm">Bem-vindo de volta</p>
                   </div>
                 </div>
