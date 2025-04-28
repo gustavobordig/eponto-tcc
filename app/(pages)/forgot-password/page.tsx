@@ -47,7 +47,7 @@ export default function ForgotPassword() {
             setLoading(true);
             await authService.alterarSenha({ email, senha: novaSenha });
             toast.success('Senha alterada com sucesso');
-            router.push('/login');
+            router.push('/');
         } catch {
             toast.error('Erro ao alterar senha');
         } finally {

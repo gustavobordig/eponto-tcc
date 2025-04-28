@@ -92,8 +92,8 @@ export default function Form({
                     placeholder="Digite sua senha"
                     icon={<Lock />}
                     inputClassName="w-full"
-                    regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                    regexErrorMessage="A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula e um número."
+                    regex="^(?!\s*$).+"
+                    regexErrorMessage="A senha não pode estar em branco"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
