@@ -11,6 +11,7 @@ import { tokenUtils } from "@/utils/token";
 import { getHorariosDoDia } from "@/utils/timeUtils";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
+import { getIdRegistroDoDia } from "@/utils/registroUtils";
 
 interface RegistroPonto {
   data: string;
@@ -25,6 +26,7 @@ interface ApiRegistroPonto {
   horaRegistro: string;
   dataRegistro: string;
   idTipoRegistroPonto: number;
+  idRegistro: number;
 }
 
 export default function HistoricoContainer() {
@@ -122,6 +124,8 @@ export default function HistoricoContainer() {
 
 
   const handleEditClick = (registro: RegistroPonto) => {
+
+    console.log("registros api", registrosApi);
     setSelectedDate(registro.data);
     setSelectedRegistro(registro);
     setIsModalOpen(true);
@@ -210,6 +214,7 @@ export default function HistoricoContainer() {
         onSubmit={handleModalSubmit}
         selectedDate={selectedDate}
         initialData={getHorariosDoDia(selectedRegistro, registrosApi)}
+        registrosDoDia={getIdRegistroDoDia(selectedRegistro, registrosApi)}
       />
     </AnimatedContainer>
   );

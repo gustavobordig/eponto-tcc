@@ -165,6 +165,9 @@ export default function Dashboard() {
                           </div>
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                          Teste
+                        </th>
+                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                           Ações
                         </th>
                       </tr>
@@ -192,6 +195,9 @@ export default function Dashboard() {
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                             {user.idJornada}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                            kkkkk {user.teste}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                             <div className="flex space-x-4">

@@ -10,6 +10,7 @@ export interface UserData {
   idCargo: number;
   idJornada: number;
   indAtivo: number;
+  teste: string;
 }
 
 interface UserResponse {

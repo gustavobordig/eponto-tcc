@@ -7,6 +7,14 @@ interface TimeRecordPayload {
   idTipoRegistroPonto: number;
 }
 
+interface UpdateTimeRecordPayload {
+  idRegistro: number;
+  idUsuario: number;
+  horaRegistro: string;
+  dataRegistro: string;
+  idTipoRegistroPonto: number;
+}
+
 export const insertTimeRecord = async (payload: TimeRecordPayload) => {
   try {
     const response = await api.post('/api/RegistroPonto/Inserir', payload);
@@ -44,6 +52,19 @@ export const getUserTimeRecords = async (userId: number) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching user time records:', error);
+    throw error;
+  }
+};
+
+export const updateTimeRecord = async (payload: UpdateTimeRecordPayload) => {
+  
+  console.log("payload", payload);
+
+  try {
+    const response = await api.put('/api/RegistroPonto/Atualizar', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating time record:', error);
     throw error;
   }
 }; 

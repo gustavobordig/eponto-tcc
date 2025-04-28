@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { userService } from '@/services/user';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 
-export default function UserForm() {
+export default function 
+UserForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,7 +16,8 @@ export default function UserForm() {
     email: '',
     telefone: '',
     idCargo: '',
-    idJornada: ''
+    idJornada: '',
+    teste: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +34,8 @@ export default function UserForm() {
         dataNascimento: dataFormatada,
         telefone: parseInt(formData.telefone),
         idCargo: parseInt(formData.idCargo),
-        idJornada: parseInt(formData.idJornada)
+        idJornada: parseInt(formData.idJornada),
+        teste: formData.teste
       };
       
       const response = await userService.create(userData);
@@ -139,6 +142,17 @@ export default function UserForm() {
           type="number"
           name="idJornada"
           value={formData.idJornada}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-4 text-black"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Teste</label>
+        <input
+          name="teste"
+          value={formData.teste}
           onChange={handleChange}
           required
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-4 text-black"
