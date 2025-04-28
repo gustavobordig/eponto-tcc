@@ -17,6 +17,20 @@ interface LoginResponse {
   };
 }
 
+interface AlterarSenhaPayload {
+  email: string;
+  senha: string;
+}
+
+interface ValidarCodigoPayload {
+  email: string;
+  codigo: string;
+}
+
+interface RecuperarSenhaPayload {
+  email: string;
+}
+
 export const authService = {
   async realizarLogin(payload: LoginPayload): Promise<LoginResponse> {
     try {
@@ -34,4 +48,51 @@ export const authService = {
       throw new Error('Erro ao realizar login. Tente novamente mais tarde.');
     }
   },
+
+  async alterarSenha(payload: AlterarSenhaPayload): Promise<void> {
+    try {
+      await api.get(`api/login/AlteraSenhaLogin`, {
+        params: {
+          senha: payload.senha,
+          email: payload.email
+        }
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error;
+      }
+      throw new Error('Erro ao alterar senha. Tente novamente mais tarde.');
+    }
+  },
+
+  async validarCodigoRecuperacao(payload: ValidarCodigoPayload): Promise<void> {
+    try {
+      await api.get(`api/login/ValidaCodigoRecuperacao`, {
+        params: {
+          codigo: payload.codigo,
+          email: payload.email
+        }
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error;
+      }
+      throw new Error('Erro ao validar código de recuperação. Tente novamente mais tarde.');
+    }
+  },
+
+  async recuperarSenha(payload: RecuperarSenhaPayload): Promise<void> {
+    try {
+      await api.get(`api/login/RecuperarSenha`, {
+        params: {
+          email: payload.email
+        }
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error;
+      }
+      throw new Error('Erro ao solicitar recuperação de senha. Tente novamente mais tarde.');
+    }
+  }
 }; 
