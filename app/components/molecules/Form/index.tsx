@@ -14,6 +14,7 @@ import Button from "@/app/components/atoms/Button";
 // Utils
 import { showErrorToast, showSuccessToast } from "@/utils/toast";
 import { CustomTooltip } from "@/utils/tooltip";
+import { regexPatterns, regexMessages } from "@/utils/regexPatterns";
 
 
 interface FormProps {
@@ -80,8 +81,8 @@ export default function Form({
                     placeholder="Digite seu email"
                     icon={<User />}
                     inputClassName="w-full"
-                    regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                    regexErrorMessage="Email inválido"
+                    regex={regexPatterns.email}
+                    regexErrorMessage={regexMessages.email}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -92,8 +93,8 @@ export default function Form({
                     placeholder="Digite sua senha"
                     icon={<Lock />}
                     inputClassName="w-full"
-                    regex="^(?!\s*$).+"
-                    regexErrorMessage="A senha não pode estar em branco"
+                    regex={regexPatterns.password}
+                    regexErrorMessage={regexMessages.password}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />

@@ -14,6 +14,7 @@ interface ButtonProps {
   hoverSwapColors?: boolean;
   disabled?: boolean;
   isLoading?: boolean;
+  loadingText?: string;
 }
 
 const Button = ({
@@ -30,6 +31,7 @@ const Button = ({
   hoverSwapColors = false,
   disabled = false,
   isLoading = false,
+  loadingText = 'Carregando...',
 }: ButtonProps) => {
   return (
     <button
@@ -79,7 +81,7 @@ const Button = ({
       {isLoading ? (
         <>
           <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          <span>Carregando...</span>
+          <span>{loadingText}</span>
         </>
       ) : (
         <>

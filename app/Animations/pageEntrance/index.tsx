@@ -14,6 +14,7 @@ export const PageEntrance = ({ children }: PageEntranceProps) => {
         duration: 0.5,
         ease: "easeOut",
       }}
+      className="flex items-center justify-center h-screen w-screen"
     >
       {children}
     </motion.div>
