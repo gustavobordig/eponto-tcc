@@ -1,3 +1,5 @@
+'use client';
+
 import { InputHTMLAttributes, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -8,7 +10,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   labelClassName?: string;
   inputClassName?: string;
   iconClassName?: string;
-  regex?: string;
+  regex?: RegExp;
   error?: string;
   onInputChange?: (value: string) => void;
   regexErrorMessage?: string;
@@ -84,13 +86,20 @@ const Input = ({
           `}
           onChange={(e) => {
             const value = e.target.value;
-            validateInput(value);
             
             if (onInputChange) {
               onInputChange(value);
             }
             if (props.onChange) {
               props.onChange(e);
+            }
+          }}
+          onBlur={(e) => {
+            const value = e.target.value;
+            validateInput(value);
+            
+            if (props.onBlur) {
+              props.onBlur(e);
             }
           }}
         />
