@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
 import Link from 'next/link';
+import { Toaster } from 'react-hot-toast';
 
 export default function AdminLayout({
   children,
@@ -15,9 +16,8 @@ export default function AdminLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const navigationItems = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/adicionar-usuario', label: 'Adicionar Usuário' },
-    { href: '/adicionar-cargo', label: 'Adicionar Cargo' },
+    { href: '/dashboard', label: 'Usuários' },
+    {href:"/dashboard/cargos", label:"Cargos"}
   ];
 
   useEffect(() => {
@@ -40,6 +40,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

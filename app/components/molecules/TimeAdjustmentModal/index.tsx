@@ -264,7 +264,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
             onChange={(value) => setFormData({ ...formData, saida: value })}
           />
 
-          {/* <div className="mb-6">
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Justificativa
             </label>
@@ -277,7 +277,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002085] min-h-[100px]
               text-gray-800"
             />
-          </div> */}
+          </div>
 
           <div className="flex gap-4">
             <Button
