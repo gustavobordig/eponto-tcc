@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
-import { listCargos, deleteCargo } from '@/services/cargo';
+import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2 } from 'lucide-react';
+// import { Pencil, Trash2 } from 'lucide-react';
 
 interface Cargo {
   idCargo: number;
@@ -22,15 +22,27 @@ interface ApiResponse {
   cargos: Cargo[];
 }
 
+interface CargoPayload {
+  idCargo: number;
+  nomeCargo: string;
+  salario: string;
+  indAtivo: number;
+}
+
 export default function CargosPage() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [cargoToDelete, setCargoToDelete] = useState<number | null>(null);
-  const [cargoToEdit, setCargoToEdit] = useState<Cargo | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [editedCargo, setEditedCargo] = useState<CargoPayload>({
+    idCargo: 0,
+    nomeCargo: '',
+    salario: '',
+    indAtivo: 1
+  });
   const router = useRouter();
 
   const fetchCargos = async () => {
@@ -51,20 +63,29 @@ export default function CargosPage() {
   }, []);
 
   const handleEdit = (cargo: Cargo) => {
-    setCargoToEdit(cargo);
+    setEditedCargo({
+      idCargo: cargo.idCargo,
+      nomeCargo: cargo.nomeCargo,
+      salario: cargo.salario,
+      indAtivo: cargo.indAtivo
+    });
     setIsEditModalOpen(true);
   };
 
   const handleEditClose = () => {
     setIsEditModalOpen(false);
-    setCargoToEdit(null);
+    setEditedCargo({
+      idCargo: 0,
+      nomeCargo: '',
+      salario: '',
+      indAtivo: 1
+    });
   };
 
-  const handleEditConfirm = async (editedCargo: Cargo) => {
+  const handleEditConfirm = async () => {
     setEditLoading(true);
     try {
-      // Aqui você deve implementar a chamada para atualizar o cargo
-      // await updateCargo(editedCargo);
+      await updateCargo(editedCargo);
       showSuccessToast('Cargo atualizado com sucesso!');
       fetchCargos();
       handleEditClose();
@@ -139,19 +160,19 @@ export default function CargosPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Nome do Cargo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Salário
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Ações
                 </th>
               </tr>
@@ -159,13 +180,13 @@ export default function CargosPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {cargos.map((cargo) => (
                 <tr key={cargo.idCargo} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                     {cargo.idCargo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {cargo.nomeCargo}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                     R$ {cargo.salario}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -203,47 +224,50 @@ export default function CargosPage() {
 
         {cargos.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Nenhum cargo cadastrado.</p>
+            <p className="text-black">Nenhum cargo cadastrado.</p>
           </div>
         )}
       </div>
 
       {/* Modal de edição */}
-      {isEditModalOpen && cargoToEdit && (
+      {isEditModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Cargo</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="nomeCargo" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="nomeCargo" className="block text-sm font-medium text-black">
                   Nome do Cargo
                 </label>
                 <input
                   type="text"
                   id="nomeCargo"
-                  defaultValue={cargoToEdit.nomeCargo}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedCargo.nomeCargo}
+                  onChange={(e) => setEditedCargo({ ...editedCargo, nomeCargo: e.target.value })}
+                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
               <div>
-                <label htmlFor="salario" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="salario" className="block text-sm font-medium text-black">
                   Salário
                 </label>
                 <input
                   type="text"
                   id="salario"
-                  defaultValue={cargoToEdit.salario}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedCargo.salario}
+                  onChange={(e) => setEditedCargo({ ...editedCargo, salario: e.target.value })}
+                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="status" className="block text-sm font-medium text-black">
                   Status
                 </label>
                 <select
                   id="status"
-                  defaultValue={cargoToEdit.indAtivo}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedCargo.indAtivo}
+                  onChange={(e) => setEditedCargo({ ...editedCargo, indAtivo: Number(e.target.value) })}
+                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
                   <option value={1}>Ativo</option>
                   <option value={0}>Inativo</option>
@@ -254,12 +278,12 @@ export default function CargosPage() {
               <button
                 onClick={handleEditClose}
                 disabled={editLoading}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Cancelar
               </button>
               <button
-                onClick={() => handleEditConfirm(cargoToEdit)}
+                onClick={handleEditConfirm}
                 disabled={editLoading}
                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
               >
@@ -282,14 +306,14 @@ export default function CargosPage() {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Confirmar exclusão</h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-black mb-6">
               Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita.
             </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={handleCancelDelete}
                 disabled={deleteLoading}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Cancelar
               </button>
