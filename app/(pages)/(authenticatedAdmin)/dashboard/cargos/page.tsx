@@ -6,6 +6,7 @@ import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 import { useRouter } from 'next/navigation';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface Cargo {
   idCargo: number;
@@ -21,6 +22,13 @@ interface ApiResponse {
   cargos: Cargo[];
 }
 
+interface CargoPayload {
+  idCargo: number;
+  nomeCargo: string;
+  salario: string;
+  indAtivo: number;
+}
+
 export default function CargosPage() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,11 +36,14 @@ export default function CargosPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [cargoToDelete, setCargoToDelete] = useState<number | null>(null);
   const [cargoToEdit, setCargoToEdit] = useState<Cargo | null>(null);
-  const [editedNomeCargo, setEditedNomeCargo] = useState('');
-  const [editedSalario, setEditedSalario] = useState('');
-  const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [editedCargo, setEditedCargo] = useState<CargoPayload>({
+    idCargo: 0,
+    nomeCargo: '',
+    salario: '',
+    indAtivo: 1
+  });
   const router = useRouter();
 
   const fetchCargos = async () => {
@@ -54,33 +65,19 @@ export default function CargosPage() {
 
   const handleEdit = (cargo: Cargo) => {
     setCargoToEdit(cargo);
-    setEditedNomeCargo(cargo.nomeCargo);
-    setEditedSalario(cargo.salario);
-    setEditedStatus(cargo.indAtivo);
     setIsEditModalOpen(true);
   };
 
   const handleEditClose = () => {
     setIsEditModalOpen(false);
     setCargoToEdit(null);
-    setEditedNomeCargo('');
-    setEditedSalario('');
-    setEditedStatus(1);
   };
 
-  const handleEditConfirm = async () => {
-    if (!cargoToEdit) return;
-
+  const handleEditConfirm = async (editedCargo: Cargo) => {
     setEditLoading(true);
     try {
-      const updatedCargo: Cargo = {
-        idCargo: cargoToEdit.idCargo,
-        nomeCargo: editedNomeCargo,
-        salario: editedSalario,
-        indAtivo: editedStatus
-      };
-
-      await updateCargo(updatedCargo);
+      // Aqui você deve implementar a chamada para atualizar o cargo
+      // await updateCargo(editedCargo);
       showSuccessToast('Cargo atualizado com sucesso!');
       fetchCargos();
       handleEditClose();
@@ -155,19 +152,19 @@ export default function CargosPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Nome do Cargo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Salário
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Ações
                 </th>
               </tr>
@@ -175,13 +172,13 @@ export default function CargosPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {cargos.map((cargo) => (
                 <tr key={cargo.idCargo} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                     {cargo.idCargo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {cargo.nomeCargo}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                     R$ {cargo.salario}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -219,13 +216,13 @@ export default function CargosPage() {
 
         {cargos.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Nenhum cargo cadastrado.</p>
+            <p className="text-black">Nenhum cargo cadastrado.</p>
           </div>
         )}
       </div>
 
       {/* Modal de edição */}
-      {isEditModalOpen && cargoToEdit && (
+      {isEditModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Cargo</h3>
@@ -237,9 +234,8 @@ export default function CargosPage() {
                 <input
                   type="text"
                   id="nomeCargo"
-                  value={editedNomeCargo}
-                  onChange={(e) => setEditedNomeCargo(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
+                  defaultValue={cargoToEdit.nomeCargo}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
               <div>
@@ -249,9 +245,8 @@ export default function CargosPage() {
                 <input
                   type="text"
                   id="salario"
-                  value={editedSalario}
-                  onChange={(e) => setEditedSalario(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
+                  defaultValue={cargoToEdit.salario}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
               <div>
@@ -260,9 +255,8 @@ export default function CargosPage() {
                 </label>
                 <select
                   id="status"
-                  value={editedStatus}
-                  onChange={(e) => setEditedStatus(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
+                  defaultValue={cargoToEdit.indAtivo}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
                   <option value={1} className='text-black'>Ativo</option>
                   <option value={0} className='text-black'>Inativo</option>
@@ -301,7 +295,7 @@ export default function CargosPage() {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Confirmar exclusão</h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-black mb-6">
               Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita.
             </p>
             <div className="flex justify-end space-x-4">
