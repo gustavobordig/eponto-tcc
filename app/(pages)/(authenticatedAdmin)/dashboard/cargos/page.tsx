@@ -22,13 +22,6 @@ interface ApiResponse {
   cargos: Cargo[];
 }
 
-interface CargoPayload {
-  idCargo: number;
-  nomeCargo: string;
-  salario: string;
-  indAtivo: number;
-}
-
 export default function CargosPage() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,14 +29,11 @@ export default function CargosPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [cargoToDelete, setCargoToDelete] = useState<number | null>(null);
   const [cargoToEdit, setCargoToEdit] = useState<Cargo | null>(null);
+  const [editedNomeCargo, setEditedNomeCargo] = useState('');
+  const [editedSalario, setEditedSalario] = useState('');
+  const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
-  const [editedCargo, setEditedCargo] = useState<CargoPayload>({
-    idCargo: 0,
-    nomeCargo: '',
-    salario: '',
-    indAtivo: 1
-  });
   const router = useRouter();
 
   const fetchCargos = async () => {
@@ -65,19 +55,33 @@ export default function CargosPage() {
 
   const handleEdit = (cargo: Cargo) => {
     setCargoToEdit(cargo);
+    setEditedNomeCargo(cargo.nomeCargo);
+    setEditedSalario(cargo.salario);
+    setEditedStatus(cargo.indAtivo);
     setIsEditModalOpen(true);
   };
 
   const handleEditClose = () => {
     setIsEditModalOpen(false);
     setCargoToEdit(null);
+    setEditedNomeCargo('');
+    setEditedSalario('');
+    setEditedStatus(1);
   };
 
-  const handleEditConfirm = async (editedCargo: Cargo) => {
+  const handleEditConfirm = async () => {
+    if (!cargoToEdit) return;
+
     setEditLoading(true);
     try {
-      // Aqui você deve implementar a chamada para atualizar o cargo
-      // await updateCargo(editedCargo);
+      const updatedCargo: Cargo = {
+        idCargo: cargoToEdit.idCargo,
+        nomeCargo: editedNomeCargo,
+        salario: editedSalario,
+        indAtivo: editedStatus
+      };
+
+      await updateCargo(updatedCargo);
       showSuccessToast('Cargo atualizado com sucesso!');
       fetchCargos();
       handleEditClose();
@@ -222,7 +226,7 @@ export default function CargosPage() {
       </div>
 
       {/* Modal de edição */}
-      {isEditModalOpen && (
+      {isEditModalOpen && cargoToEdit && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Cargo</h3>
@@ -234,8 +238,9 @@ export default function CargosPage() {
                 <input
                   type="text"
                   id="nomeCargo"
-                  defaultValue={cargoToEdit.nomeCargo}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedNomeCargo}
+                  onChange={(e) => setEditedNomeCargo(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
                 />
               </div>
               <div>
@@ -245,8 +250,9 @@ export default function CargosPage() {
                 <input
                   type="text"
                   id="salario"
-                  defaultValue={cargoToEdit.salario}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedSalario}
+                  onChange={(e) => setEditedSalario(e.target.value)}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
                 />
               </div>
               <div>
@@ -255,8 +261,9 @@ export default function CargosPage() {
                 </label>
                 <select
                   id="status"
-                  defaultValue={cargoToEdit.indAtivo}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  value={editedStatus}
+                  onChange={(e) => setEditedStatus(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
                 >
                   <option value={1} className='text-black'>Ativo</option>
                   <option value={0} className='text-black'>Inativo</option>
