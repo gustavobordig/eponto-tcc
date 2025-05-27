@@ -17,7 +17,8 @@ export default function AdminLayout({
 
   const navigationItems = [
     { href: '/dashboard', label: 'Usuários' },
-    {href:"/dashboard/cargos", label:"Cargos"}
+    {href:"/dashboard/cargos", label:"Cargos"},
+    {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
   ];
 
   useEffect(() => {

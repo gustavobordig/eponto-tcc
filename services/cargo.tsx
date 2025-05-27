@@ -29,7 +29,7 @@ export const listCargos = async () => {
 
 export const updateCargo = async (cargo: CargoPayload) => {
   try {
-    const response = await api.put('/api/Cargo/Atualizar', cargo);
+    const response = await api.put(`/api/Cargo/Atualizar/${cargo.idCargo}`, cargo);
     return response.data;
   } catch (error) {
     console.error('Erro ao atualizar cargo:', error);
@@ -39,7 +39,7 @@ export const updateCargo = async (cargo: CargoPayload) => {
 
 export const deleteCargo = async (idCargo: number) => {
   try {
-    const response = await api.delete(`/api/Cargo/Deletar/${idCargo}`);
+    const response = await api.put(`/api/Cargo/Deletar/${idCargo}`);
     return response.data;
   } catch (error) {
     console.error('Erro ao deletar cargo:', error);

@@ -2,127 +2,127 @@
 
 import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
-import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
+import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 import { useRouter } from 'next/navigation';
 
-interface Cargo {
-  idCargo: number;
-  nomeCargo: string;
-  salario: string;
+interface JornadaTrabalho {
+  idJornada: number;
+  nomeJornada: string;
+  qtdHorasMensais: number;
   indAtivo: number;
 }
 
 interface ApiResponse {
   sucesso: boolean;
   mensagem: string | null;
-  cargo: Cargo | null;
-  cargos: Cargo[];
+  jornada: JornadaTrabalho | null;
+  jornadas: JornadaTrabalho[];
 }
 
-export default function CargosPage() {
-  const [cargos, setCargos] = useState<Cargo[]>([]);
+export default function JornadaTrabalhoPage() {
+  const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [cargoToDelete, setCargoToDelete] = useState<number | null>(null);
-  const [cargoToEdit, setCargoToEdit] = useState<Cargo | null>(null);
-  const [editedNomeCargo, setEditedNomeCargo] = useState('');
-  const [editedSalario, setEditedSalario] = useState('');
+  const [jornadaToDelete, setJornadaToDelete] = useState<number | null>(null);
+  const [jornadaToEdit, setJornadaToEdit] = useState<JornadaTrabalho | null>(null);
+  const [editedNomeJornada, setEditedNomeJornada] = useState('');
+  const [editedQtdHorasMensais, setEditedQtdHorasMensais] = useState('');
   const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const router = useRouter();
 
-  const fetchCargos = async () => {
+  const fetchJornadas = async () => {
     try {
-      const response = await listCargos() as ApiResponse;
-      setCargos(response.cargos || []);
+      const response = await jornadaTrabalhoService.listar() as ApiResponse;
+      setJornadas(response.jornadas || []);
     } catch (error) {
-      showErrorToast('Erro ao carregar cargos');
-      console.error('Erro ao carregar cargos:', error);
-      setCargos([]);
+      showErrorToast('Erro ao carregar jornadas');
+      console.error('Erro ao carregar jornadas:', error);
+      setJornadas([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCargos();
+    fetchJornadas();
   }, []);
 
-  const handleEdit = (cargo: Cargo) => {
-    setCargoToEdit(cargo);
-    setEditedNomeCargo(cargo.nomeCargo);
-    setEditedSalario(cargo.salario);
-    setEditedStatus(cargo.indAtivo);
+  const handleEdit = (jornada: JornadaTrabalho) => {
+    setJornadaToEdit(jornada);
+    setEditedNomeJornada(jornada.nomeJornada);
+    setEditedQtdHorasMensais(jornada.qtdHorasMensais.toString());
+    setEditedStatus(jornada.indAtivo);
     setIsEditModalOpen(true);
   };
 
   const handleEditClose = () => {
     setIsEditModalOpen(false);
-    setCargoToEdit(null);
-    setEditedNomeCargo('');
-    setEditedSalario('');
+    setJornadaToEdit(null);
+    setEditedNomeJornada('');
+    setEditedQtdHorasMensais('');
     setEditedStatus(1);
   };
 
   const handleEditConfirm = async () => {
-    if (!cargoToEdit) return;
+    if (!jornadaToEdit) return;
 
     setEditLoading(true);
     try {
-      const updatedCargo: Cargo = {
-        idCargo: cargoToEdit.idCargo,
-        nomeCargo: editedNomeCargo,
-        salario: editedSalario,
+      const updatedJornada: JornadaTrabalho = {
+        idJornada: jornadaToEdit.idJornada,
+        nomeJornada: editedNomeJornada,
+        qtdHorasMensais: Number(editedQtdHorasMensais),
         indAtivo: editedStatus
       };
 
-      await updateCargo(updatedCargo);
-      showSuccessToast('Cargo atualizado com sucesso!');
-      fetchCargos();
+      await jornadaTrabalhoService.atualizar(jornadaToEdit.idJornada, updatedJornada);
+      showSuccessToast('Jornada atualizada com sucesso!');
+      fetchJornadas();
       handleEditClose();
     } catch (error) {
-      showErrorToast('Erro ao atualizar cargo. Tente novamente.');
-      console.error('Erro ao atualizar cargo:', error);
+      showErrorToast('Erro ao atualizar jornada. Tente novamente.');
+      console.error('Erro ao atualizar jornada:', error);
     } finally {
       setEditLoading(false);
     }
   };
 
-  const handleDeleteClick = (idCargo: number) => {
-    setCargoToDelete(idCargo);
+  const handleDeleteClick = (idJornada: number) => {
+    setJornadaToDelete(idJornada);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!cargoToDelete) {
-      showErrorToast('ID do cargo não encontrado');
+    if (!jornadaToDelete) {
+      showErrorToast('ID da jornada não encontrado');
       setIsDeleteModalOpen(false);
-      setCargoToDelete(null);
+      setJornadaToDelete(null);
       return;
     }
     
     setDeleteLoading(true);
     try {
-      await deleteCargo(cargoToDelete);
-      showSuccessToast('Cargo excluído com sucesso!');
-      fetchCargos();
+      await jornadaTrabalhoService.deletar(jornadaToDelete);
+      showSuccessToast('Jornada excluída com sucesso!');
+      fetchJornadas();
     } catch (error) {
-      showErrorToast('Erro ao excluir cargo. Tente novamente.');
-      console.error('Erro ao excluir cargo:', error);
+      showErrorToast('Erro ao excluir jornada. Tente novamente.');
+      console.error('Erro ao excluir jornada:', error);
     } finally {
       setDeleteLoading(false);
       setIsDeleteModalOpen(false);
-      setCargoToDelete(null);
+      setJornadaToDelete(null);
     }
   };
 
   const handleCancelDelete = () => {
     setIsDeleteModalOpen(false);
-    setCargoToDelete(null);
+    setJornadaToDelete(null);
   };
 
   if (loading) {
@@ -130,7 +130,7 @@ export default function CargosPage() {
       <Container className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando cargos...</p>
+          <p className="mt-4 text-gray-600">Carregando jornadas...</p>
         </div>
       </Container>
     );
@@ -140,13 +140,13 @@ export default function CargosPage() {
     <Container className="py-8">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Lista de Cargos</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Lista de Jornadas de Trabalho</h1>
           <div className="w-[200px]">
             <Button
-              text="Adicionar Cargo"
+              text="Adicionar Jornada"
               backgroundColor="bg-indigo-600"
               textColor="text-white"
-              onClick={() => router.push('/adicionar-cargo')}
+              onClick={() => router.push('/adicionar-jornada')}
             />
           </div>
         </div>
@@ -159,10 +159,10 @@ export default function CargosPage() {
                   ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nome do Cargo
+                  Nome da Jornada
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Salário
+                  Horas Mensais
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -173,38 +173,38 @@ export default function CargosPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {cargos.map((cargo) => (
-                <tr key={cargo.idCargo} className="hover:bg-gray-50">
+              {jornadas.map((jornada) => (
+                <tr key={jornada.idJornada} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {cargo.idCargo}
+                    {jornada.idJornada}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {cargo.nomeCargo}
+                    {jornada.nomeJornada}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    R$ {cargo.salario}
+                    {jornada.qtdHorasMensais} horas
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        cargo.indAtivo === 1
+                        jornada.indAtivo === 1
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {cargo.indAtivo === 1 ? 'Ativo' : 'Inativo'}
+                      {jornada.indAtivo === 1 ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleEdit(cargo)}
+                        onClick={() => handleEdit(jornada)}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         Editar
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(cargo.idCargo)}
+                        onClick={() => handleDeleteClick(jornada.idJornada)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Excluir
@@ -217,40 +217,40 @@ export default function CargosPage() {
           </table>
         </div>
 
-        {cargos.length === 0 && (
+        {jornadas.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">Nenhum cargo cadastrado.</p>
+            <p className="text-gray-500">Nenhuma jornada cadastrada.</p>
           </div>
         )}
       </div>
 
       {/* Modal de edição */}
-      {isEditModalOpen && cargoToEdit && (
+      {isEditModalOpen && jornadaToEdit && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Cargo</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Jornada</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="nomeCargo" className="block text-sm font-medium text-black">
-                  Nome do Cargo
+                <label htmlFor="nomeJornada" className="block text-sm font-medium text-black">
+                  Nome da Jornada
                 </label>
                 <input
                   type="text"
-                  id="nomeCargo"
-                  value={editedNomeCargo}
-                  onChange={(e) => setEditedNomeCargo(e.target.value)}
+                  id="nomeJornada"
+                  value={editedNomeJornada}
+                  onChange={(e) => setEditedNomeJornada(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
                 />
               </div>
               <div>
-                <label htmlFor="salario" className="block text-sm font-medium text-black">
-                  Salário
+                <label htmlFor="qtdHorasMensais" className="block text-sm font-medium text-black">
+                  Quantidade de Horas Mensais
                 </label>
                 <input
-                  type="text"
-                  id="salario"
-                  value={editedSalario}
-                  onChange={(e) => setEditedSalario(e.target.value)}
+                  type="number"
+                  id="qtdHorasMensais"
+                  value={editedQtdHorasMensais}
+                  onChange={(e) => setEditedQtdHorasMensais(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
                 />
               </div>
@@ -302,7 +302,7 @@ export default function CargosPage() {
           <div className="bg-white rounded-lg p-8 max-w-md w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Confirmar exclusão</h3>
             <p className="text-gray-500 mb-6">
-              Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir esta jornada? Esta ação não pode ser desfeita.
             </p>
             <div className="flex justify-end space-x-4">
               <button
