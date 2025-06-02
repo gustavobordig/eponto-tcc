@@ -19,6 +19,8 @@ export default function AdminLayout({
     { href: '/dashboard', label: 'Usuários' },
     {href:"/dashboard/cargos", label:"Cargos"},
     {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
+    {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
+    {href:"/dashboard/analytics", label:"Estatísticas"},
   ];
 
   useEffect(() => {

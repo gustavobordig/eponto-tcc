@@ -11,7 +11,7 @@ interface FuncionarioFilterProps {
 export function FuncionarioFilter({ selectedFuncionario, onFuncionarioChange }: FuncionarioFilterProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">Funcionário:</span>
+      <span className="text-sm font-medium text-black">Funcionário:</span>
       <Select
         value={selectedFuncionario.toString()}
         onValueChange={(value: string) => onFuncionarioChange(Number(value))}
