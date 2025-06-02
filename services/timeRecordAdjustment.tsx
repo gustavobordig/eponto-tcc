@@ -32,9 +32,11 @@ export const getAdjustmentRequest = async (id: number) => {
   }
 };
 
-export const validateAdjustmentRequest = async (id: number) => {
+export const validateAdjustmentRequest = async (id: number, status: number) => {
   try {
-    const response = await api.get(`/api/RegistroPonto/ValidarSolicitacao/${id}`);
+    const response = await api.post(`/api/RegistroPonto/ValidarSolicitacao/${id}`, {
+      aprovado: status === 1
+    });
     return response.data;
   } catch (error) {
     console.error('Erro ao validar solicitação de alteração:', error);
@@ -52,10 +54,9 @@ export const createAdjustmentRequest = async (payload: Omit<TimeRecordAdjustment
   }
 };
 
-export const updateAdjustmentRequest = async (id: number, status: string, observacao?: string) => {
+export const updateAdjustmentRequest = async (id: number, status: number, observacao?: string) => {
   try {
-    const response = await api.post('/api/RegistroPonto/AtualizarSolicitacaoAlteracao', {
-      id,
+    const response = await api.post(`/api/RegistroPonto/AtualizarSolicitacaoAlteracao/${id}`, {
       status,
       observacao
     });
