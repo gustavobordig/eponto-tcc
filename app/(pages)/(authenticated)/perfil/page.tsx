@@ -7,6 +7,7 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import ConfirmationModal from '@/app/components/atoms/ConfirmationModal';
 
 interface UserData {
+  idUsuario: number;
   nome: string;
   dataNascimento: string;
   senha: string;
@@ -14,10 +15,13 @@ interface UserData {
   telefone: number;
   idCargo: number;
   idJornada: number;
+  indAtivo: number;
+  teste: string;
 }
 
 export default function PerfilPage() {
   const [userData, setUserData] = useState<UserData>({
+    idUsuario: 0,
     nome: '',
     dataNascimento: '',
     senha: '',
@@ -25,6 +29,8 @@ export default function PerfilPage() {
     telefone: 0,
     idCargo: 0,
     idJornada: 0,
+    indAtivo: 1,
+    teste: '',
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);

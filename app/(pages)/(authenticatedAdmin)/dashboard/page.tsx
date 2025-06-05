@@ -13,10 +13,14 @@ import {
   Pencil, 
   Trash2, 
   Users,
-  UserX
+  UserX,
 } from 'lucide-react';
+import Button from '@/app/components/atoms/Button';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
+
+  const router = useRouter();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -121,6 +125,14 @@ export default function Dashboard() {
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
               Dashboard de Usuários
             </h2>
+          </div>
+          <div className="w-[200px]">
+            <Button
+              text="Adicionar Usuário"
+              backgroundColor="bg-indigo-600"
+              textColor="text-white"
+              onClick={() => router.push('/adicionar-usuario')}
+            />
           </div>
         </div>
 

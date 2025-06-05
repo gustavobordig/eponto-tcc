@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
 import Link from 'next/link';
+import { Toaster } from 'react-hot-toast';
 
 export default function AdminLayout({
   children,
@@ -12,8 +14,14 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+
+  const navigationItems = [
+    { href: '/dashboard', label: 'Usuários' },
+    {href:"/dashboard/cargos", label:"Cargos"},
+    {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
+    {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
+    {href:"/dashboard/analytics", label:"Estatísticas"},
+  ];
 
   useEffect(() => {
     // Verificar se já está autenticado
@@ -23,17 +31,6 @@ export default function AdminLayout({
     }
   }, []);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === '123') {
-      setIsAuthenticated(true);
-      localStorage.setItem('adminAuthenticated', 'true');
-      setError('');
-    } else {
-      setError('Senha incorreta');
-    }
-  };
-
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('adminAuthenticated');
@@ -41,56 +38,12 @@ export default function AdminLayout({
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Acesso Administrativo
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Digite a senha para acessar a área administrativa
-            </p>
-          </div>
-          <form className="mt-8 space-y-6" onSubmit={handlePasswordSubmit}>
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Senha
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Senha"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-red-500 text-sm text-center">{error}</div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Entrar
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
+    return <AdminAuthForm onAuthenticate={setIsAuthenticated} />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -99,26 +52,19 @@ export default function AdminLayout({
                 <span className="text-xl font-bold text-indigo-600">Admin</span>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className={`${
-                    pathname === '/dashboard'
-                      ? 'border-indigo-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/adicionar-usuario"
-                  className={`${
-                    pathname === '/adicionar-usuario'
-                      ? 'border-indigo-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
-                >
-                  Adicionar Usuário
-                </Link>
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${
+                      pathname === item.href
+                        ? 'border-indigo-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
             </div>
             <div className="flex items-center">
