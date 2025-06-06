@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Table from '@/app/components/atoms/Table';
 import LoadingText from '@/app/components/atoms/LoadingText';
 import Container from '@/app/components/atoms/container';
+import EditModal from '@/app/components/atoms/EditModal';
+import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 
 //Services
 import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
@@ -45,7 +47,6 @@ export default function CargosPage() {
   const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
-  const router = useRouter();
 
   const columns: Column[] = [
     { key: 'idCargo', label: 'ID' },
@@ -111,8 +112,8 @@ export default function CargosPage() {
     }
   };
 
-  const handleDeleteClick = (idCargo: number) => {
-    setCargoToDelete(idCargo);
+  const handleDeleteClick = (cargo: Cargo) => {
+    setCargoToDelete(cargo.idCargo);
     setIsDeleteModalOpen(true);
   };
 
@@ -152,204 +153,51 @@ export default function CargosPage() {
     <Container className="py-8">
 
       {/* Tabela de Cargos */}
-      {/* <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Lista de Cargos</h1>
-          <div className="w-[200px]">
-            <Button
-              text="Adicionar Cargo"
-              backgroundColor="bg-indigo-600"
-              textColor="text-white"
-              onClick={() => router.push('/adicionar-cargo')}
-            />
-          </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Nome do Cargo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Salário
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {cargos.map((cargo) => (
-                <tr key={cargo.idCargo} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {cargo.idCargo}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {cargo.nomeCargo}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    R$ {cargo.salario}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        cargo.indAtivo === 1
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {cargo.indAtivo === 1 ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(cargo)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(cargo.idCargo)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {cargos.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-black">Nenhum cargo cadastrado.</p>
-          </div>
-        )}
-      </div> */}
       <Table
         data={cargos}
         title="Cargos"
         columns={columns}
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
+        addItemHref="/adicionar-cargo"
       />
 
       {/* Modal de edição */}
       {isEditModalOpen && cargoToEdit && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Editar Cargo</h3>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="nomeCargo" className="block text-sm font-medium text-black">
-                  Nome do Cargo
-                </label>
-                <input
-                  type="text"
-                  id="nomeCargo"
-                  value={editedNomeCargo}
-                  onChange={(e) => setEditedNomeCargo(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-                />
-              </div>
-              <div>
-                <label htmlFor="salario" className="block text-sm font-medium text-black">
-                  Salário
-                </label>
-                <input
-                  type="text"
-                  id="salario"
-                  value={editedSalario}
-                  onChange={(e) => setEditedSalario(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-                />
-              </div>
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-black">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={editedStatus}
-                  onChange={(e) => setEditedStatus(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-                >
-                  <option value={1} className='text-black'>Ativo</option>
-                  <option value={0} className='text-black'>Inativo</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                onClick={handleEditClose}
-                disabled={editLoading}
-                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleEditConfirm}
-                disabled={editLoading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-              >
-                {editLoading ? (
-                  <div className="flex items-center">
-                    <div className="h-4 w-4 mr-2 border-t-2 border-white rounded-full animate-spin"></div>
-                    Salvando...
-                  </div>
-                ) : (
-                  'Salvar'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditModal
+          title="Editar Cargo"
+          fields={[
+            {
+              label: "Nome do Cargo",
+              value: editedNomeCargo,
+              onChange: (e) => setEditedNomeCargo(e.target.value)
+            },
+            {
+              label: "Salário",
+              value: editedSalario,
+              onChange: (e) => setEditedSalario(e.target.value)
+            },
+            {
+              label: "Status",
+              value: editedStatus.toString(),
+              onChange: (e) => setEditedStatus(Number(e.target.value))
+            }
+          ]}
+          onClose={handleEditClose}
+          onConfirm={handleEditConfirm}
+          loading={editLoading}
+        />
       )}
 
       {/* Modal de confirmação de exclusão */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Confirmar exclusão</h3>
-            <p className="text-black mb-6">
-              Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={handleCancelDelete}
-                disabled={deleteLoading}
-                className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                disabled={deleteLoading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-              >
-                {deleteLoading ? (
-                  <div className="flex items-center">
-                    <div className="h-4 w-4 mr-2 border-t-2 border-white rounded-full animate-spin"></div>
-                    Excluindo...
-                  </div>
-                ) : (
-                  'Excluir'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ExcludeModal
+          title="Confirmar exclusão"
+          message="Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita."
+          onCancel={handleCancelDelete}
+          onConfirm={handleDeleteConfirm}
+          loading={deleteLoading}
+        />
       )}
     </Container>
   );

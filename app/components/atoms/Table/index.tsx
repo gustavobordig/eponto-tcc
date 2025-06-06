@@ -10,6 +10,7 @@ interface TableProps {
   columns: Column[];
   handleEdit?: (item: any) => void;
   handleDeleteClick?: (item: any) => void;
+  addItemHref?: string;
 }
 
 export default function Table({ 
@@ -17,7 +18,8 @@ export default function Table({
     title,
     columns,
     handleEdit,
-    handleDeleteClick
+    handleDeleteClick,  
+    addItemHref
 }: TableProps) {
   const router = useRouter();
 
@@ -53,15 +55,17 @@ export default function Table({
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Lista de {title}</h1>
-          <div className="w-fit">
-            <Button
-              text={`Adicionar ${title}`}
+          {addItemHref && (
+            <div className="w-fit">
+              <Button
+                text={`Adicionar ${title}`}
               backgroundColor="bg-indigo-600"
               textColor="text-white"
               className="whitespace-nowrap p-2"
-              onClick={() => router.push(`/adicionar-${title}`)}
-            />
-          </div>
+                onClick={() => router.push(`${addItemHref}`)}
+              />
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -96,19 +100,21 @@ export default function Table({
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
-                        onClick={() => handleEdit(item)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(item.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
+                          onClick={() => handleEdit(item)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          Editar
+                        </button>
+                        {item.indAtivo === 1 && (
+                          <button
+                            onClick={() => handleDeleteClick(item)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Excluir
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   )}
                 </tr>
               ))}

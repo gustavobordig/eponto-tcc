@@ -158,6 +158,7 @@ export default function AjustesPontoPage() {
   return (
     <Container className="py-8">
 
+      {/* Tabela de Solicitações de Ajuste de Ponto */}
       <Table
         data={solicitacoes}
         columns={columns}
