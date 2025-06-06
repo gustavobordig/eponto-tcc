@@ -6,6 +6,12 @@ import { listAdjustmentRequests, validateAdjustmentRequest } from '@/services/ti
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 
+//Components
+import Table from '@/app/components/atoms/Table';
+
+//Types
+import { Column } from '@/types';
+
 interface ItemRegistro {
   horaRegistro: string;
   idTipoRegistroPonto: number;
@@ -35,6 +41,28 @@ export default function AjustesPontoPage() {
   const [selectedStatus, setSelectedStatus] = useState<number>(0);
   const [updateLoading, setUpdateLoading] = useState(false);
 
+  const columns: Column[] = [
+    { key: 'idSolicitante', label: 'ID Solicitante' },
+    { key: 'dataRegistroAlteracao', label: 'Data Alteração', type: 'date' },
+    { key: 'justificativa', label: 'Justificativa' },
+    { key: 'statusSolicitacao', label: 'Status', type: 'status' },
+    { 
+      key: 'itens', 
+      label: 'Registros',
+      type: 'custom',
+      render: (item: SolicitacaoAjuste) => (
+        <div>
+          {item.itens.map((registro, i) => (
+            <div key={i} className="text-sm">
+              {formatarHora(registro.horaRegistro)} - 
+              {registro.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
+            </div>
+          ))}
+        </div>
+      )
+    }
+  ];
+  
   const fetchSolicitacoes = async () => {
     try {
       const response = await listAdjustmentRequests() as ApiResponse;
@@ -129,80 +157,12 @@ export default function AjustesPontoPage() {
 
   return (
     <Container className="py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Solicitações de Ajuste de Ponto</h1>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  ID Solicitante
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Data Alteração
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Justificativa
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Registros
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Array.isArray(solicitacoes) && solicitacoes.map((solicitacao, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.idSolicitante}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {formatarData(solicitacao.dataRegistroAlteracao)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.justificativa}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(solicitacao.statusSolicitacao)}`}>
-                      {getStatusText(solicitacao.statusSolicitacao)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.itens.map((item, i) => (
-                      <div key={i}>
-                        {formatarHora(item.horaRegistro)} - 
-                        {item.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleViewDetails(index)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Ver Detalhes
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
-        {(!Array.isArray(solicitacoes) || solicitacoes.length === 0) && (
-          <div className="text-center py-8">
-            <p className="text-black">Nenhuma solicitação encontrada.</p>
-          </div>
-        )}
-      </div>
+      <Table
+        data={solicitacoes}
+        columns={columns}
+        title="Solicitações de Ajuste de Ponto"
+      />
 
       {/* Modal de Detalhes */}
       {isDetailModalOpen && selectedSolicitacao && (

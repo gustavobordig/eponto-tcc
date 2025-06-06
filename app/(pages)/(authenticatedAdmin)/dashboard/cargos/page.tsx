@@ -1,12 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Container from '@/app/components/atoms/container';
-import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import Button from '@/app/components/atoms/Button';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2 } from 'lucide-react';
+
+//Components
+import Table from '@/app/components/atoms/Table';
+import LoadingText from '@/app/components/atoms/LoadingText';
+import Container from '@/app/components/atoms/container';
+
+//Services
+import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
+
+//Utils
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
+
+//Types
+import { Column } from '@/types';
+
 
 interface Cargo {
   idCargo: number;
@@ -23,6 +33,7 @@ interface ApiResponse {
 }
 
 export default function CargosPage() {
+  
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -35,6 +46,13 @@ export default function CargosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const router = useRouter();
+
+  const columns: Column[] = [
+    { key: 'idCargo', label: 'ID' },
+    { key: 'nomeCargo', label: 'Nome do Cargo' },
+    { key: 'salario', label: 'Salário', type: 'currency' },
+    { key: 'indAtivo', label: 'Status', type: 'status' }
+  ];
 
   const fetchCargos = async () => {
     try {
@@ -127,19 +145,14 @@ export default function CargosPage() {
   };
 
   if (loading) {
-    return (
-      <Container className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando cargos...</p>
-        </div>
-      </Container>
-    );
+    return <LoadingText title="cargos" />
   }
 
   return (
     <Container className="py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
+
+      {/* Tabela de Cargos */}
+      {/* <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Lista de Cargos</h1>
           <div className="w-[200px]">
@@ -223,7 +236,14 @@ export default function CargosPage() {
             <p className="text-black">Nenhum cargo cadastrado.</p>
           </div>
         )}
-      </div>
+      </div> */}
+      <Table
+        data={cargos}
+        title="Cargos"
+        columns={columns}
+        handleEdit={handleEdit}
+        handleDeleteClick={handleDeleteClick}
+      />
 
       {/* Modal de edição */}
       {isEditModalOpen && cargoToEdit && (

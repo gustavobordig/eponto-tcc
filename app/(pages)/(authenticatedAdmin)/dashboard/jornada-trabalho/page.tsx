@@ -7,6 +7,13 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 import { useRouter } from 'next/navigation';
 
+//Components
+import Table from '@/app/components/atoms/Table';
+
+//Types
+import { Column } from '@/types';
+
+
 interface JornadaTrabalho {
   idJornada: number;
   nomeJornada: string;
@@ -34,6 +41,31 @@ export default function JornadaTrabalhoPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const router = useRouter();
+
+ 
+
+  const columns: Column[] = [
+    {
+      key: 'idJornada',
+      label: 'ID',
+      type: 'text'
+    },
+    {
+      key: 'nomeJornada',
+      label: 'Nome da Jornada',
+      type: 'text'
+    },
+    {
+      key: 'qtdHorasMensais',
+      label: 'Quantidade de Horas Mensais',
+      type: 'text'
+    },
+    {
+      key: 'indAtivo',
+      label: 'Status',
+      type: 'status'
+    } 
+  ]   
 
   const fetchJornadas = async () => {
     try {
@@ -138,91 +170,16 @@ export default function JornadaTrabalhoPage() {
 
   return (
     <Container className="py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Lista de Jornadas de Trabalho</h1>
-          <div className="w-[200px]">
-            <Button
-              text="Adicionar Jornada"
-              backgroundColor="bg-indigo-600"
-              textColor="text-white"
-              onClick={() => router.push('/adicionar-jornada')}
-            />
-          </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nome da Jornada
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Horas Mensais
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {jornadas.map((jornada) => (
-                <tr key={jornada.idJornada} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {jornada.idJornada}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {jornada.nomeJornada}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {jornada.qtdHorasMensais} horas
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        jornada.indAtivo === 1
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {jornada.indAtivo === 1 ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(jornada)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(jornada.idJornada)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
-        {jornadas.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Nenhuma jornada cadastrada.</p>
-          </div>
-        )}
-      </div>
+
+       {/* Tabela de Jornadas de Trabalho */}
+      <Table
+        data={jornadas}
+        columns={columns}   
+        title="Jornadas de Trabalho"
+        handleEdit={handleEdit}
+        handleDeleteClick={handleDeleteClick}
+      />
 
       {/* Modal de edição */}
       {isEditModalOpen && jornadaToEdit && (
