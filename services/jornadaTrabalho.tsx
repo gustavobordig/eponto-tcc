@@ -2,7 +2,7 @@ import api from './api';
 
 interface JornadaTrabalho {
   nomeJornada: string;
-  qtdHorasMensais: number;
+  qtdHorasDiarias: number;
 }
 
 export const jornadaTrabalhoService = {

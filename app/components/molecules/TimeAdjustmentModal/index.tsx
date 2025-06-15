@@ -104,45 +104,84 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
+          const formatted = `${year}-${month}-${day}`;
+          console.log("Data formatada:", formatted);
+          return formatted;
         } catch (error) {
           console.error('Erro ao formatar data:', error);
           return new Date().toISOString().split('T')[0];
         }
       };
 
-      const targetDate = selectedDate ? formatDate(new Date(selectedDate)) : formatDate(new Date());
+      // Converter a data do formato pt-BR para Date
+      const parseDate = (dateStr: string) => {
+        if (!dateStr) return new Date();
+        
+        console.log("Data recebida para parse:", dateStr);
+        
+        // Remove o dia da semana e espaços extras
+        const cleanDateStr = dateStr.replace(/^[a-záàâãéèêíïóôõöúçñ]+,?\s*/i, '').trim();
+        console.log("Data limpa:", cleanDateStr);
+        
+        // Verifica se a string está no formato correto (DD/MM/YYYY)
+        const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+        const match = cleanDateStr.match(dateRegex);
+        
+        if (!match) {
+          console.error('Formato de data inválido:', cleanDateStr);
+          return new Date();
+        }
+
+        const [, day, month, year] = match;
+        console.log("Componentes da data:", { day, month, year });
+        
+        // Criar a data no timezone local
+        const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
+        console.log("Data após parse:", parsedDate.toISOString());
+        
+        // Validação adicional para garantir que a data é válida
+        if (isNaN(parsedDate.getTime())) {
+          console.error('Data inválida após conversão:', cleanDateStr);
+          return new Date();
+        }
+        
+        return parsedDate;
+      };
+
+      const targetDate = selectedDate ? formatDate(parseDate(selectedDate)) : formatDate(new Date());
+      console.log("Data selecionada original:", selectedDate);
+      console.log("Data final formatada:", targetDate);
       
       if (!targetDate || targetDate === 'Invalid Date') {
         toast.error('Data selecionada inválida. Por favor, selecione uma data válida.');
         return;
       }
 
-      console.log("registrosDoDia: ", registrosDoDia);
+      console.log("targetDate: ", targetDate);
 
       const payload = {
-        idUsuario: parseInt(userId),
-        dataRegistro: targetDate,
+        idSolicitante: parseInt(userId),
+        dataRegistroAlteracao: targetDate,
         justificativa: formData.justificativa,
         itens: [
           ...(formData.entrada.time ? [{
             ...(registrosDoDia?.entrada ? { idRegistro: registrosDoDia.entrada } : {}),
-            horaRegistro: formData.entrada.time,
+            horaRegistro: `${targetDate}T${formData.entrada.time}:00`,
             idTipoRegistroPonto: 1
           }] : []),
           ...(formData.inicioAlmoco.time ? [{
             ...(registrosDoDia?.inicioAlmoco ? { idRegistro: registrosDoDia.inicioAlmoco } : {}),
-            horaRegistro: formData.inicioAlmoco.time,
+            horaRegistro: `${targetDate}T${formData.inicioAlmoco.time}:00`,
             idTipoRegistroPonto: 2
           }] : []),
           ...(formData.fimAlmoco.time ? [{
             ...(registrosDoDia?.fimAlmoco ? { idRegistro: registrosDoDia.fimAlmoco } : {}),
-            horaRegistro: formData.fimAlmoco.time,
+            horaRegistro: `${targetDate}T${formData.fimAlmoco.time}:00`,
             idTipoRegistroPonto: 3
           }] : []),
           ...(formData.saida.time ? [{
             ...(registrosDoDia?.saida ? { idRegistro: registrosDoDia.saida } : {}),
-            horaRegistro: formData.saida.time,
+            horaRegistro: `${targetDate}T${formData.saida.time}:00`,
             idTipoRegistroPonto: 4
           }] : [])
         ]

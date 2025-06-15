@@ -7,6 +7,7 @@ import { AnimatedButton } from "@/app/components/atoms/AnimatedButton";
 import { TimeAdjustmentModal } from "@/app/components/molecules/TimeAdjustmentModal";
 import { useState, useEffect } from "react";
 import { getUserTimeRecords } from "@/services/timeRecord";
+import { bancoHorasService } from "@/services/bancoHoras";
 import { tokenUtils } from "@/utils/token";
 import { getHorariosDoDia } from "@/utils/timeUtils";
 import { formatInTimeZone } from 'date-fns-tz';
@@ -18,7 +19,7 @@ interface RegistroPonto {
   entradaSaida: string;
   horasExtras: string;
   faltantes: string;
-  saldo: string;
+  dataOriginal: string;
 }
 
 interface ApiRegistroPonto {
@@ -46,10 +47,8 @@ export default function HistoricoContainer() {
         const response = await getUserTimeRecords(Number(userId));
 
         if (response.sucesso && response.registros) {
-          // Armazena os registros da API para uso posterior
           setRegistrosApi(response.registros);
 
-          // Agrupa os registros por data
           const registrosPorData = response.registros.reduce((acc: { [key: string]: ApiRegistroPonto[] }, reg: ApiRegistroPonto) => {
             const data = reg.dataRegistro.split('T')[0];
             if (!acc[data]) {
@@ -59,29 +58,17 @@ export default function HistoricoContainer() {
             return acc;
           }, {});
 
-          // Formata os registros para exibição
-          const registrosFormatados = (Object.entries(registrosPorData) as [string, ApiRegistroPonto[]][]).map(([data, regs]) => {
-            
-            console.log("data kkk: ", data);
-
-            // Extrair ano, mês e dia da string de data
+          const registrosFormatados = await Promise.all((Object.entries(registrosPorData) as [string, ApiRegistroPonto[]][]).map(async ([data, regs]) => {
             const [ano, mes, dia] = data.split('-').map(Number);
-            
-            // Criar uma data usando os componentes extraídos
             const dataObj = new Date(ano, mes - 1, dia);
-            
-            // Formatar a data usando formatInTimeZone
-            const dataFormatada = formatInTimeZone(dataObj, 'America/Sao_Paulo', 'EEE, dd/MM', {
+            const dataFormatada = formatInTimeZone(dataObj, 'America/Sao_Paulo', 'EEE, dd/MM/yyyy', {
               locale: ptBR
             });
 
-
-            // Ordena os registros por hora
             regs.sort((a: ApiRegistroPonto, b: ApiRegistroPonto) => 
               new Date(a.horaRegistro).getTime() - new Date(b.horaRegistro).getTime()
             );
 
-            // Pega o primeiro e último registro do dia
             const primeiroRegistro = regs[0];
             const ultimoRegistro = regs[regs.length - 1];
 
@@ -95,20 +82,45 @@ export default function HistoricoContainer() {
               minute: '2-digit'
             }) : '--:--';
 
-            // Se houver apenas um registro, mostra a entrada com 'xx'
             const entradaSaida = regs.length === 1 ? `${entrada} - xx` : `${entrada} - ${saida}`;
+
+            // Obtém os saldos diários do banco de horas
+            try {
+              const response = await bancoHorasService.obterSaldosDiarios(Number(userId));
+              
+              if (response.sucesso && response.saldosDiarios && response.saldosDiarios.length > 0) {
+                // Encontra o saldo correspondente à data atual
+                const saldoDoDia = response.saldosDiarios.find(saldo => 
+                  saldo.dataReferencia.split('T')[0] === data
+                );
+
+                if (saldoDoDia) {
+                  // Converte o saldo para o formato desejado
+                  const saldo = saldoDoDia.saldoDiario;
+                  const horasExtras = saldo.startsWith('-') ? "00:00" : saldo;
+                  const faltantes = saldo.startsWith('-') ? saldo.substring(1) : "00:00";
+
+                  return {
+                    data: dataFormatada,
+                    dataOriginal: data,
+                    entradaSaida,
+                    horasExtras,
+                    faltantes
+                  };
+                }
+              }
+            } catch (error) {
+              console.error('Erro ao obter saldos diários:', error);
+            }
 
             return {
               data: dataFormatada,
+              dataOriginal: data,
               entradaSaida,
-              horasExtras: "00:00", // TODO: Calcular horas extras
-              faltantes: "00:00", // TODO: Calcular horas faltantes
-              saldo: "00:00" // TODO: Calcular saldo
+              horasExtras: "00:00",
+              faltantes: "00:00"
             };
-          });
-
-          console.log("registrosApi: ", registrosApi);
-          console.log("registrosFormatados: ", registrosFormatados);
+          }));
 
           setRegistros(registrosFormatados);
         }
@@ -163,20 +175,19 @@ export default function HistoricoContainer() {
                 <th className="p-4 text-center">Entrada/saída</th>
                 <th className="p-4 text-center">Horas extras</th>
                 <th className="p-4 text-center">Faltantes</th>
-                <th className="p-4 text-center">Saldo</th>
                 <th className="p-4 text-center">Ajuste</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="p-4 text-center text-gray-500">
+                  <td colSpan={5} className="p-4 text-center text-gray-500">
                     Carregando registros...
                   </td>
                 </tr>
               ) : registros.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-4 text-center text-gray-500">
+                  <td colSpan={5} className="p-4 text-center text-gray-500">
                     Nenhum registro encontrado
                   </td>
                 </tr>
@@ -190,7 +201,6 @@ export default function HistoricoContainer() {
                     <td className="p-4 text-[#002085] text-center">{registro.entradaSaida}</td>
                     <td className="p-4 text-green-500 text-center">{registro.horasExtras}</td>
                     <td className="p-4 text-red-500 text-center">{registro.faltantes}</td>
-                    <td className="p-4 text-[#002085] text-center">{registro.saldo}</td>
                     <td className="p-4 text-center">
                       <AnimatedButton 
                         className="text-gray-500 hover:text-gray-700 p-2

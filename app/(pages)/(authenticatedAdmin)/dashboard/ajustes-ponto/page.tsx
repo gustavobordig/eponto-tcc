@@ -82,8 +82,11 @@ export default function AjustesPontoPage() {
     if (!selectedSolicitacao) return;
 
     setUpdateLoading(true);
+
+    console.log("selectedSolicitacao", selectedSolicitacao);
+
     try {
-      await validateAdjustmentRequest(selectedSolicitacao.idSolicitante, selectedStatus);
+      await validateAdjustmentRequest(selectedSolicitacao.idSolicitacao, selectedStatus);
       showSuccessToast(`Solicitação ${selectedStatus === 1 ? 'aprovada' : 'reprovada'} com sucesso!`);
       fetchSolicitacoes();
       handleCloseModal();
@@ -149,6 +152,7 @@ export default function AjustesPontoPage() {
       <Table
         data={solicitacoes}
         columns={columns}
+        isAjustePonto={true}
         title="Solicitações de Ajuste de Ponto"
         handleEdit={handleEdit}
       />
@@ -161,25 +165,29 @@ export default function AjustesPontoPage() {
             {
               label: "ID Solicitante",
               value: selectedSolicitacao.idSolicitante.toString(),
-              onChange: () => {}
+              onChange: () => {},
+              readOnly: true
             },
             {
               label: "Data Alteração",
               value: formatarData(selectedSolicitacao.dataRegistroAlteracao),
-              onChange: () => {}
+              onChange: () => {},
+              readOnly: true
             },
             {
               label: "Justificativa",
               value: selectedSolicitacao.justificativa,
-              onChange: () => {}
+              onChange: () => {},
+              readOnly: true
             },
             {
               label: "Status Atual",
               value: getStatusText(selectedSolicitacao.statusSolicitacao),
-              onChange: () => {}
+              onChange: () => {},
+              readOnly: true
             },
             ...(selectedSolicitacao.statusSolicitacao === 0 ? [{
-              label: "Ação",
+              label: "Decisão",
               value: selectedStatus.toString(),
               onChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => setSelectedStatus(Number(e.target.value)),
               type: "select" as const,
@@ -187,12 +195,14 @@ export default function AjustesPontoPage() {
                 { value: "0", label: "Selecione uma ação" },
                 { value: "1", label: "Aprovar" },
                 { value: "2", label: "Reprovar" }
-              ]
+              ],
+              required: true
             }] : [])
           ]}
           onClose={handleCloseModal}
           onConfirm={selectedSolicitacao.statusSolicitacao === 0 ? handleUpdateStatus : undefined}
           loading={updateLoading}
+          confirmText={selectedSolicitacao.statusSolicitacao === 0 ? "Confirmar Decisão" : undefined}
         />
       )}
     </Container>

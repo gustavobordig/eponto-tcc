@@ -7,18 +7,25 @@ interface BancoHorasItem {
   saldo: string;
 }
 
+interface SaldoDiario {
+  idSaldoDiarioBancoHoras: number;
+  idUsuario: number;
+  saldoDiario: string;
+  dataReferencia: string;
+}
+
 interface BancoHorasResponse {
   sucesso: boolean;
   mensagem: string | null;
-  saldosDiarios: any | null;
-  bancoHoras: BancoHorasItem[];
+  saldosDiarios: SaldoDiario[] | null;
+  bancoHoras: BancoHorasItem[] | null;
 }
 
 export const bancoHorasService = {
   // Processa o banco de horas para um usuário em uma data específica
   processarBancoHoras: async (userId: number, data: string): Promise<void> => {
     try {
-      await api.post(`/BancoHoras/Processar/${userId}?data=${data}`);
+      await api.post(`/api/BancoHoras/Processar/${userId}?data=${data}`);
     } catch (error) {
       console.error('Erro ao processar banco de horas:', error);
       throw error;
@@ -26,9 +33,9 @@ export const bancoHorasService = {
   },
 
   // Obtém os saldos diários do banco de horas para um usuário
-  obterSaldosDiarios: async (userId: number): Promise<BancoHorasResponse[]> => {
+  obterSaldosDiarios: async (userId: number): Promise<BancoHorasResponse> => {
     try {
-      const response = await api.get(`/BancoHoras/SaldosDiarios/${userId}`);
+      const response = await api.get(`/api/BancoHoras/SaldosDiarios/${userId}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao obter saldos diários:', error);
@@ -72,7 +79,7 @@ export const bancoHorasService = {
         sucesso: false,
         mensagem: error.response?.data?.message || error.message || 'Erro ao buscar saldo de horas',
         saldosDiarios: null,
-        bancoHoras: []
+        bancoHoras: null
       };
     }
   },

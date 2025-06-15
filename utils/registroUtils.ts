@@ -11,7 +11,6 @@ interface RegistroPonto {
   entradaSaida: string;
   horasExtras: string;
   faltantes: string;
-  saldo: string;
 }
 
 export const getIdRegistroDoDia = (

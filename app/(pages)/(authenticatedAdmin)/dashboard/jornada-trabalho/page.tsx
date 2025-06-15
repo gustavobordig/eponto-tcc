@@ -18,7 +18,7 @@ import { Column } from '@/types';
 interface JornadaTrabalho {
   idJornada: number;
   nomeJornada: string;
-  qtdHorasMensais: number;
+  qtdHorasDiarias: number;
   indAtivo: number;
 }
 
@@ -37,7 +37,7 @@ export default function JornadaTrabalhoPage() {
   const [jornadaToDelete, setJornadaToDelete] = useState<number | null>(null);
   const [jornadaToEdit, setJornadaToEdit] = useState<JornadaTrabalho | null>(null);
   const [editedNomeJornada, setEditedNomeJornada] = useState('');
-  const [editedQtdHorasMensais, setEditedQtdHorasMensais] = useState('');
+  const [editedqtdHorasDiarias, setEditedqtdHorasDiarias] = useState('');
   const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -56,8 +56,8 @@ export default function JornadaTrabalhoPage() {
       type: 'text'
     },
     {
-      key: 'qtdHorasMensais',
-      label: 'Quantidade de Horas Mensais',
+      key: 'qtdHorasDiarias',
+      label: 'Quantidade de Horas Diárias',
       type: 'text'
     },
     {
@@ -85,10 +85,14 @@ export default function JornadaTrabalhoPage() {
   }, []);
 
   const handleEdit = (jornada: JornadaTrabalho) => {
+    if (!jornada || !jornada.idJornada) {
+      showErrorToast('Dados da jornada inválidos');
+      return;
+    }
     setJornadaToEdit(jornada);
-    setEditedNomeJornada(jornada.nomeJornada);
-    setEditedQtdHorasMensais(jornada.qtdHorasMensais.toString());
-    setEditedStatus(jornada.indAtivo);
+    setEditedNomeJornada(jornada.nomeJornada || '');
+    setEditedqtdHorasDiarias(jornada.qtdHorasDiarias?.toString() || '');
+    setEditedStatus(jornada.indAtivo || 1);
     setIsEditModalOpen(true);
   };
 
@@ -96,7 +100,7 @@ export default function JornadaTrabalhoPage() {
     setIsEditModalOpen(false);
     setJornadaToEdit(null);
     setEditedNomeJornada('');
-    setEditedQtdHorasMensais('');
+    setEditedqtdHorasDiarias('');
     setEditedStatus(1);
   };
 
@@ -106,10 +110,8 @@ export default function JornadaTrabalhoPage() {
     setEditLoading(true);
     try {
       const updatedJornada: JornadaTrabalho = {
-        idJornada: jornadaToEdit.idJornada,
         nomeJornada: editedNomeJornada,
-        qtdHorasMensais: Number(editedQtdHorasMensais),
-        indAtivo: editedStatus
+        qtdHorasDiarias: Number(editedqtdHorasDiarias),
       };
 
       await jornadaTrabalhoService.atualizar(jornadaToEdit.idJornada, updatedJornada);
@@ -193,9 +195,9 @@ export default function JornadaTrabalhoPage() {
               onChange: (e) => setEditedNomeJornada(e.target.value)
             },
             {
-              label: "Quantidade de Horas Mensais",
-              value: editedQtdHorasMensais,
-              onChange: (e) => setEditedQtdHorasMensais(e.target.value)
+              label: "Quantidade de Horas Diárias",
+              value: editedqtdHorasDiarias,
+              onChange: (e) => setEditedqtdHorasDiarias(e.target.value)
             },
             {
               label: "Status",

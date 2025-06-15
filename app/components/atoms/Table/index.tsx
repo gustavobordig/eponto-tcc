@@ -11,6 +11,7 @@ interface TableProps {
   handleEdit?: (item: any) => void;
   handleDeleteClick?: (item: any) => void;
   addItemHref?: string;
+  isAjustePonto?: boolean;
 }
 
 export default function Table({ 
@@ -19,34 +20,54 @@ export default function Table({
     columns,
     handleEdit,
     handleDeleteClick,  
-    addItemHref
+    addItemHref,
+    isAjustePonto = false
 }: TableProps) {
   const router = useRouter();
 
   const renderCell = (item: any, column: Column) => {
+    if (!item || !column) return null;
+
     if (column.render) {
       return column.render(item);
     }
 
+    const value = item[column.key];
+    if (value === undefined || value === null) return '-';
+
     switch (column.type) {
       case 'currency':
-        return `R$ ${item[column.key]}`;
+        return `R$ ${value}`;
       case 'status':
         return (
           <span
             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              item[column.key] === 1
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
+              isAjustePonto
+                ? value === 1
+                  ? "bg-green-100 text-green-800"
+                  : value === 0
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+                : value === 1
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
             }`}
           >
-            {item[column.key] === 1 ? "Ativo" : "Inativo"}
+            {isAjustePonto
+              ? value === 1 
+                ? "Aprovado" 
+                : value === 0 
+                ? "Pendente" 
+                : "Reprovado"
+              : value === 1 
+                ? "Ativo" 
+                : "Inativo"}
           </span>
         );
       case 'date':
-        return new Date(item[column.key]).toLocaleDateString('pt-BR');
+        return new Date(value).toLocaleDateString('pt-BR');
       default:
-        return item[column.key];
+        return value;
     }
   };
 

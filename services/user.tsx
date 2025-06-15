@@ -1,6 +1,7 @@
 import api from './api';
 
 export interface UserData {
+  idUsuario: number;
   nome: string;
   dataNascimento: string;
   senha: string;
@@ -39,7 +40,7 @@ export const userService = {
 
   update: async (userData: UserData): Promise<UserResponse> => {
     try {
-      const response = await api.put<UserResponse>('/api/Usuario/Atualizar', userData);
+      const response = await api.put<UserResponse>(`/api/Usuario/Atualizar/${userData.idUsuario}`, userData);
       return response.data;
     } catch (error) {
       throw error;

@@ -13,7 +13,7 @@ export default function AdicionarJornada() {
     try {
       const jornadaPayload = {
         nomeJornada: data.nome,
-        qtdHorasMensais: Number(data.horasMensais),
+        qtdHorasDiarias: Number(data.horasMensais),
       };
 
       await jornadaTrabalhoService.inserir(jornadaPayload);
@@ -35,9 +35,9 @@ export default function AdicionarJornada() {
     },
     {
       id: 'horasMensais',
-      label: 'Quantidade de Horas Mensais',
+      label: 'Quantidade de Horas Diárias',
       type: 'number' as const,
-      placeholder: 'Digite a quantidade de horas mensais',
+      placeholder: 'Digite a quantidade de horas diárias',
       required: true,
     },
   ];
