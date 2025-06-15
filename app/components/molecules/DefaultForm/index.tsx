@@ -7,10 +7,11 @@ import { invalidFieldMessages } from '@/utils/invalidFieldMessages';
 interface InputField {
     id: string;
     label: string;
-    type: 'text' | 'email' | 'password' | 'number';
+    type: 'text' | 'email' | 'password' | 'number' | 'select' | 'date';
     placeholder?: string;
     required?: boolean;
     regex?: RegExp;
+    render?: () => React.ReactNode;
 }
 
 interface DefaultFormProps {
@@ -33,9 +34,13 @@ export default function DefaultForm({
 
     useEffect(() => {
         const requiredInputs = inputs.filter(input => input.required);
-        const allRequiredFilled = requiredInputs.every(input => 
-            formData[input.id] && formData[input.id].trim() !== ''
-        );
+        const allRequiredFilled = requiredInputs.every(input => {
+            if (input.type === 'select') {
+                // For select fields, check if the value exists in formData
+                return formData[input.id] !== undefined && formData[input.id] !== '';
+            }
+            return formData[input.id] && formData[input.id].trim() !== '';
+        });
         setIsFormValid(allRequiredFilled && Object.keys(errors).length === 0);
     }, [formData, inputs, errors]);
 
@@ -76,18 +81,33 @@ export default function DefaultForm({
             <h1 className="text-2xl text-black font-bold mb-6 text-center">{title}</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {inputs.map((input) => (
-                    <Input
-                        key={input.id}
-                        id={input.id}
-                        name={input.id}
-                        type={input.type}
-                        label={input.label}
-                        placeholder={input.placeholder}
-                        required={input.required}
-                        regex={input.regex}
-                        error={errors[input.id]}
-                        onInputChange={(value) => handleInputChange(input.id, value)}
-                    />
+                    <div key={input.id} className="space-y-2">
+                        <label htmlFor={input.id} className="block text-sm font-medium text-black">
+                            {input.label}
+                        </label>
+                        {input.render ? (
+                            <div onChange={(e) => {
+                                const target = e.target as HTMLSelectElement;
+                                handleInputChange(input.id, target.value);
+                            }}>
+                                {input.render()}
+                            </div>
+                        ) : (
+                            <Input
+                                id={input.id}
+                                name={input.id}
+                                type={input.type}
+                                placeholder={input.placeholder}
+                                required={input.required}
+                                regex={input.regex}
+                                error={errors[input.id]}
+                                onInputChange={(value) => handleInputChange(input.id, value)}
+                            />
+                        )}
+                        {errors[input.id] && (
+                            <p className="text-red-500 text-sm">{errors[input.id]}</p>
+                        )}
+                    </div>
                 ))}
                 <button
                     type="submit"
