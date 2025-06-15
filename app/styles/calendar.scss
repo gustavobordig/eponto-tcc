@@ -1,0 +1,151 @@
+// Importando os estilos base do react-big-calendar
+@import 'react-big-calendar/lib/sass/styles';
+
+// Variáveis personalizadas
+$calendar-bg: #ffffff;
+$calendar-border: #e2e8f0;
+$calendar-header-bg: #1a365d;
+$calendar-header-color: #ffffff;
+$calendar-today-bg: #e2e8f0;
+$calendar-event-bg: #4299e1;
+$calendar-event-hover-bg: #2b6cb0;
+$calendar-toolbar-btn-color: #1a365d;
+$calendar-toolbar-btn-border: #1a365d;
+$calendar-toolbar-btn-hover-bg: #1a365d;
+$calendar-toolbar-btn-hover-color: #ffffff;
+$calendar-toolbar-label-color: #1a365d;
+$calendar-off-range-bg: #f7fafc;
+$calendar-selected-bg: #e2e8f0;
+
+// Sobrescrevendo estilos do calendário
+.rbc-calendar {
+  background-color: $calendar-bg;
+  border-radius: 8px;
+}
+
+.rbc-header {
+  background-color: $calendar-header-bg;
+  color: $calendar-header-color;
+  padding: 10px 3px;
+  font-weight: bold;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rbc-today {
+  background-color: $calendar-today-bg;
+}
+
+.rbc-event {
+  background-color: $calendar-event-bg;
+  border: none;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: $calendar-event-hover-bg;
+  }
+}
+
+.rbc-toolbar {
+  button {
+    color: $calendar-toolbar-btn-color;
+    border: 1px solid $calendar-toolbar-btn-border;
+    border-radius: 4px;
+    padding: 6px 12px;
+    
+    &:hover {
+      background-color: $calendar-toolbar-btn-hover-bg;
+      color: $calendar-toolbar-btn-hover-color;
+    }
+    
+    &.rbc-active {
+      background-color: $calendar-toolbar-btn-hover-bg;
+      color: $calendar-toolbar-btn-hover-color;
+    }
+  }
+  
+  .rbc-toolbar-label {
+    color: $calendar-toolbar-label-color;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+
+.rbc-off-range-bg {
+  background-color: $calendar-off-range-bg;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid $calendar-border;
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  border: 1px solid $calendar-border;
+}
+
+// Estilos para eventos específicos
+.rbc-event.feriado {
+  background-color: #e53e3e;
+  &:hover {
+    background-color: darken(#e53e3e, 10%);
+  }
+}
+
+.rbc-event.ferias {
+  background-color: #38a169;
+  &:hover {
+    background-color: darken(#38a169, 10%);
+  }
+
+  // Estilo para eventos de início e fim
+  &[id$="-inicio"],
+  &[id$="-fim"] {
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 4px;
+    z-index: 2; // Garante que fique acima do evento do período
+  }
+
+  // Estilo para o evento do período
+  &[id$="-periodo"] {
+    opacity: 0.7;
+    z-index: 1;
+  }
+}
+
+// Estilos para o dia selecionado
+.rbc-selected-day {
+  background-color: $calendar-selected-bg !important;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px $calendar-toolbar-btn-color;
+}
+
+// Estilos para células clicáveis
+.rbc-month-view .rbc-day-bg,
+.rbc-time-view .rbc-time-column {
+  cursor: pointer;
+  
+  &:hover {
+    background-color: rgba($calendar-toolbar-btn-color, 0.1);
+  }
+}
+
+button.rbc-button-link,
+.rbc-time-slot,
+.rbc-agenda-event-cell,
+.rbc-agenda-date-cell,
+.rbc-agenda-time-cell,
+.rbc-agenda-empty{
+    color:black;
+}
+
+.rbc-row.rbc-time-header-cell button.rbc-button-link{
+    color:white;
+}
+
+.rbc-events-container{
+    background-color: white;
+}

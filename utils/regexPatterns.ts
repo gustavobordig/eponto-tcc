@@ -24,7 +24,10 @@ export const regexPatterns = {
   numbers: /^\d+$/,
 
   // Only letters
-  letters: /^[a-zA-ZÀ-ÿ\s]+$/
+  letters: /^[a-zA-ZÀ-ÿ\s]+$/,
+
+  // Minimum 3 characters validation
+  minThreeChars: /^.{3,}$/
 } as const;
 
 // Type for the regex patterns
