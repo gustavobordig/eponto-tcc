@@ -16,10 +16,10 @@ import { Column } from '@/types';
 
 
 interface JornadaTrabalho {
-  idJornada: number;
+  idJornada?: number;
   nomeJornada: string;
   qtdHorasDiarias: number;
-  indAtivo: number;
+  indAtivo?: number;
 }
 
 interface ApiResponse {
@@ -114,7 +114,7 @@ export default function JornadaTrabalhoPage() {
         qtdHorasDiarias: Number(editedqtdHorasDiarias),
       };
 
-      await jornadaTrabalhoService.atualizar(jornadaToEdit.idJornada, updatedJornada);
+      await jornadaTrabalhoService.atualizar(jornadaToEdit.idJornada!, updatedJornada);
       showSuccessToast('Jornada atualizada com sucesso!');
       fetchJornadas();
       handleEditClose();
@@ -127,7 +127,7 @@ export default function JornadaTrabalhoPage() {
   };
 
   const handleDeleteClick = (jornada: JornadaTrabalho) => {
-    setJornadaToDelete(jornada.idJornada);
+    setJornadaToDelete(jornada.idJornada!);
     setIsDeleteModalOpen(true);
   };
 
