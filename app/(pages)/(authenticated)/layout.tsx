@@ -16,7 +16,8 @@ export default function AuthenticatedLayout({
     const navItems = [
         "/home",
         "/perfil",
-        "/history"
+        "/history",
+        "/calendar"
     ];
 
     useEffect(() => {
