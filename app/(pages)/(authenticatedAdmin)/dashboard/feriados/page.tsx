@@ -33,7 +33,6 @@ export default function FeriadosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const columns: Column[] = [
-    { key: 'idFeriado', label: 'ID' },
     { key: 'dscFeriado', label: 'Descrição' },
     { key: 'datFeriado', label: 'Data', type: 'date' },
     { 

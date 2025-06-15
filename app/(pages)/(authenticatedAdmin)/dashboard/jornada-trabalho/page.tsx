@@ -46,11 +46,6 @@ export default function JornadaTrabalhoPage() {
 
   const columns: Column[] = [
     {
-      key: 'idJornada',
-      label: 'ID',
-      type: 'text'
-    },
-    {
       key: 'nomeJornada',
       label: 'Nome da Jornada',
       type: 'text'

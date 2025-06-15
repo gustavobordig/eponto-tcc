@@ -68,7 +68,6 @@ export default function FeriasPage() {
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>([]);
 
   const columns: Column[] = [
-    { key: 'idFerias', label: 'ID' },
     { key: 'dscFerias', label: 'Descrição' },
     { key: 'datIncioFerias', label: 'Data Início', type: 'date' },
     { key: 'datFimFerias', label: 'Data Fim', type: 'date' },
