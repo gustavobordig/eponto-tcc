@@ -65,7 +65,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
 
   if (!isOpen) return null;
 
-  console.log("registrosDoDia", registrosDoDia);
+  console.log("initialData", initialData);
 
   const handleSubmit = async () => {
     try {
@@ -126,22 +126,22 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         justificativa: formData.justificativa,
         itens: [
           ...(formData.entrada.time ? [{
-            idRegistro: registrosDoDia?.entrada || 0,
+            ...(registrosDoDia?.entrada ? { idRegistro: registrosDoDia.entrada } : {}),
             horaRegistro: formData.entrada.time,
             idTipoRegistroPonto: 1
           }] : []),
           ...(formData.inicioAlmoco.time ? [{
-            idRegistro: registrosDoDia?.inicioAlmoco || 0,
+            ...(registrosDoDia?.inicioAlmoco ? { idRegistro: registrosDoDia.inicioAlmoco } : {}),
             horaRegistro: formData.inicioAlmoco.time,
             idTipoRegistroPonto: 2
           }] : []),
           ...(formData.fimAlmoco.time ? [{
-            idRegistro: registrosDoDia?.fimAlmoco || 0,
+            ...(registrosDoDia?.fimAlmoco ? { idRegistro: registrosDoDia.fimAlmoco } : {}),
             horaRegistro: formData.fimAlmoco.time,
             idTipoRegistroPonto: 3
           }] : []),
           ...(formData.saida.time ? [{
-            idRegistro: registrosDoDia?.saida || 0,
+            ...(registrosDoDia?.saida ? { idRegistro: registrosDoDia.saida } : {}),
             horaRegistro: formData.saida.time,
             idTipoRegistroPonto: 4
           }] : [])

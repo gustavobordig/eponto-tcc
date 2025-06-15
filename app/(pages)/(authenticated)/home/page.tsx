@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getAllTimeRecords } from "@/services/timeRecord";
 import { tokenUtils } from "@/utils/token";
+import { bancoHorasService } from "@/services/bancoHoras";
 
 // Assets
 import UserImage from "@/public/images/User.png";
@@ -44,6 +45,10 @@ export default function Home() {
   const [points, setPoints] = useState<Point[]>([]);
   const [userName, setUserName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [bancoHoras, setBancoHoras] = useState<{
+    horasTrabalhadas: string;
+    saldo: string;
+  } | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -135,6 +140,37 @@ export default function Home() {
     fetchPoints();
   }, []);
 
+  useEffect(() => {
+    const fetchBancoHoras = async () => {
+      try {
+        const userId = tokenUtils.getId();
+        if (!userId) {
+          console.log('ID do usuário não encontrado');
+          return;
+        }
+
+        console.log('Buscando banco de horas para o usuário:', userId);
+        const response = await bancoHorasService.obterSaldoAtual(Number(userId));
+        console.log('Resposta do banco de horas:', response);
+
+        if (response.sucesso && response.bancoHoras && response.bancoHoras.length > 0) {
+          setBancoHoras({
+            horasTrabalhadas: response.bancoHoras[0].horasTrabalhadas,
+            saldo: response.bancoHoras[0].saldo
+          });
+        } else {
+          console.log('Resposta sem dados de banco de horas:', response);
+          setBancoHoras(null);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar banco de horas:', error);
+        setBancoHoras(null);
+      }
+    };
+
+    fetchBancoHoras();
+  }, []);
+
   const getPointTypeFromId = (id: number): PointType => {
     console.log('Convertendo ID para tipo:', id);
     switch (id) {
@@ -182,6 +218,12 @@ export default function Home() {
     if (currentPoint) {
       setPoints([...points, { type: currentPoint, timestamp: new Date().toISOString() }]);
     }
+  };
+
+  const getSaldoColor = (saldo: string) => {
+    if (saldo.startsWith('-')) return 'text-red-600';
+    if (saldo.startsWith('+')) return 'text-green-600';
+    return 'text-gray-900';
   };
 
   return (
@@ -296,10 +338,28 @@ export default function Home() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Monthly Hours Balance Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm h-fit">
               <h2 className="text-lg font-semibold text-[#002085] mb-4">Saldo de Horas</h2>
-              <div className="h-64">
-                <HoursBalanceChart data={mockMonthlyData.hours} />
+              <div className="h-fit flex flex-col justify-start items-start gap-4">
+                {bancoHoras ? (
+                  <>
+                    <div className="text-left">
+                      <p className="text-sm text-gray-600">Horas Trabalhadas</p>
+                      <p className="text-xl font-bold text-[#002085]">{bancoHoras.horasTrabalhadas}</p>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm text-gray-600">Saldo</p>
+                      <p className={`text-xl font-bold ${getSaldoColor(bancoHoras.saldo)}`}>
+                        {bancoHoras.saldo}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-gray-500">Não foi possível carregar o saldo</p>
+                    <p className="text-sm text-gray-400">Verifique sua conexão e tente novamente</p>
+                  </div>
+                )}
               </div>
             </div>
 
