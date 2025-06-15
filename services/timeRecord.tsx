@@ -58,8 +58,6 @@ export const getUserTimeRecords = async (userId: number) => {
 
 export const updateTimeRecord = async (payload: UpdateTimeRecordPayload) => {
   
-  console.log("payload", payload);
-
   try {
     const response = await api.put('/api/RegistroPonto/Atualizar', payload);
     return response.data;

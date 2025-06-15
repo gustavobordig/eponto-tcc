@@ -6,6 +6,7 @@ export interface ItemRegistro {
 }
 
 export interface TimeRecordAdjustment {
+  idSolicitacao: number;
   id: number;
   idSolicitante: number;
   justificativa: string;

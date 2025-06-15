@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { motion } from "framer-motion";
 import Button from "@/app/components/atoms/Button";
 import { TimeEntryInput, TimeEntry } from "@/app/components/atoms/TimeEntryInput";
-import { updateTimeRecord } from "@/services/timeRecord";
+import { ajusteService } from "@/services/ajuste";
 import { toast } from "react-hot-toast";
 import { tokenUtils } from "@/utils/token";
 
@@ -65,7 +65,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
 
   if (!isOpen) return null;
 
-  console.log("registrosDoDia", registrosDoDia);
+  console.log("initialData", initialData);
 
   const handleSubmit = async () => {
     try {
@@ -98,117 +98,96 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         try {
           if (isNaN(date.getTime())) {
             console.error('Data inválida fornecida para formatDate:', date);
-            return new Date().toISOString().split('T')[0]; // Retorna a data atual como fallback
+            return new Date().toISOString().split('T')[0];
           }
           
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
+          const formatted = `${year}-${month}-${day}`;
+          console.log("Data formatada:", formatted);
+          return formatted;
         } catch (error) {
           console.error('Erro ao formatar data:', error);
-          return new Date().toISOString().split('T')[0]; // Retorna a data atual como fallback
+          return new Date().toISOString().split('T')[0];
         }
       };
 
-      // Função para formatar data e hora no formato ISO
-      const formatDateTime = (time: string, date: string) => {
-        if (!time) return null;
+      // Converter a data do formato pt-BR para Date
+      const parseDate = (dateStr: string) => {
+        if (!dateStr) return new Date();
         
-        try {
-          const [hours, minutes] = time.split(':');
-          const [year, month, day] = date.split('-');
-          
-          // Verificar se os valores são números válidos
-          const hour = parseInt(hours);
-          const minute = parseInt(minutes);
-          const yearNum = parseInt(year);
-          const monthNum = parseInt(month);
-          const dayNum = parseInt(day);
-          
-          // Verificar se os valores estão dentro dos intervalos válidos
-          if (isNaN(hour) || isNaN(minute) || isNaN(yearNum) || isNaN(monthNum) || isNaN(dayNum) ||
-              hour < 0 || hour > 23 || minute < 0 || minute > 59 || 
-              monthNum < 1 || monthNum > 12 || dayNum < 1 || dayNum > 31) {
-            console.error('Valores de data/hora inválidos:', { time, date });
-            return null;
-          }
-          
-          const dateObj = new Date(yearNum, monthNum - 1, dayNum, hour, minute);
-          
-          // Verificar se a data é válida
-          if (isNaN(dateObj.getTime())) {
-            console.error('Data inválida criada:', dateObj);
-            return null;
-          }
-          
-          return dateObj.toISOString();
-        } catch (error) {
-          console.error('Erro ao formatar data/hora:', error);
-          return null;
+        console.log("Data recebida para parse:", dateStr);
+        
+        // Remove o dia da semana e espaços extras
+        const cleanDateStr = dateStr.replace(/^[a-záàâãéèêíïóôõöúçñ]+,?\s*/i, '').trim();
+        console.log("Data limpa:", cleanDateStr);
+        
+        // Verifica se a string está no formato correto (DD/MM/YYYY)
+        const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+        const match = cleanDateStr.match(dateRegex);
+        
+        if (!match) {
+          console.error('Formato de data inválido:', cleanDateStr);
+          return new Date();
         }
+
+        const [, day, month, year] = match;
+        console.log("Componentes da data:", { day, month, year });
+        
+        // Criar a data no timezone local
+        const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
+        console.log("Data após parse:", parsedDate.toISOString());
+        
+        // Validação adicional para garantir que a data é válida
+        if (isNaN(parsedDate.getTime())) {
+          console.error('Data inválida após conversão:', cleanDateStr);
+          return new Date();
+        }
+        
+        return parsedDate;
       };
 
-      const targetDate = selectedDate ? formatDate(new Date(selectedDate)) : formatDate(new Date());
+      const targetDate = selectedDate ? formatDate(parseDate(selectedDate)) : formatDate(new Date());
+      console.log("Data selecionada original:", selectedDate);
+      console.log("Data final formatada:", targetDate);
       
-      // Verificar se a data alvo é válida
       if (!targetDate || targetDate === 'Invalid Date') {
         toast.error('Data selecionada inválida. Por favor, selecione uma data válida.');
         return;
       }
 
-      // Atualizar cada registro de ponto usando os IDs fornecidos
-      const updatePromises = [];
+      console.log("targetDate: ", targetDate);
 
-      if (formData.entrada.time) {
-        updatePromises.push(
-          updateTimeRecord({
-            idRegistro: registrosDoDia?.entrada || 0,
-            idUsuario: parseInt(userId),
-            horaRegistro: formatDateTime(formData.entrada.time, targetDate) || "",
-            dataRegistro: targetDate,
+      const payload = {
+        idSolicitante: parseInt(userId),
+        dataRegistroAlteracao: targetDate,
+        justificativa: formData.justificativa,
+        itens: [
+          ...(formData.entrada.time ? [{
+            ...(registrosDoDia?.entrada ? { idRegistro: registrosDoDia.entrada } : {}),
+            horaRegistro: `${targetDate}T${formData.entrada.time}:00`,
             idTipoRegistroPonto: 1
-          })
-        );
-      }
+          }] : []),
+          ...(formData.inicioAlmoco.time ? [{
+            ...(registrosDoDia?.inicioAlmoco ? { idRegistro: registrosDoDia.inicioAlmoco } : {}),
+            horaRegistro: `${targetDate}T${formData.inicioAlmoco.time}:00`,
+            idTipoRegistroPonto: 2
+          }] : []),
+          ...(formData.fimAlmoco.time ? [{
+            ...(registrosDoDia?.fimAlmoco ? { idRegistro: registrosDoDia.fimAlmoco } : {}),
+            horaRegistro: `${targetDate}T${formData.fimAlmoco.time}:00`,
+            idTipoRegistroPonto: 3
+          }] : []),
+          ...(formData.saida.time ? [{
+            ...(registrosDoDia?.saida ? { idRegistro: registrosDoDia.saida } : {}),
+            horaRegistro: `${targetDate}T${formData.saida.time}:00`,
+            idTipoRegistroPonto: 4
+          }] : [])
+        ]
+      };
 
-      if (formData.inicioAlmoco.time) {
-        updatePromises.push(
-          updateTimeRecord({
-            idRegistro: registrosDoDia?.inicioAlmoco || 0,
-            idUsuario: parseInt(userId),
-            horaRegistro: formatDateTime(formData.inicioAlmoco.time, targetDate) || "",
-            dataRegistro: targetDate,
-            idTipoRegistroPonto: 1
-          })
-        );
-      }
-
-      if (formData.fimAlmoco.time) {
-        updatePromises.push(
-          updateTimeRecord({
-            idRegistro: registrosDoDia?.fimAlmoco || 0,
-            idUsuario: parseInt(userId),
-            horaRegistro: formatDateTime(formData.fimAlmoco.time, targetDate) || "",
-            dataRegistro: targetDate,
-            idTipoRegistroPonto: 1
-          })
-        );
-      }
-
-      if (formData.saida.time) {
-        updatePromises.push(
-          updateTimeRecord({
-            idRegistro: registrosDoDia?.saida || 0,
-            idUsuario: parseInt(userId),
-            horaRegistro: formatDateTime(formData.saida.time, targetDate) || "",
-            dataRegistro: targetDate,
-            idTipoRegistroPonto: 1
-          })
-        );
-      }
-
-      await Promise.all(updatePromises);
+      await ajusteService(payload);
       toast.success('Ajuste de ponto solicitado com sucesso!');
       onClose();
       onSubmit(formData);
