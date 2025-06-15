@@ -1,7 +1,6 @@
 import api from './api';
 
 export interface UserData {
-  idUsuario: number;
   nome: string;
   dataNascimento: string;
   senha: string;
@@ -10,7 +9,6 @@ export interface UserData {
   idCargo: number;
   idJornada: number;
   indAtivo: number;
-  teste: string;
 }
 
 interface UserResponse {

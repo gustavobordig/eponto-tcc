@@ -22,6 +22,7 @@ export default function AdminLayout({
     {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
     {href:"/dashboard/feriados", label:"Feriados"},
     {href:"/dashboard/ferias", label:"Férias"},
+    {href:"/dashboard/calendario", label:"Calendário"},
     {href:"/dashboard/analytics", label:"Estatísticas"},
   ];
 
