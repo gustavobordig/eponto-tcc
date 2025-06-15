@@ -20,6 +20,8 @@ export default function AdminLayout({
     {href:"/dashboard/cargos", label:"Cargos"},
     {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
     {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
+    {href:"/dashboard/feriados", label:"Feriados"},
+    {href:"/dashboard/ferias", label:"Férias"},
     {href:"/dashboard/analytics", label:"Estatísticas"},
   ];
 

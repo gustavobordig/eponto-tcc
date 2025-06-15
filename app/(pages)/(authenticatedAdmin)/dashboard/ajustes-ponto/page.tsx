@@ -6,39 +6,53 @@ import { listAdjustmentRequests, validateAdjustmentRequest } from '@/services/ti
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import Button from '@/app/components/atoms/Button';
 
-interface ItemRegistro {
-  horaRegistro: string;
-  idTipoRegistroPonto: number;
-}
+//Components
+import Table from '@/app/components/atoms/Table';
+import EditModal from '@/app/components/atoms/EditModal';
 
-interface SolicitacaoAjuste {
-  id: number;
-  idSolicitante: number;
-  justificativa: string;
-  statusSolicitacao: number;
-  dataRegistroAlteracao: string;
-  itens: ItemRegistro[];
-}
-
-interface ApiResponse {
-  sucesso: boolean;
-  mensagem: string | null;
-  solicitacaoAjustePontoModel: SolicitacaoAjuste | null;
-  solicitacoes: SolicitacaoAjuste[];
-}
+//Types
+import { Column } from '@/types';
+import { TimeRecordAdjustment, ItemRegistro } from '@/services/timeRecordAdjustment';
 
 export default function AjustesPontoPage() {
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAjuste[]>([]);
+  const [solicitacoes, setSolicitacoes] = useState<TimeRecordAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAjuste | null>(null);
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<TimeRecordAdjustment | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<number>(0);
   const [updateLoading, setUpdateLoading] = useState(false);
 
+  const columns: Column[] = [
+    { key: 'idSolicitante', label: 'ID Solicitante' },
+    { key: 'dataRegistroAlteracao', label: 'Data Alteração', type: 'date' },
+    { key: 'justificativa', label: 'Justificativa' },
+    { key: 'statusSolicitacao', label: 'Status', type: 'status' },
+    { 
+      key: 'itens', 
+      label: 'Registros',
+      type: 'custom',
+      render: (item: TimeRecordAdjustment) => (
+        <div>
+          {item.itens.map((registro: ItemRegistro, i: number) => (
+            <div key={i} className="text-sm">
+              {formatarHora(registro.horaRegistro)} - 
+              {registro.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
+            </div>
+          ))}
+        </div>
+      )
+    }
+  ];
+  
   const fetchSolicitacoes = async () => {
     try {
-      const response = await listAdjustmentRequests() as ApiResponse;
-      setSolicitacoes(response.solicitacoes || []);
+      const response = await listAdjustmentRequests();
+      if (response.sucesso && response.solicitacoes) {
+        setSolicitacoes(response.solicitacoes);
+      } else {
+        setSolicitacoes([]);
+        showErrorToast(response.mensagem || 'Erro ao carregar solicitações');
+      }
     } catch (error) {
       showErrorToast('Erro ao carregar solicitações');
       console.error('Erro ao carregar solicitações:', error);
@@ -52,8 +66,9 @@ export default function AjustesPontoPage() {
     fetchSolicitacoes();
   }, []);
 
-  const handleViewDetails = async (index: number) => {
-    setSelectedSolicitacao(solicitacoes[index]);
+  const handleEdit = (solicitacao: TimeRecordAdjustment) => {
+    setSelectedSolicitacao(solicitacao);
+    setSelectedStatus(0);
     setIsDetailModalOpen(true);
   };
 
@@ -129,146 +144,56 @@ export default function AjustesPontoPage() {
 
   return (
     <Container className="py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Solicitações de Ajuste de Ponto</h1>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  ID Solicitante
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Data Alteração
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Justificativa
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Registros
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Array.isArray(solicitacoes) && solicitacoes.map((solicitacao, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.idSolicitante}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {formatarData(solicitacao.dataRegistroAlteracao)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.justificativa}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(solicitacao.statusSolicitacao)}`}>
-                      {getStatusText(solicitacao.statusSolicitacao)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                    {solicitacao.itens.map((item, i) => (
-                      <div key={i}>
-                        {formatarHora(item.horaRegistro)} - 
-                        {item.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleViewDetails(index)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Ver Detalhes
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
-        {(!Array.isArray(solicitacoes) || solicitacoes.length === 0) && (
-          <div className="text-center py-8">
-            <p className="text-black">Nenhuma solicitação encontrada.</p>
-          </div>
-        )}
-      </div>
+      {/* Tabela de Solicitações de Ajuste de Ponto */}
+      <Table
+        data={solicitacoes}
+        columns={columns}
+        title="Solicitações de Ajuste de Ponto"
+        handleEdit={handleEdit}
+      />
 
       {/* Modal de Detalhes */}
       {isDetailModalOpen && selectedSolicitacao && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Detalhes da Solicitação</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-black">ID Solicitante: {selectedSolicitacao.idSolicitante}</p>
-                <p className="text-sm font-medium text-black">Data Alteração: {formatarData(selectedSolicitacao.dataRegistroAlteracao)}</p>
-                <p className="text-sm font-medium text-black">Justificativa: {selectedSolicitacao.justificativa}</p>
-                <p className="text-sm font-medium text-black">Status: {getStatusText(selectedSolicitacao.statusSolicitacao)}</p>
-                <div className="mt-2">
-                  <p className="text-sm font-medium text-black">Registros:</p>
-                  {selectedSolicitacao.itens.map((item, index) => (
-                    <div key={index} className="ml-4">
-                      <p className="text-sm text-black">
-                        {formatarHora(item.horaRegistro)} - 
-                        {item.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {selectedSolicitacao.statusSolicitacao === 0 && (
-                <>
-                  <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-black">
-                      Ação
-                    </label>
-                    <select
-                      id="status"
-                      value={selectedStatus}
-                      onChange={(e) => setSelectedStatus(Number(e.target.value))}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
-                    >
-                      <option value={0}>Selecione uma ação</option>
-                      <option value={1}>Aprovar</option>
-                      <option value={2}>Reprovar</option>
-                    </select>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
-                    <Button
-                      text="Confirmar"
-                      backgroundColor="bg-indigo-600"
-                      textColor="text-white"
-                      onClick={handleUpdateStatus}
-                      disabled={updateLoading || selectedStatus === 0}
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="flex justify-end mt-4">
-                <Button
-                  text="Fechar"
-                  backgroundColor="bg-gray-600"
-                  textColor="text-white"
-                  onClick={handleCloseModal}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <EditModal
+          title="Avaliar Solicitação de Ajuste"
+          fields={[
+            {
+              label: "ID Solicitante",
+              value: selectedSolicitacao.idSolicitante.toString(),
+              onChange: () => {}
+            },
+            {
+              label: "Data Alteração",
+              value: formatarData(selectedSolicitacao.dataRegistroAlteracao),
+              onChange: () => {}
+            },
+            {
+              label: "Justificativa",
+              value: selectedSolicitacao.justificativa,
+              onChange: () => {}
+            },
+            {
+              label: "Status Atual",
+              value: getStatusText(selectedSolicitacao.statusSolicitacao),
+              onChange: () => {}
+            },
+            ...(selectedSolicitacao.statusSolicitacao === 0 ? [{
+              label: "Ação",
+              value: selectedStatus.toString(),
+              onChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => setSelectedStatus(Number(e.target.value)),
+              type: "select" as const,
+              options: [
+                { value: "0", label: "Selecione uma ação" },
+                { value: "1", label: "Aprovar" },
+                { value: "2", label: "Reprovar" }
+              ]
+            }] : [])
+          ]}
+          onClose={handleCloseModal}
+          onConfirm={selectedSolicitacao.statusSolicitacao === 0 ? handleUpdateStatus : undefined}
+          loading={updateLoading}
+        />
       )}
     </Container>
   );

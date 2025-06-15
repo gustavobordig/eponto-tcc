@@ -1,21 +1,30 @@
 import api from './api';
 
-interface TimeRecordAdjustment {
+export interface ItemRegistro {
+  horaRegistro: string;
+  idTipoRegistroPonto: number;
+}
+
+export interface TimeRecordAdjustment {
   id: number;
-  idUsuario: number;
-  idRegistroPonto: number;
-  dataSolicitacao: string;
-  dataAlteracao: string;
-  horaAlteracao: string;
-  motivo: string;
-  status: string;
-  observacao: string;
+  idSolicitante: number;
+  justificativa: string;
+  statusSolicitacao: number;
+  dataRegistroAlteracao: string;
+  itens: ItemRegistro[];
+}
+
+interface ApiResponse {
+  sucesso: boolean;
+  mensagem: string | null;
+  solicitacoes: TimeRecordAdjustment[];
 }
 
 export const listAdjustmentRequests = async () => {
   try {
     const response = await api.get('/api/RegistroPonto/ListarSolicitacoesAlteracao');
-    return response.data;
+    const data = response.data as ApiResponse;
+    return data;
   } catch (error) {
     console.error('Erro ao buscar solicitações de alteração:', error);
     throw error;
