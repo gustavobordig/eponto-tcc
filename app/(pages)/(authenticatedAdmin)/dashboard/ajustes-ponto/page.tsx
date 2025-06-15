@@ -23,7 +23,6 @@ export default function AjustesPontoPage() {
   const [updateLoading, setUpdateLoading] = useState(false);
 
   const columns: Column[] = [
-    { key: 'idSolicitante', label: 'ID Solicitante' },
     { key: 'dataRegistroAlteracao', label: 'Data Alteração', type: 'date' },
     { key: 'justificativa', label: 'Justificativa' },
     { key: 'statusSolicitacao', label: 'Status', type: 'status' },

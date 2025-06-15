@@ -49,7 +49,6 @@ export default function CargosPage() {
   const [editLoading, setEditLoading] = useState(false);
 
   const columns: Column[] = [
-    { key: 'idCargo', label: 'ID' },
     { key: 'nomeCargo', label: 'Nome do Cargo' },
     { key: 'salario', label: 'Salário', type: 'currency' },
     { key: 'indAtivo', label: 'Status', type: 'status' }
