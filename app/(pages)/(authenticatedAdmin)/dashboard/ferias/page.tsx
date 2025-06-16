@@ -193,7 +193,7 @@ export default function FeriasPage() {
   return (
     <Container className="py-8">
       {/* Botões de alternância de visualização */}
-      <div className="flex justify-end mb-4 gap-2">
+      {/* <div className="flex justify-end mb-4 gap-2">
         <button
           onClick={() => setView('table')}
           className={`px-4 py-2 rounded-md ${
@@ -214,7 +214,7 @@ export default function FeriasPage() {
         >
           Calendário
         </button>
-      </div>
+      </div> */}
 
       {/* Visualização em Tabela */}
       {view === 'table' && (

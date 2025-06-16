@@ -74,7 +74,7 @@ export default function Table({
   return (
     <div>
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-2 md:gap-0 md:flex-row  justify-between items-start md:items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Lista de {title}</h1>
           {addItemHref && (
             <div className="w-fit">
