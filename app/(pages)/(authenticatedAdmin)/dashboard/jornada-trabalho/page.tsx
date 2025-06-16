@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
 import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 
 //Components
 import Table from '@/app/components/atoms/Table';
@@ -59,6 +59,11 @@ export default function JornadaTrabalhoPage() {
       key: 'indAtivo',
       label: 'Status',
       type: 'status'
+    },
+    {
+      key: 'teste',
+      label: 'teste',
+      type: 'text'
     } 
   ]   
 
