@@ -14,16 +14,6 @@ import LoginContainer from "@/app/components/organisms/LoginContainer";
 import { showSuccessToast } from "@/utils/toast";
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = tokenUtils.getToken();
-    if (token) {
-      showSuccessToast("Dados do usuário carregados com sucesso");
-      router.push('/home');
-    }
-  }, [router]);
-
   return (
     <div className="">
       <Container>
