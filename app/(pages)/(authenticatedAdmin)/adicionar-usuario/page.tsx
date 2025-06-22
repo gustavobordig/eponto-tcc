@@ -209,10 +209,8 @@ export default function AdicionarUsuario() {
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   onBlur={(e) => handleFieldBlur('name', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
-                    validations.name && showValidations.name
-                      ? validations.name.isValid
-                        ? 'border-green-500 focus:ring-green-200'
-                        : 'border-red-500 focus:ring-red-200'
+                    (showValidations.name && validations.name && !validations.name.isValid)
+                      ? 'border-red-500 focus:ring-red-200'
                       : 'border-gray-300 focus:ring-blue-200'
                   }`}
                 />
@@ -238,10 +236,8 @@ export default function AdicionarUsuario() {
                   onChange={(e) => handleFieldChange('email', e.target.value)}
                   onBlur={(e) => handleFieldBlur('email', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
-                    validations.email && showValidations.email
-                      ? validations.email.isValid
-                        ? 'border-green-500 focus:ring-green-200'
-                        : 'border-red-500 focus:ring-red-200'
+                    (showValidations.email && validations.email && !validations.email.isValid)
+                      ? 'border-red-500 focus:ring-red-200'
                       : 'border-gray-300 focus:ring-blue-200'
                   }`}
                 />
@@ -266,10 +262,8 @@ export default function AdicionarUsuario() {
                   onChange={(e) => handleFieldChange('dataNascimento', e.target.value)}
                   onBlur={(e) => handleFieldBlur('dataNascimento', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
-                    validations.dataNascimento && showValidations.dataNascimento
-                      ? validations.dataNascimento.isValid
-                        ? 'border-green-500 focus:ring-green-200'
-                        : 'border-red-500 focus:ring-red-200'
+                    (showValidations.dataNascimento && validations.dataNascimento && !validations.dataNascimento.isValid)
+                      ? 'border-red-500 focus:ring-red-200'
                       : 'border-gray-300 focus:ring-blue-200'
                   }`}
                 />
@@ -294,10 +288,8 @@ export default function AdicionarUsuario() {
                   onChange={(e) => handleFieldChange('telefone', e.target.value)}
                   onBlur={(e) => handleFieldBlur('telefone', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
-                    validations.telefone && showValidations.telefone
-                      ? validations.telefone.isValid
-                        ? 'border-green-500 focus:ring-green-200'
-                        : 'border-red-500 focus:ring-red-200'
+                    (showValidations.telefone && validations.telefone && !validations.telefone.isValid)
+                      ? 'border-red-500 focus:ring-red-200'
                       : 'border-gray-300 focus:ring-blue-200'
                   }`}
                 />
@@ -377,10 +369,8 @@ export default function AdicionarUsuario() {
                   onChange={(e) => handleFieldChange('password', e.target.value)}
                   onBlur={(e) => handleFieldBlur('password', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
-                    validations.password && showValidations.password
-                      ? validations.password.isValid
-                        ? 'border-green-500 focus:ring-green-200'
-                        : 'border-red-500 focus:ring-red-200'
+                    (showValidations.password && validations.password && !validations.password.isValid)
+                      ? 'border-red-500 focus:ring-red-200'
                       : 'border-gray-300 focus:ring-blue-200'
                   }`}
                 />
@@ -392,19 +382,19 @@ export default function AdicionarUsuario() {
                 <div className="mt-2 text-xs text-gray-600">
                   <p>A senha deve conter:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li className={validations.password && showValidations.password && /.{8,}/.test(formData.password || '') ? 'text-green-600' : 'text-gray-500'}>
+                    <li className='text-gray-500'>
                       Pelo menos 8 caracteres
                     </li>
-                    <li className={validations.password && showValidations.password && /(?=.*[a-z])/.test(formData.password || '') ? 'text-green-600' : 'text-gray-500'}>
+                    <li className='text-gray-500'>
                       Uma letra minúscula
                     </li>
-                    <li className={validations.password && showValidations.password && /(?=.*[A-Z])/.test(formData.password || '') ? 'text-green-600' : 'text-gray-500'}>
+                    <li className='text-gray-500'>
                       Uma letra maiúscula
                     </li>
-                    <li className={validations.password && showValidations.password && /(?=.*\d)/.test(formData.password || '') ? 'text-green-600' : 'text-gray-500'}>
+                    <li className='text-gray-500'>
                       Um número
                     </li>
-                    <li className={validations.password && showValidations.password && /(?=.*[@$!%*?&])/.test(formData.password || '') ? 'text-green-600' : 'text-gray-500'}>
+                    <li className='text-gray-500'>
                       Um caractere especial (@$!%*?&)
                     </li>
                   </ul>

@@ -60,7 +60,7 @@ export const userValidations = {
     const cleanPhone = phone.replace(/\D/g, '');
     
     // Verifica se tem 10 ou 11 dígitos (com DDD)
-    if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+    if (cleanPhone.length < 6 || cleanPhone.length > 11) {
       return {
         isValid: false,
         message: 'Telefone deve ter 10 ou 11 dígitos (com DDD)'
