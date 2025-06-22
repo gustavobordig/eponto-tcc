@@ -7,6 +7,7 @@ import { ptBR } from "date-fns/locale";
 import { getAllTimeRecords } from "@/services/timeRecord";
 import { tokenUtils } from "@/utils/token";
 import { bancoHorasService } from "@/services/bancoHoras";
+import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
 
 // Assets
 import UserImage from "@/public/images/User.png";
@@ -221,8 +222,9 @@ export default function Home() {
   };
 
   const getSaldoColor = (saldo: string) => {
-    if (saldo.startsWith('-')) return 'text-red-600';
-    if (saldo.startsWith('+')) return 'text-green-600';
+    const saldoFormatado = formatSaldo(saldo);
+    if (saldoFormatado.startsWith('-')) return 'text-red-600';
+    if (saldoFormatado.startsWith('+')) return 'text-green-600';
     return 'text-gray-900';
   };
 
@@ -345,12 +347,12 @@ export default function Home() {
                   <>
                     <div className="text-left">
                       <p className="text-sm text-gray-600">Horas Trabalhadas</p>
-                      <p className="text-xl font-bold text-[#002085]">{bancoHoras.horasTrabalhadas}</p>
+                      <p className="text-xl font-bold text-[#002085]">{formatHorasTrabalhadas(bancoHoras.horasTrabalhadas)}</p>
                     </div>
                     <div className="text-left">
                       <p className="text-sm text-gray-600">Saldo</p>
                       <p className={`text-xl font-bold ${getSaldoColor(bancoHoras.saldo)}`}>
-                        {bancoHoras.saldo}
+                        {formatSaldo(bancoHoras.saldo)}
                       </p>
                     </div>
                   </>
