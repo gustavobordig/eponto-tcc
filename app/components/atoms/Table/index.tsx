@@ -107,11 +107,11 @@ export default function Table({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {data.map((item: any) => (
-                <tr key={item.id} className="hover:bg-gray-50">
+              {data.map((item: any, index: number) => (
+                <tr key={item.id || `row-${index}`} className="hover:bg-gray-50">
                   {columns.map((column) => (
                     <td
-                      key={column.key}
+                      key={`${item.id || index}-${column.key}`}
                       className="px-6 py-4 whitespace-nowrap text-sm text-black"
                     >
                       {renderCell(item, column)}
