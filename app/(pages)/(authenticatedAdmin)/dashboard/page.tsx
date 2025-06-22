@@ -14,6 +14,8 @@ import EditModal from '@/app/components/atoms/EditModal';
 
 //Services
 import { UserData, userService } from '@/services/user';
+import { listCargos } from '@/services/cargo';
+import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
@@ -21,10 +23,29 @@ import { showErrorToast, showSuccessToast } from '@/utils/toast';
 //Types
 import { Column } from '@/types';
 
+interface Cargo {
+  idCargo: number;
+  nomeCargo: string;
+  salario: string;
+  indAtivo: number;
+}
+
+interface JornadaTrabalho {
+  idJornada: number;
+  nomeJornada: string;
+  qtdHorasDiarias: number;
+}
+
+interface UserWithDetails extends UserData {
+  cargo?: string;
+  jornada?: string;
+}
 
 export default function CargosPage() {
   
-    const [users, setUsers] = useState<UserData[]>([]);
+    const [users, setUsers] = useState<UserWithDetails[]>([]);
+    const [cargos, setCargos] = useState<Cargo[]>([]);
+    const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -47,11 +68,45 @@ export default function CargosPage() {
       { key: 'jornada', label: 'Jornada' },
       { key: 'indAtivo', label: 'Status', type: 'status' }
     ];
+
+    const fetchCargos = async () => {
+      try {
+        const response = await listCargos();
+        setCargos(response.cargos || []);
+      } catch (error) {
+        console.error('Erro ao carregar cargos:', error);
+        setCargos([]);
+      }
+    };
+
+    const fetchJornadas = async () => {
+      try {
+        const response = await jornadaTrabalhoService.listar();
+        setJornadas(response.jornadas || []);
+      } catch (error) {
+        console.error('Erro ao carregar jornadas:', error);
+        setJornadas([]);
+      }
+    };
   
     const fetchUsers = async () => {
       try {
         const response = await userService.getAll();
-        setUsers(response.usuarios || []);
+        const usersData = response.usuarios || [];
+        
+        // Mapear cargos e jornadas para os usuários
+        const usersWithDetails = usersData.map((user: UserData) => {
+          const cargo = cargos.find(c => c.idCargo === user.idCargo);
+          const jornada = jornadas.find(j => j.idJornada === user.idJornada);
+          
+          return {
+            ...user,
+            cargo: cargo?.nomeCargo || `Cargo ${user.idCargo}`,
+            jornada: jornada?.nomeJornada || `Jornada ${user.idJornada}`
+          };
+        });
+        
+        setUsers(usersWithDetails);
       } catch (error) {
         showErrorToast('Erro ao carregar usuários');
         console.error('Erro ao carregar usuários:', error);
@@ -62,8 +117,24 @@ export default function CargosPage() {
     };
   
     useEffect(() => {
-        fetchUsers();
+        const loadData = async () => {
+          setLoading(true);
+          await Promise.all([fetchCargos(), fetchJornadas()]);
+          // O loading será definido como false no fetchUsers
+        };
+        
+        loadData();
     }, []);
+
+    // Recarregar usuários quando cargos ou jornadas mudarem
+    useEffect(() => {
+        if (cargos.length > 0 && jornadas.length > 0) {
+          fetchUsers();
+        } else if (cargos.length === 0 && jornadas.length === 0) {
+          // Se não há cargos nem jornadas, ainda carregar usuários para mostrar os IDs
+          fetchUsers();
+        }
+    }, [cargos, jornadas]);
   
     const handleEdit = (user: UserData) => {
       setUserToEdit(user);
