@@ -45,7 +45,7 @@ export default function Form({
                 email: formData.email,
                 senha: formData.password
             });
-            
+            showSuccessToast("Login realizado com sucesso");
             router.push('/home');
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response?.data?.mensagem) {
@@ -56,7 +56,6 @@ export default function Form({
                 showErrorToast('Ocorreu um erro ao fazer login. Tente novamente.');
             }
         } finally {
-            showSuccessToast("Login realizado com sucesso");
             setIsLoading(false);
         }
     };
