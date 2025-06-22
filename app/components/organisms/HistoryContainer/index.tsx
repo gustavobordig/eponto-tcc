@@ -13,6 +13,7 @@ import { getHorariosDoDia } from "@/utils/timeUtils";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import { getIdRegistroDoDia } from "@/utils/registroUtils";
+import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
 
 interface RegistroPonto {
   data: string;
@@ -97,8 +98,8 @@ export default function HistoricoContainer() {
                 if (saldoDoDia) {
                   // Converte o saldo para o formato desejado
                   const saldo = saldoDoDia.saldoDiario;
-                  const horasExtras = saldo.startsWith('-') ? "00:00" : saldo;
-                  const faltantes = saldo.startsWith('-') ? saldo.substring(1) : "00:00";
+                  const horasExtras = saldo.startsWith('-') ? "0h" : formatSaldo(saldo);
+                  const faltantes = saldo.startsWith('-') ? formatSaldo(saldo.substring(1)) : "0h";
 
                   return {
                     data: dataFormatada,
@@ -117,8 +118,8 @@ export default function HistoricoContainer() {
               data: dataFormatada,
               dataOriginal: data,
               entradaSaida,
-              horasExtras: "00:00",
-              faltantes: "00:00"
+              horasExtras: "0h",
+              faltantes: "0h"
             };
           }));
 
