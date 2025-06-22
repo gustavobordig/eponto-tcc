@@ -17,7 +17,7 @@ export default function AdminLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    { href: '/dashboard', label: 'Usuários' },
+    {href: '/dashboard', label: 'Usuários' },
     {href:"/dashboard/cargos", label:"Cargos"},
     {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
     {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
