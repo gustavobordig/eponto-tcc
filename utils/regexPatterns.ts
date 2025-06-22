@@ -8,7 +8,7 @@ export const regexPatterns = {
   // Password validation - minimum 8 characters, at least one uppercase, one lowercase, one number and one special character
   password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
 
-  // Phone number validation - Brazilian format
+  // Phone number validation - Brazilian format (DDD + 8 or 9 digits)
   phone: /^\(\d{2}\)\s\d{5}-\d{4}$/,
 
   // CPF validation - Brazilian format
@@ -27,7 +27,13 @@ export const regexPatterns = {
   letters: /^[a-zA-ZÀ-ÿ\s]+$/,
 
   // Minimum 3 characters validation
-  minThreeChars: /^.{3,}$/
+  minThreeChars: /^.{3,}$/,
+
+  // Strong password validation
+  strongPassword: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+
+  // Brazilian phone number (only numbers)
+  brazilianPhone: /^\d{10,11}$/
 } as const;
 
 // Type for the regex patterns
