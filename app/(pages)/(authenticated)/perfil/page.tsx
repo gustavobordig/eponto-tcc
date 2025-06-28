@@ -191,7 +191,7 @@ export default function PerfilPage() {
                     className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 cursor-pointer group-hover:border-indigo-300 transition-all duration-300 shadow-lg bg-gray-200 flex items-center justify-center"
                     onClick={handleImageClick}
                   >
-                    {true ? (
+                    {previewImage ? (
                       <img
                         key={previewImage}
                         src={previewImage}
