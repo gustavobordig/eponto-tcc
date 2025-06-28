@@ -103,7 +103,7 @@ export default function NavBar({
                                 ))}
                             </nav>
                             <div 
-                                className="w-[40px] h-[40px] rounded-full bg-cover bg-center"
+                                className="w-[40px] h-[40px] rounded-full bg-cover bg-center border-2 border-[#002085]"
                                 style={{
                                     backgroundImage: `url(${userPhoto})`,
                                     backgroundSize: 'cover',
