@@ -197,7 +197,8 @@ export default function PerfilPage() {
                         src={previewImage}
                         width={128}
                         height={128}
-                        className="w-full h-full object-cover absolute z-10 rounded-full"
+                        className="w-full h-full object-cover absolute z-10 rounded-full
+                        border-4 border-[#002085]"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -306,7 +307,8 @@ export default function PerfilPage() {
                   value=""
                   placeholder="Deixe em branco para manter a senha atual"
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent 
+                  transition-all duration-200 bg-white placeholder-gray-400 text-gray-700"
                 />
                 <p className="text-xs text-gray-500">Digite uma nova senha apenas se desejar alterá-la</p>
               </div>
