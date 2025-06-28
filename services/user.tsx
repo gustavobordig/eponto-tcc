@@ -10,6 +10,7 @@ export interface UserData {
   idCargo: number;
   idJornada: number;
   indAtivo: number;
+  fotoPerfil?: string;
 }
 
 interface UserResponse {

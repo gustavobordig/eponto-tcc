@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 // Assets
 import logo from "@/public/images/Logo.png";
-import user from "@/public/images/User.png";
 
 // Atoms
 import Container from "../../atoms/container";
@@ -37,6 +36,15 @@ export default function NavBar({
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [userPhoto, setUserPhoto] = useState<string>("/images/User.png");
+
+    useEffect(() => {
+        // Carregar foto do usuário do localStorage
+        const savedPhoto = localStorage.getItem('userProfilePhoto');
+        if (savedPhoto) {
+            setUserPhoto(savedPhoto);
+        }
+    }, []);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -63,6 +71,7 @@ export default function NavBar({
         setIsLogoutModalOpen(false);
     };
 
+ 
     return (
         <>
             {/* Mobile Nav */}
@@ -96,7 +105,9 @@ export default function NavBar({
                             <div 
                                 className="w-[40px] h-[40px] rounded-full bg-cover bg-center"
                                 style={{
-                                    backgroundImage: `url(${user.src})`
+                                    backgroundImage: `url(${userPhoto})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center'
                                 }}
                             />
                             <Button 
