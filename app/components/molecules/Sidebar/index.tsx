@@ -27,12 +27,16 @@ const navItemIcons: { [key: string]: React.ReactNode } = {
 interface SidebarProps {
     itens: string[];
     userName?: string;
+    isOpen?: boolean;
+    setIsOpen?: (open: boolean) => void;
 }
 
-export default function Sidebar({ itens, userName = "Usuário" }: SidebarProps) {
+export default function Sidebar({ itens, userName = "Usuário", isOpen: isOpenProp, setIsOpen }: SidebarProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const [isOpen, setIsOpen] = useState(true);
+    const [internalOpen, setInternalOpen] = useState(true);
+    const isOpen = typeof isOpenProp === 'boolean' ? isOpenProp : internalOpen;
+    const handleSetOpen = setIsOpen || setInternalOpen;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [userPhoto, setUserPhoto] = useState<string>("/images/User.png");
@@ -54,7 +58,13 @@ export default function Sidebar({ itens, userName = "Usuário" }: SidebarProps) 
         router.push('/');
     };
     const handleCloseLogoutModal = () => setIsLogoutModalOpen(false);
-    const toggleSidebar = () => setIsOpen((prev) => !prev);
+    const toggleSidebar = () => {
+        if (setIsOpen) {
+            setIsOpen(!isOpen);
+        } else {
+            setInternalOpen((prev) => !prev);
+        }
+    };
 
     return (
         <>

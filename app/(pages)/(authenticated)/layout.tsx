@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/app/components/molecules/Sidebar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,8 @@ export default function AuthenticatedLayout({
         "/history",
         "/calendar"
     ];
+
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -56,8 +58,13 @@ export default function AuthenticatedLayout({
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Sidebar itens={navItems} userName={JSON.parse(localStorage.getItem('user') || '{}').nome} />
-            <main className="ml-20 md:ml-64 px-4 py-8">
+            <Sidebar
+                itens={navItems}
+                userName={JSON.parse(localStorage.getItem('user') || '{}').nome}
+                isOpen={sidebarOpen}
+                setIsOpen={setSidebarOpen}
+            />
+            <main className={sidebarOpen ? "ml-64 px-4 py-8 transition-all duration-300" : "ml-20 px-4 py-8 transition-all duration-300"}>
                 {children}
             </main>
         </div>
