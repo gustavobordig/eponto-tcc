@@ -1,6 +1,6 @@
 "use client";
 
-import NavBar from "@/app/components/molecules/NavBar";
+import Sidebar from "@/app/components/molecules/Sidebar";
 import { useEffect } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
@@ -15,7 +15,6 @@ export default function AuthenticatedLayout({
     const router = useRouter();
     const navItems = [
         "/home",
-        "/perfil",
         "/history",
         "/calendar"
     ];
@@ -57,10 +56,8 @@ export default function AuthenticatedLayout({
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <div className="fixed top-0 left-0 right-0 z-50">
-                <NavBar itens={navItems} userName={JSON.parse(localStorage.getItem('user') || '{}').nome} />
-            </div>
-            <main className="container mx-auto px-4 py-8 pt-24">
+            <Sidebar itens={navItems} userName={JSON.parse(localStorage.getItem('user') || '{}').nome} />
+            <main className="ml-20 md:ml-64 px-4 py-8">
                 {children}
             </main>
         </div>
