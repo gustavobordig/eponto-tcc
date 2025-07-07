@@ -15,6 +15,20 @@ export const cargoValidations = {
     return { isValid: true, message: 'Nome do cargo válido.' };
   },
 
+  // Validação de formação mínima
+  validateFormacaoMinima: (formacao: string): ValidationResult => {
+    if (!formacao || formacao.trim().length === 0) {
+      return { isValid: false, message: 'A formação mínima é obrigatória.' };
+    }
+    if (formacao.length < 3) {
+      return { isValid: false, message: 'A formação mínima deve ter no mínimo 3 caracteres.' };
+    }
+    if (formacao.length > 100) {
+      return { isValid: false, message: 'A formação mínima deve ter no máximo 100 caracteres.' };
+    }
+    return { isValid: true, message: 'Formação mínima válida.' };
+  },
+
   // Validação de salário
   validateSalario: (salario: string): ValidationResult => {
     if (!salario) {
@@ -24,6 +38,10 @@ export const cargoValidations = {
     if (isNaN(numericSalario) || numericSalario <= 0) {
       return { isValid: false, message: 'O salário deve ser um número positivo.' };
     }
+    // Validação para salário muito pequeno (menor que R$ 1.000,00)
+    if (numericSalario < 1000) {
+      return { isValid: false, message: 'O salário deve ser no mínimo R$ 1.000,00.' };
+    }
     return { isValid: true, message: 'Salário válido.' };
   },
 
@@ -32,6 +50,7 @@ export const cargoValidations = {
     const validations: ValidationResult[] = [];
 
     validations.push(cargoValidations.validateNomeCargo(data.nome || ''));
+    validations.push(cargoValidations.validateFormacaoMinima(data.formacaoMinima || ''));
     validations.push(cargoValidations.validateSalario(data.salario || ''));
 
     return validations;

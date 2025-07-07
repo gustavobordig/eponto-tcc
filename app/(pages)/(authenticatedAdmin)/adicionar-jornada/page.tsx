@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { jornadaValidations } from '@/utils/jornadaValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/userValidations';
+import { ValidationResult } from '@/utils/validations/userValidations';
 
 export default function AdicionarJornada() {
   const router = useRouter();

@@ -2,7 +2,7 @@
 
 import Input from '../../atoms/Input';
 import { useState, useEffect } from 'react';
-import { invalidFieldMessages } from '@/utils/invalidFieldMessages';
+import { invalidFieldMessages } from '@/utils/validations/invalidFieldMessages';
 
 interface InputField {
     id: string;

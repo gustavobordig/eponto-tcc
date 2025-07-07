@@ -8,7 +8,7 @@ import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { userValidations, ValidationResult } from '@/utils/userValidations';
+import { userValidations, ValidationResult } from '@/utils/validations/userValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
 
 interface Cargo {

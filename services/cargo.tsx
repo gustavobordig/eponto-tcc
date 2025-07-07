@@ -4,6 +4,7 @@ interface CargoPayload {
   idCargo: number;
   nomeCargo: string;
   salario: string;
+  formacaoMinima: string;
   indAtivo: number;
 }
 
