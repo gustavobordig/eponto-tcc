@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Table from '@/app/components/atoms/Table';
 import LoadingText from '@/app/components/atoms/LoadingText';
 import Container from '@/app/components/atoms/container';
+import EditModal from '@/app/components/atoms/EditModal';
 import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 
 //Services
@@ -14,6 +15,7 @@ import { feriadoService } from '@/services/feriado';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { feriadoValidations } from '@/utils/validations/feriadoValidations';
 
 //Types
 import { Column } from '@/types';
@@ -29,8 +31,14 @@ export default function FeriadosPage() {
   const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [feriadoToDelete, setFeriadoToDelete] = useState<number | null>(null);
+  const [feriadoToEdit, setFeriadoToEdit] = useState<Feriado | null>(null);
+  const [editedDscFeriado, setEditedDscFeriado] = useState('');
+  const [editedDatFeriado, setEditedDatFeriado] = useState('');
+  const [editedIndTipoFeriado, setEditedIndTipoFeriado] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
 
   const columns: Column[] = [
     { key: 'dscFeriado', label: 'Descrição' },
@@ -44,6 +52,12 @@ export default function FeriadosPage() {
       }
     }
   ];
+
+  // Configuração das validações para o EditModal
+  const validationConfigs = {
+    dscFeriado: feriadoValidations.validateDescricao,
+    datFeriado: feriadoValidations.validateDataFeriado
+  };
 
   const fetchFeriados = async () => {
     try {
@@ -61,6 +75,46 @@ export default function FeriadosPage() {
   useEffect(() => {
     fetchFeriados();
   }, []);
+
+  const handleEdit = (feriado: Feriado) => {
+    setFeriadoToEdit(feriado);
+    setEditedDscFeriado(feriado.dscFeriado);
+    setEditedDatFeriado(feriado.datFeriado);
+    setEditedIndTipoFeriado(feriado.indTipoFeriado);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setFeriadoToEdit(null);
+    setEditedDscFeriado('');
+    setEditedDatFeriado('');
+    setEditedIndTipoFeriado(1);
+  };
+
+  const handleEditConfirm = async () => {
+    if (!feriadoToEdit || !feriadoToEdit.idFeriado) return;
+
+    setEditLoading(true);
+    try {
+      const updatedFeriado: Feriado = {
+        idFeriado: feriadoToEdit.idFeriado,
+        dscFeriado: editedDscFeriado,
+        datFeriado: editedDatFeriado,
+        indTipoFeriado: editedIndTipoFeriado
+      };
+
+      await feriadoService.cadastrarFeriado(updatedFeriado);
+      showSuccessToast('Feriado atualizado com sucesso!');
+      fetchFeriados();
+      handleEditClose();
+    } catch (error) {
+      showErrorToast('Erro ao atualizar feriado. Tente novamente.');
+      console.error('Erro ao atualizar feriado:', error);
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   const handleDeleteClick = (feriado: Feriado) => {
     if (feriado.idFeriado === undefined) {
@@ -110,9 +164,50 @@ export default function FeriadosPage() {
         data={feriados}
         title="Feriados"
         columns={columns}
+        handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-feriado"
       />
+
+      {/* Modal de edição */}
+      {isEditModalOpen && feriadoToEdit && (
+        <EditModal
+          title="Editar Feriado"
+          fields={[
+            {
+              label: "Descrição do Feriado",
+              value: editedDscFeriado,
+              onChange: (e) => setEditedDscFeriado(e.target.value),
+              fieldName: "dscFeriado",
+              required: true
+            },
+            {
+              label: "Data do Feriado",
+              value: editedDatFeriado,
+              onChange: (e) => setEditedDatFeriado(e.target.value),
+              type: "date",
+              fieldName: "datFeriado",
+              required: true
+            },
+            {
+              label: "Tipo de Feriado",
+              value: editedIndTipoFeriado.toString(),
+              onChange: (e) => setEditedIndTipoFeriado(Number(e.target.value)),
+              type: "select",
+              options: [
+                { value: "1", label: "Integral" },
+                { value: "2", label: "Meio Período" }
+              ],
+              fieldName: "indTipoFeriado",
+              required: false
+            }
+          ]}
+          onClose={handleEditClose}
+          onConfirm={handleEditConfirm}
+          loading={editLoading}
+          validationConfigs={validationConfigs}
+        />
+      )}
 
       {/* Modal de confirmação de exclusão */}
       {isDeleteModalOpen && (
