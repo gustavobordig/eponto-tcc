@@ -24,6 +24,7 @@ interface Cargo {
   idCargo: number;
   nomeCargo: string;
   salario: string;
+  formacaoMinima: string;
   indAtivo: number;
 }
 
@@ -44,12 +45,14 @@ export default function CargosPage() {
   const [cargoToEdit, setCargoToEdit] = useState<Cargo | null>(null);
   const [editedNomeCargo, setEditedNomeCargo] = useState('');
   const [editedSalario, setEditedSalario] = useState('');
+  const [editedFormacaoMinima, setEditedFormacaoMinima] = useState('');
   const [editedStatus, setEditedStatus] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
   const columns: Column[] = [
     { key: 'nomeCargo', label: 'Nome do Cargo' },
+    { key: 'formacaoMinima', label: 'Formação Mínima' },
     { key: 'salario', label: 'Salário', type: 'currency' },
     { key: 'indAtivo', label: 'Status', type: 'status' }
   ];
@@ -96,6 +99,7 @@ export default function CargosPage() {
         idCargo: cargoToEdit.idCargo,
         nomeCargo: editedNomeCargo,
         salario: editedSalario,
+        formacaoMinima: editedFormacaoMinima,
         indAtivo: editedStatus
       };
 
@@ -175,6 +179,11 @@ export default function CargosPage() {
               label: "Salário",
               value: editedSalario,
               onChange: (e) => setEditedSalario(e.target.value)
+            },
+            {
+              label: "Formação Mínima",
+              value: editedFormacaoMinima,
+              onChange: (e) => setEditedFormacaoMinima(e.target.value)
             },
             {
               label: "Status",

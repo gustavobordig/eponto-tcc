@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { feriadoValidations } from '@/utils/feriadoValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/userValidations';
+import { ValidationResult } from '@/utils/validations/userValidations';
 
 export default function AdicionarFeriado() {
   const router = useRouter();

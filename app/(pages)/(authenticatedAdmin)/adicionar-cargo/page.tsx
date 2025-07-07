@@ -5,9 +5,9 @@ import { insertCargo } from '@/services/cargo';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { cargoValidations } from '@/utils/cargoValidations';
+import { cargoValidations } from '@/utils/validations/cargoValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/userValidations';
+import { ValidationResult } from '@/utils/validations/userValidations';
 
 export default function AdicionarCargo() {
   const router = useRouter();
@@ -19,6 +19,8 @@ export default function AdicionarCargo() {
     let validation;
     if (fieldName === 'nome') {
       validation = cargoValidations.validateNomeCargo(value);
+    } else if (fieldName === 'formacaoMinima') {
+      validation = cargoValidations.validateFormacaoMinima(value);
     } else if (fieldName === 'salario') {
       validation = cargoValidations.validateSalario(value);
     } else {
@@ -63,6 +65,7 @@ export default function AdicionarCargo() {
         idCargo: 0,
         nomeCargo: formData.nome,
         salario: formData.salario,
+        formacaoMinima: formData.formacaoMinima,
         indAtivo: 1
       };
 
@@ -77,7 +80,7 @@ export default function AdicionarCargo() {
 
   const isFormValid = () => {
     return Object.values(validations).every(v => v.isValid) &&
-           formData.nome && formData.salario;
+           formData.nome && formData.formacaoMinima && formData.salario;
   };
 
   return (
@@ -108,6 +111,32 @@ export default function AdicionarCargo() {
               isValid={validations.nome?.isValid ?? false}
               message={validations.nome?.message ?? ''}
               show={!!(showValidations.nome && validations.nome)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="formacaoMinima" className="block text-sm font-medium text-black">
+              Formação Mínima *
+            </label>
+            <input
+              id="formacaoMinima"
+              name="formacaoMinima"
+              type="text"
+              placeholder="Digite a formação mínima"
+              required
+              value={formData.formacaoMinima || ''}
+              onChange={(e) => handleFieldChange('formacaoMinima', e.target.value)}
+              onBlur={(e) => handleFieldBlur('formacaoMinima', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                (showValidations.formacaoMinima && validations.formacaoMinima && !validations.formacaoMinima.isValid)
+                  ? 'border-red-500 focus:ring-red-200'
+                  : 'border-gray-300 focus:ring-blue-200'
+              }`}
+            />
+            <ValidationMessage
+              isValid={validations.formacaoMinima?.isValid ?? false}
+              message={validations.formacaoMinima?.message ?? ''}
+              show={!!(showValidations.formacaoMinima && validations.formacaoMinima)}
             />
           </div>
 

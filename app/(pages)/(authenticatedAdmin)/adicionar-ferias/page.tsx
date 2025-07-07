@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { feriasValidations } from '@/utils/feriasValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/userValidations';
+import { ValidationResult } from '@/utils/validations/userValidations';
 
 export default function AdicionarFerias() {
   const router = useRouter();
