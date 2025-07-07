@@ -15,6 +15,7 @@ import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { cargoValidations } from '@/utils/validations/cargoValidations';
 
 //Types
 import { Column } from '@/types';
@@ -57,6 +58,13 @@ export default function CargosPage() {
     { key: 'indAtivo', label: 'Status', type: 'status' }
   ];
 
+  // Configuração das validações para o EditModal
+  const validationConfigs = {
+    nomeCargo: cargoValidations.validateNomeCargo,
+    formacaoMinima: cargoValidations.validateFormacaoMinima,
+    salario: cargoValidations.validateSalario
+  };
+
   const fetchCargos = async () => {
     try {
       const response = await listCargos() as ApiResponse;
@@ -78,6 +86,7 @@ export default function CargosPage() {
     setCargoToEdit(cargo);
     setEditedNomeCargo(cargo.nomeCargo);
     setEditedSalario(cargo.salario);
+    setEditedFormacaoMinima(cargo.formacaoMinima);
     setEditedStatus(cargo.indAtivo);
     setIsEditModalOpen(true);
   };
@@ -87,6 +96,7 @@ export default function CargosPage() {
     setCargoToEdit(null);
     setEditedNomeCargo('');
     setEditedSalario('');
+    setEditedFormacaoMinima('');
     setEditedStatus(1);
   };
 
@@ -173,27 +183,42 @@ export default function CargosPage() {
             {
               label: "Nome do Cargo",
               value: editedNomeCargo,
-              onChange: (e) => setEditedNomeCargo(e.target.value)
+              onChange: (e) => setEditedNomeCargo(e.target.value),
+              fieldName: "nomeCargo",
+              required: true
             },
             {
               label: "Salário",
               value: editedSalario,
-              onChange: (e) => setEditedSalario(e.target.value)
+              onChange: (e) => setEditedSalario(e.target.value),
+              type: "number",
+              fieldName: "salario",
+              required: true
             },
             {
               label: "Formação Mínima",
               value: editedFormacaoMinima,
-              onChange: (e) => setEditedFormacaoMinima(e.target.value)
+              onChange: (e) => setEditedFormacaoMinima(e.target.value),
+              fieldName: "formacaoMinima",
+              required: true
             },
             {
               label: "Status",
               value: editedStatus.toString(),
-              onChange: (e) => setEditedStatus(Number(e.target.value))
+              onChange: (e) => setEditedStatus(Number(e.target.value)),
+              type: "select",
+              options: [
+                { value: "1", label: "Ativo" },
+                { value: "0", label: "Inativo" }
+              ],
+              fieldName: "status",
+              required: false
             }
           ]}
           onClose={handleEditClose}
           onConfirm={handleEditConfirm}
           loading={editLoading}
+          validationConfigs={validationConfigs}
         />
       )}
 
