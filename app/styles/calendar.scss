@@ -116,6 +116,18 @@ $calendar-selected-bg: #e2e8f0;
   }
 }
 
+// Estilos para férias do usuário logado
+.rbc-event.minhas-ferias {
+  background-color: #805ad5;
+  border: 2px solid #553c9a;
+  font-weight: bold;
+  
+  &:hover {
+    background-color: darken(#805ad5, 10%);
+    border-color: darken(#553c9a, 10%);
+  }
+}
+
 // Estilos para o dia selecionado
 .rbc-selected-day {
   background-color: $calendar-selected-bg !important;

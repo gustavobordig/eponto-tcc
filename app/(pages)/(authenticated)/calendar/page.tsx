@@ -13,9 +13,15 @@ import '@/app/styles/calendar.scss';
 
 //Service
 import { calendarioService } from '@/services/calendario';
+import { feriasService } from '@/services/ferias';
+
+//Utils
+import { tokenUtils } from '@/utils/token';
 
 //Components
 import LoadModal from '@/app/components/molecules/LoadModal';
+import Button from '@/app/components/atoms/Button';
+import { FeriasModal } from '@/app/components/molecules/FeriasModal';
 
 const locales = {
   'pt-BR': ptBR,
@@ -30,7 +36,7 @@ const localizer = dateFnsLocalizer({
 });
 
 interface Evento {
-  id: number;
+  id: number | string;
   title: string;
   start: Date;
   end: Date;
@@ -56,13 +62,16 @@ export default function Calendario() {
   const [date, setDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFeriasModalOpen, setIsFeriasModalOpen] = useState(false);
 
   useEffect(() => {
     const carregarCalendario = async () => {
       try {
         setLoading(true);
+        
+        // Buscar eventos do calendário (feriados e férias gerais)
         const dados: RespostaCalendario = await calendarioService.buscarCalendario();
-        console.log("dados: ", dados);
+        console.log("dados calendário: ", dados);
         
         const eventosFormatados = dados.dias.map((item, index) => ({
           id: index,
@@ -71,9 +80,34 @@ export default function Calendario() {
           end: new Date(item.datEvento),
           desc: item.tipoEvento === 1 ? 'feriado' : 'ferias'
         }));
-        
-        console.log("eventosFormatados: ", eventosFormatados);
-        setEventos(eventosFormatados);
+
+        // Buscar férias do usuário logado
+        const idUsuario = tokenUtils.getId();
+        if (idUsuario) {
+          try {
+            const feriasUsuario = await feriasService.buscarFeriasPorUsuario(parseInt(idUsuario));
+            console.log("férias do usuário: ", feriasUsuario);
+            
+            const eventosFeriasUsuario = feriasUsuario.map((ferias, index) => ({
+              id: `ferias-usuario-${index}`,
+              title: `Minhas Férias - ${ferias.dscFerias}`,
+              start: new Date(ferias.datIncioFerias),
+              end: new Date(ferias.datFimFerias),
+              desc: 'minhas-ferias'
+            }));
+            
+            // Combinar eventos do calendário com férias do usuário
+            const todosEventos = [...eventosFormatados, ...eventosFeriasUsuario];
+            setEventos(todosEventos);
+            console.log("todos os eventos: ", todosEventos);
+          } catch (error) {
+            console.error('Erro ao carregar férias do usuário:', error);
+            // Se falhar ao carregar férias do usuário, usar apenas eventos do calendário
+            setEventos(eventosFormatados);
+          }
+        } else {
+          setEventos(eventosFormatados);
+        }
       } catch (error) {
         console.error('Erro ao carregar calendário:', error);
       } finally {
@@ -122,9 +156,69 @@ export default function Calendario() {
     return <LoadModal title="calendário" />;
   }
 
+  const handleSolicitarFerias = () => {
+    setIsFeriasModalOpen(true);
+  };
+
+  const handleFeriasSuccess = () => {
+    // Recarregar o calendário após solicitar férias
+    const carregarCalendario = async () => {
+      try {
+        setLoading(true);
+        
+        // Buscar eventos do calendário (feriados e férias gerais)
+        const dados: RespostaCalendario = await calendarioService.buscarCalendario();
+        
+        const eventosFormatados = dados.dias.map((item, index) => ({
+          id: index,
+          title: item.dscEvento,
+          start: new Date(item.datEvento),
+          end: new Date(item.datEvento),
+          desc: item.tipoEvento === 1 ? 'feriado' : 'ferias'
+        }));
+
+        // Buscar férias do usuário logado
+        const idUsuario = tokenUtils.getId();
+        if (idUsuario) {
+          try {
+            const feriasUsuario = await feriasService.buscarFeriasPorUsuario(parseInt(idUsuario));
+            
+            const eventosFeriasUsuario = feriasUsuario.map((ferias, index) => ({
+              id: `ferias-usuario-${index}`,
+              title: `Minhas Férias - ${ferias.dscFerias}`,
+              start: new Date(ferias.datIncioFerias),
+              end: new Date(ferias.datFimFerias),
+              desc: 'minhas-ferias'
+            }));
+            
+            // Combinar eventos do calendário com férias do usuário
+            const todosEventos = [...eventosFormatados, ...eventosFeriasUsuario];
+            setEventos(todosEventos);
+          } catch (error) {
+            console.error('Erro ao carregar férias do usuário:', error);
+            setEventos(eventosFormatados);
+          }
+        } else {
+          setEventos(eventosFormatados);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar calendário:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarCalendario();
+  };
+
   return (
     <div className="h-screen p-4">
       <div className="bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-2rem)]">
+        <div className="flex justify-start my-4">
+          <div className="w-[200px]">
+            <Button text="Solicitar férias" onClick={() => handleSolicitarFerias()} />
+          </div>
+        </div>
         <Calendar
           localizer={localizer}
           events={eventos}
@@ -157,6 +251,13 @@ export default function Calendario() {
           dayPropGetter={dayPropGetter}
         />
       </div>
+
+      {/* Modal de Solicitação de Férias */}
+      <FeriasModal
+        isOpen={isFeriasModalOpen}
+        onClose={() => setIsFeriasModalOpen(false)}
+        onSuccess={handleFeriasSuccess}
+      />
     </div>
   );
 }

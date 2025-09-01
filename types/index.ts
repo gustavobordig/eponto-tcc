@@ -3,16 +3,18 @@ import { ReactNode } from 'react';
 export interface Column {
     key: string;
     label: string;
-    type?: 'text' | 'status' | 'currency' | 'date' | 'custom' | 'actions';
+    type?: 'text' | 'status' | 'currency' | 'date' | 'datetime' | 'custom' | 'actions';
     render?: (item: any) => ReactNode;
 }
 
 export interface Ferias {
   idFerias?: number;
-  dscFerias: string;
-  datIncioFerias: string;
+  dscObservacao?: string;
+  dscFerias?: string;
+  datInicioFerias?: string;
+  datIncioFerias?: string;
   datFimFerias: string;
-  idUsuario: number | null;
+  idUsuario?: number | null;
 }
 
 

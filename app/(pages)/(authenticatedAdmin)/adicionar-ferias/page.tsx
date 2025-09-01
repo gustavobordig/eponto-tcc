@@ -7,7 +7,7 @@ import { userService, UserData } from '@/services/user';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { feriasValidations } from '@/utils/feriasValidations';
+import { feriasValidations } from '@/utils/validations/feriasValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
 import { ValidationResult } from '@/utils/validations/userValidations';
 
@@ -80,7 +80,7 @@ export default function AdicionarFerias() {
       dataFim.setUTCHours(23, 59, 59, 999);
 
       const feriasPayload = {
-        dscFerias: formData.descricao,
+        dscObservacao: formData.descricao,
         datIncioFerias: dataInicio.toISOString(),
         datFimFerias: dataFim.toISOString(),
         idUsuario: selectedUserId ? parseInt(selectedUserId) : null

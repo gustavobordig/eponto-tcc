@@ -1,14 +1,18 @@
 import { useRouter } from "next/navigation";
+import { ReactNode } from "react";
 import Button from "@/app/components/atoms/Button";
 
 //Types
 import { Column } from "@/types";
 
+// Utils
+import { formatDate } from "@/utils/timeUtils";
+
 interface TableProps {
   data: any[];
   title: string;
   columns: Column[];
-  handleEdit?: (item: any) => void;
+  handleEdit?: (item: any) => void | ReactNode;
   handleDeleteClick?: (item: any) => void;
   addItemHref?: string;
   isAjustePonto?: boolean;
@@ -24,6 +28,11 @@ export default function Table({
     isAjustePonto = false
 }: TableProps) {
   const router = useRouter();
+
+  // Garantir que data é sempre um array
+  const safeData = Array.isArray(data) ? data : [];
+
+  console.log(`${title}:  ${safeData}`)
 
   const renderCell = (item: any, column: Column) => {
     if (!item || !column) return null;
@@ -65,7 +74,9 @@ export default function Table({
           </span>
         );
       case 'date':
-        return new Date(value).toLocaleDateString('pt-BR');
+        return formatDate(value, false);
+      case 'datetime':
+        return formatDate(value, true);
       default:
         return value;
     }
@@ -106,8 +117,8 @@ export default function Table({
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {data.map((item: any, index: number) => (
+                         <tbody className="bg-white divide-y divide-gray-200">
+               {safeData.map((item: any, index: number) => (
                 <tr key={item.id || `row-${index}`} className="hover:bg-gray-50">
                   {columns.map((column) => (
                     <td
@@ -119,24 +130,40 @@ export default function Table({
                   ))}
                   {(handleEdit || handleDeleteClick) && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        {handleEdit && (
-                          <button
-                            onClick={() => handleEdit(item)}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Editar
-                          </button>
-                        )}
-                        {handleDeleteClick && (
-                          <button
-                            onClick={() => handleDeleteClick(item)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Excluir
-                          </button>
-                        )}
-                      </div>
+                      {handleEdit && typeof handleEdit === 'function' ? (
+                        (() => {
+                          const result = handleEdit(item);
+                          return typeof result === 'object' ? result : (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleEdit(item)}
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                Editar
+                              </button>
+                              {handleDeleteClick && (
+                                <button
+                                  onClick={() => handleDeleteClick(item)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Excluir
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div className="flex space-x-2">
+                          {handleDeleteClick && (
+                            <button
+                              onClick={() => handleDeleteClick(item)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </td>
                   )}
                 </tr>
@@ -145,7 +172,7 @@ export default function Table({
           </table>
         </div>
 
-        {data.length === 0 && (
+                 {safeData.length === 0 && (
           <div className="text-center py-8">
             <p className="text-black">Nenhum {title} cadastrado.</p>
           </div>

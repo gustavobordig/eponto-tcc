@@ -399,4 +399,39 @@ export const formatSaldo = (saldoString: string): string => {
     console.error('Erro ao formatar saldo:', error);
     return "0h";
   }
+};
+
+/**
+ * Formata uma data para exibição amigável
+ * @param dateValue - Valor da data (string, Date ou null/undefined)
+ * @param includeTime - Se deve incluir hora na formatação
+ * @returns String formatada ou '-' se a data for inválida
+ */
+export const formatDate = (dateValue: string | Date | null | undefined, includeTime: boolean = false): string => {
+  try {
+    if (!dateValue) {
+      return '-';
+    }
+
+    const date = new Date(dateValue);
+    
+    if (isNaN(date.getTime())) {
+      return '-';
+    }
+
+    if (includeTime) {
+      return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } else {
+      return date.toLocaleDateString('pt-BR');
+    }
+  } catch (error) {
+    console.error('Erro ao formatar data:', error);
+    return '-';
+  }
 }; 
