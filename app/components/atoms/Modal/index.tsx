@@ -5,7 +5,7 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-export function Modal({ 
+export default function Modal({ 
     title, 
     children 
 }: ModalProps) {
@@ -32,7 +32,9 @@ export function Modal({
             />
           </div>
 
-          <h1 className="text-lg font-semibold text-[#002085] mb-4">{title}</h1>
+          <h1 className="text-lg font-semibold text-[#002085] mb-4">
+            {title}
+          </h1>
 
           <div className="p-4">
             {children}

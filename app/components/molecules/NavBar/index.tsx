@@ -27,7 +27,9 @@ const navItemNames: { [key: string]: string } = {
     "/perfil": "Meu Perfil",
     "/history": "Histórico de Pontos",
     "/calendar": "Calendário",
-    "/feedback": "Feedback"
+    "/feedback": "Feedback",
+    "/solicitar-ausencia": "Solicitar Ausência",
+    "/minhas-solicitacoes": "Minhas Solicitações"
 };
 
 export default function NavBar({

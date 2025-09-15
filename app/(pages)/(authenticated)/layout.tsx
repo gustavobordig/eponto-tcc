@@ -23,7 +23,9 @@ function AuthenticatedLayoutContent({
         "/perfil",
         "/history",
         "/calendar",
-        "/feedback"
+        "/feedback",
+        "/solicitar-ausencia",
+        "/minhas-solicitacoes"
     ];
 
     useEffect(() => {
@@ -33,7 +35,7 @@ function AuthenticatedLayoutContent({
             
             console.log("userId: ", userId);
             
-            if (!userId) {
+            if (false) {
                 showErrorToast("Usuário não encontrado");
                 router.push('/');
                 return;
