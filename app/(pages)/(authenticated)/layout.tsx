@@ -17,6 +17,7 @@ function AuthenticatedLayoutContent({
     const router = useRouter();
     const { isFeedbackModalOpen, closeFeedbackModal } = useFeedback();
     const [refreshCallback, setRefreshCallback] = useState<(() => void) | null>(null);
+    const [userName, setUserName] = useState<string>('');
     
     const navItems = [
         "/home",
@@ -52,6 +53,7 @@ function AuthenticatedLayoutContent({
                         telefone: response.usuario.telefone
                     };
                     
+                    setUserName(response.usuario.nome);
                     localStorage.setItem('user', JSON.stringify(userData));
                 }
             } catch (error) {
@@ -79,7 +81,7 @@ function AuthenticatedLayoutContent({
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="fixed top-0 left-0 right-0 z-50">
-                <NavBar itens={navItems} userName={JSON.parse(localStorage.getItem('user') || '{}').nome} />
+                <NavBar itens={navItems} userName={userName} />
             </div>
             <main className="container mx-auto px-4 py-8 pt-24">
                 {children}
