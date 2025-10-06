@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
 import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
+import { tokenUtils } from '@/utils/token';
+import { trackFallbackParamAccessed } from 'next/dist/server/app-render/dynamic-rendering';
 
 export default function AdminLayout({
   children,
@@ -36,21 +38,28 @@ export default function AdminLayout({
 
   useEffect(() => {
     // Verificar se já está autenticado
-    const authStatus = localStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
+    const token = tokenUtils.getToken();
+    const tipoAcesso = tokenUtils.getTipoAcesso();
+    const isAdmin = tokenUtils.isAdmin();
+    
+    if (token && tipoAcesso === 'admin' && isAdmin) {
       setIsAuthenticated(true);
+    } else if (token && isAdmin && !tipoAcesso) {
+      // Se tem token e é admin mas não tem tipo de acesso definido, redirecionar para seleção
+      router.push('/selecionar-perfil');
+    } else if (!token) {
+      // Se não tem token, redirecionar para login
+      router.push('/');
+    } else if (tipoAcesso === 'user') {
+      // Se escolheu acesso como usuário, redirecionar para home
+      router.push('/home');
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('adminAuthenticated');
-    router.push('/');
+    tokenUtils.logout();
   };
-
-  if (!isAuthenticated) {
-    return <AdminAuthForm onAuthenticate={setIsAuthenticated} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">

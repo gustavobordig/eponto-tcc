@@ -28,4 +28,21 @@ export interface EditModalField {
   required?: boolean;
   fieldName?: string; // Nome do campo para validação
   validationConfig?: ValidationConfig; // Configuração de validação específica
+}
+
+export interface UsuarioHierarquia {
+  idUsuario: number;
+  nome: string;
+  dataNascimento: string;
+  senha: string;
+  email: string;
+  telefone: number;
+  idCargo: number;
+  idJornada: number;
+  indAtivo: number;
+  fotoPerfil: string;
+  idChefe: number;
+  chefe: string;
+  subordinados: string[];
+  nivel: number;
 } 

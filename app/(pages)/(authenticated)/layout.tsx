@@ -24,6 +24,7 @@ function AuthenticatedLayoutContent({
         "/perfil",
         "/history",
         "/calendar",
+        "/hierarquia",
         "/feedback",
         "/solicitar-ausencia",
         "/solicitar-ferias",
@@ -33,6 +34,27 @@ function AuthenticatedLayoutContent({
 
     useEffect(() => {
         const checkUser = async () => {
+            const token = tokenUtils.getToken();
+            const tipoAcesso = tokenUtils.getTipoAcesso();
+            const isAdmin = tokenUtils.isAdmin();
+            
+            // Verificar se tem token
+            if (!token) {
+                router.push('/');
+                return;
+            }
+            
+            // Se é admin e escolheu acesso como admin, redirecionar para dashboard
+            if (isAdmin && tipoAcesso === 'admin') {
+                router.push('/dashboard');
+                return;
+            }
+            
+            // Se é admin mas não tem tipo de acesso definido, redirecionar para seleção
+            if (isAdmin && !tipoAcesso) {
+                router.push('/selecionar-perfil');
+                return;
+            }
             
             const userId = tokenUtils.getId();
             

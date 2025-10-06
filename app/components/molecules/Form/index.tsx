@@ -6,6 +6,7 @@ import { User, Lock } from "lucide-react";
 import { authService } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { AxiosError } from 'axios';
+import { tokenUtils } from "@/utils/token";
 
 // Atoms
 import Input from "@/app/components/atoms/Input";
@@ -41,12 +42,22 @@ export default function Form({
         try {
             setIsLoading(true);
             
-            await authService.realizarLogin({
+            const response = await authService.realizarLogin({
                 email: formData.email,
                 senha: formData.password
             });
             showSuccessToast("Login realizado com sucesso");
-            router.push('/home');
+            
+            // Verificar se o usuário tem perfil de admin
+            const isAdmin = response.perfisUsuario?.some(perfil => perfil.dscPerfil === 'ADMIN');
+            
+            if (isAdmin) {
+                // Se for admin, redirecionar para página de seleção de perfil
+                router.push('/selecionar-perfil');
+            } else {
+                // Se não for admin, ir direto para home
+                router.push('/home');
+            }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response?.data?.mensagem) {
                 showErrorToast(error.response.data.mensagem);

@@ -17,6 +17,7 @@ import ConfirmationModal from "../../atoms/ConfirmationModal";
 // Components
 import MobileNav from "./MobileNav";
 import { tokenUtils } from "@/utils/token";
+import { Shield } from "lucide-react";
 
 interface NavBarProps {
     itens: string[];
@@ -27,6 +28,7 @@ const navItemNames: { [key: string]: string } = {
     "/perfil": "Meu Perfil",
     "/history": "Histórico de Pontos",
     "/calendar": "Calendário",
+    "/hierarquia": "Hierarquia",
     "/feedback": "Feedback",
     "/solicitar-ausencia": "Solicitar Ausência",
     "/solicitar-ferias": "Solicitar Férias",
@@ -42,6 +44,7 @@ export default function NavBar({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [userPhoto, setUserPhoto] = useState<string>("/images/User.png");
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         // Carregar foto do usuário do localStorage
@@ -49,6 +52,9 @@ export default function NavBar({
         if (savedPhoto) {
             setUserPhoto(savedPhoto);
         }
+        
+        // Verificar se é admin
+        setIsAdmin(tokenUtils.isAdmin());
     }, []);
 
     const handleOpenModal = () => {
@@ -76,6 +82,10 @@ export default function NavBar({
         setIsLogoutModalOpen(false);
     };
 
+    const handleTrocarPerfil = () => {
+        router.push('/selecionar-perfil');
+    };
+
  
     return (
         <>
@@ -96,7 +106,7 @@ export default function NavBar({
                         </div>
 
                         <div className="flex items-center gap-8">
-                            <nav className="flex gap-6">
+                            <nav className="flex gap-6 max-w-[800px] overflow-x-auto scrollbar-hide">
                                 {itens.map((item, index) => (
                                     <Link 
                                         key={index} 
@@ -115,6 +125,22 @@ export default function NavBar({
                                     backgroundPosition: 'center'
                                 }}
                             />
+                            {isAdmin && (
+                                <Button 
+                                    text="Admin" 
+                                    backgroundColor="bg-red-600"
+                                    textColor="text-white"
+                                    fullWidth={false}
+                                    style={{
+                                        borderRadius: '30px',
+                                        padding: '0.5rem 1.5rem'
+                                     }}
+                                    className="px-6 font-medium flex items-center gap-2"
+                                    onClick={handleTrocarPerfil}
+                                >
+                                    <Shield className="w-4 h-4" />
+                                </Button>
+                            )}
                             <Button 
                                 text="Sair" 
                                 backgroundColor="bg-white"
