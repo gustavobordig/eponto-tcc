@@ -5,6 +5,7 @@ import { userService } from '@/services/user';
 import { tokenUtils } from '@/utils/token';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import ConfirmationModal from '@/app/components/atoms/ConfirmationModal';
+import ContractualInfo from '@/app/components/atoms/ContractualInfo';
 
 interface UserData {
   idUsuario: number;
@@ -231,6 +232,11 @@ export default function PerfilPage() {
                 >
                   Alterar foto
                 </button>
+              </div>
+
+              {/* Informações Contratuais */}
+              <div className="mb-8">
+                <ContractualInfo userId={userData.idUsuario} />
               </div>
 
               {/* Informações Pessoais */}
