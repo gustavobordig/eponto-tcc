@@ -1,6 +1,6 @@
 'use client';
 
-import { userService } from '@/services/user';
+import { userService, UserData } from '@/services/user';
 import { regexPatterns } from '@/utils/regexPatterns';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { listCargos } from '@/services/cargo';
@@ -26,8 +26,10 @@ export default function AdicionarUsuario() {
   const router = useRouter();
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [jornadas, setJornadas] = useState<Jornada[]>([]);
+  const [usuarios, setUsuarios] = useState<UserData[]>([]);
   const [selectedCargo, setSelectedCargo] = useState<string>('');
   const [selectedJornada, setSelectedJornada] = useState<string>('');
+  const [selectedChefe, setSelectedChefe] = useState<string>('');
   
   // Estados para validação
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -37,12 +39,14 @@ export default function AdicionarUsuario() {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const [cargosResponse, jornadasResponse] = await Promise.all([
+        const [cargosResponse, jornadasResponse, usuariosResponse] = await Promise.all([
           listCargos(),
-          jornadaTrabalhoService.listar()
+          jornadaTrabalhoService.listar(),
+          userService.getAll()
         ]);
         setCargos(cargosResponse.cargos || []);
         setJornadas(jornadasResponse.jornadas || []);
+        setUsuarios(usuariosResponse.usuarios || []);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
         showErrorToast('Erro ao carregar dados dos selects');
@@ -110,6 +114,8 @@ export default function AdicionarUsuario() {
       setSelectedCargo(value);
     } else if (fieldName === 'jornada') {
       setSelectedJornada(value);
+    } else if (fieldName === 'chefe') {
+      setSelectedChefe(value);
     }
 
     // Mostra validação apenas quando o usuário seleciona algo (valor não vazio)
@@ -148,6 +154,7 @@ export default function AdicionarUsuario() {
         telefone: formData.telefone ? parseInt(formData.telefone.replace(/\D/g, '')) : 0,
         idCargo: parseInt(selectedCargo),
         idJornada: parseInt(selectedJornada),
+        idChefe: selectedChefe ? parseInt(selectedChefe) : undefined,
         indAtivo: 1
       };
 
@@ -352,6 +359,42 @@ export default function AdicionarUsuario() {
                   message={selectedJornada ? 'Jornada selecionada' : 'Jornada de trabalho é obrigatória'}
                   show={!!(showValidations.jornada && selectedJornada !== '')}
                 />
+              </div>
+
+              {/* Campo Chefe */}
+              <div className="space-y-2">
+                <label htmlFor="chefe" className="block text-sm font-medium text-black">
+                  Chefe (opcional)
+                </label>
+                <Select
+                  value={selectedChefe}
+                  onValueChange={(value) => handleSelectChange('chefe', value)}
+                >
+                  <SelectTrigger className="w-full text-gray-600">
+                    <SelectValue placeholder="Selecione o chefe (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {usuarios.map((usuario) => (
+                      <SelectItem key={usuario.idUsuario} value={usuario.idUsuario.toString()}>
+                        {usuario.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedChefe && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-green-600">
+                      Chefe selecionado: {usuarios.find(u => u.idUsuario.toString() === selectedChefe)?.nome}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedChefe('')}
+                      className="text-sm text-red-600 hover:text-red-800 underline"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Campo Senha */}

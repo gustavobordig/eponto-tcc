@@ -9,6 +9,7 @@ export interface UserData {
   telefone: number;
   idCargo: number;
   idJornada: number;
+  idChefe?: number;
   indAtivo: number;
   fotoPerfil?: string;
 }
