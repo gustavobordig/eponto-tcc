@@ -1,0 +1,734 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { MessageSquare, Eye, Clock, User, X, CheckCircle, AlertCircle, MessageCircle, Send, Star } from 'lucide-react';
+
+//Components
+import Table from '@/app/components/atoms/Table';
+import LoadingText from '@/app/components/atoms/LoadingText';
+import Container from '@/app/components/atoms/container';
+import TextArea from '@/app/components/atoms/TextArea';
+import Button from '@/app/components/atoms/Button';
+
+//Services
+import { feedbackService, SolicitacaoData, FeedbackInsertData, FeedbackData } from '@/services/feedback';
+
+//Utils
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { tokenUtils } from '@/utils/token';
+
+//Types
+import { Column } from '@/types';
+
+interface SolicitacaoResponse {
+  sucesso: boolean;
+  mensagem: string | null;
+  solicitacao: SolicitacaoData | null;
+  solicitacoes: SolicitacaoData[] | null;
+  solicitacoesFeedback: SolicitacaoData[] | null;
+  feedback: SolicitacaoData | null;
+  feedbacks: SolicitacaoData[] | null;
+}
+
+interface FeedbackResponse {
+  sucesso: boolean;
+  mensagem: string | null;
+  feedback: FeedbackData | null;
+  feedbacks: FeedbackData[] | null;
+}
+
+export default function FeedbackPage() {
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoData[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [feedbacksLoading, setFeedbacksLoading] = useState(true);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoData | null>(null);
+  const [feedbackData, setFeedbackData] = useState({
+    mensagemFeedback: '',
+    avaliacao: 5
+  });
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackErrors, setFeedbackErrors] = useState<Record<string, string>>({});
+
+  const columns: Column[] = [
+    { key: 'nomeUsuarioSolicitacao', label: 'Solicitante' },
+    { key: 'dataSolicitacao', label: 'Data da Solicitação', type: 'date' },
+    { key: 'status', label: 'Status', type: 'status' },
+    { key: 'mensagemSolicitacao', label: 'Mensagem', type: 'text' }
+  ];
+
+  const feedbackColumns: Column[] = [
+    { key: 'dataRealizacao', label: 'Data do Feedback', type: 'date' },
+    { key: 'avaliacao', label: 'Avaliação' },
+    { key: 'mensagemFeedback', label: 'Mensagem', type: 'text' }
+  ];
+
+  const getStatusLabel = (status: number) => {
+    switch (status) {
+      case 0:
+        return 'Pendente';
+      case 1:
+        return 'Respondido';
+      default:
+        return 'Desconhecido';
+    }
+  };
+
+  const getStatusColor = (status: number) => {
+    switch (status) {
+      case 0:
+        return 'bg-yellow-100 text-yellow-800';
+      case 1:
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: number) => {
+    switch (status) {
+      case 0:
+        return <AlertCircle className="text-yellow-600" size={16} />;
+      case 1:
+        return <CheckCircle className="text-green-600" size={16} />;
+      default:
+        return <AlertCircle className="text-gray-600" size={16} />;
+    }
+  };
+
+  const getRatingStars = (rating: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={16}
+            className={star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+          />
+        ))}
+        <span className="text-sm text-gray-600 ml-1">({rating})</span>
+      </div>
+    );
+  };
+
+  const fetchSolicitacoes = async () => {
+    try {
+      const response = await feedbackService.getAllSolicitacoes() as SolicitacaoResponse;
+      console.log('Resposta da API:', response);
+      
+      if (response.sucesso && response.solicitacoesFeedback) {
+        console.log('Solicitações encontradas:', response.solicitacoesFeedback);
+        setSolicitacoes(response.solicitacoesFeedback);
+      } else {
+        console.log('Nenhuma solicitação encontrada ou erro na resposta');
+        setSolicitacoes([]);
+      }
+    } catch (error) {
+      showErrorToast('Erro ao carregar solicitações de feedback');
+      console.error('Erro ao carregar solicitações:', error);
+      setSolicitacoes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      const response = await feedbackService.getAllFeedbacks() as FeedbackResponse;
+      console.log('Resposta da API de feedbacks:', response);
+      
+      if (response.sucesso && response.feedbacks) {
+        console.log('Feedbacks encontrados:', response.feedbacks);
+        setFeedbacks(response.feedbacks);
+      } else {
+        console.log('Nenhum feedback encontrado ou erro na resposta');
+        setFeedbacks([]);
+      }
+    } catch (error) {
+      showErrorToast('Erro ao carregar feedbacks');
+      console.error('Erro ao carregar feedbacks:', error);
+      setFeedbacks([]);
+    } finally {
+      setFeedbacksLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSolicitacoes();
+    fetchFeedbacks();
+  }, []);
+
+  const handleView = (solicitacao: SolicitacaoData) => {
+    setSelectedSolicitacao(solicitacao);
+    setIsViewModalOpen(true);
+  };
+
+  const handleViewClose = () => {
+    setIsViewModalOpen(false);
+    setSelectedSolicitacao(null);
+  };
+
+  const handleFeedback = (solicitacao: SolicitacaoData) => {
+    setSelectedSolicitacao(solicitacao);
+    setIsFeedbackModalOpen(true);
+  };
+
+  const handleFeedbackClose = () => {
+    setIsFeedbackModalOpen(false);
+    setSelectedSolicitacao(null);
+    setFeedbackData({ mensagemFeedback: '', avaliacao: 5 });
+    setFeedbackErrors({});
+  };
+
+  const validateFeedbackForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!feedbackData.mensagemFeedback.trim()) {
+      newErrors.mensagemFeedback = 'Mensagem é obrigatória';
+    } else if (feedbackData.mensagemFeedback.length < 10) {
+      newErrors.mensagemFeedback = 'Mensagem deve ter pelo menos 10 caracteres';
+    }
+
+    if (feedbackData.avaliacao < 1 || feedbackData.avaliacao > 5) {
+      newErrors.avaliacao = 'Avaliação deve ser entre 1 e 5';
+    }
+
+    setFeedbackErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!validateFeedbackForm() || !selectedSolicitacao) {
+      return;
+    }
+
+    setFeedbackLoading(true);
+
+    try {
+      const userId = tokenUtils.getId();
+      
+      if (!userId) {
+        showErrorToast('Usuário não encontrado');
+        return;
+      }
+
+      const feedbackInsertData: Omit<FeedbackInsertData, 'idFeedback'> = {
+        idUsuarioFeedback: Number(userId),
+        idSolicitacaoFeedback: selectedSolicitacao.idSolicitacaoFeedback,
+        dataRealizacao: new Date().toISOString(),
+        mensagemFeedback: feedbackData.mensagemFeedback,
+        avaliacao: feedbackData.avaliacao
+      };
+
+      console.log('Dados sendo enviados para a API:', feedbackInsertData);
+
+      // Inserir o feedback
+      const feedbackResponse = await feedbackService.createFeedback(feedbackInsertData);
+
+      if (feedbackResponse.sucesso) {
+        // Atualizar o status da solicitação para "Respondido" (status = 1)
+        try {
+          await feedbackService.updateSolicitacaoStatus(selectedSolicitacao.idSolicitacaoFeedback, 1);
+        } catch (statusError) {
+          console.warn('Erro ao atualizar status da solicitação:', statusError);
+          // Não falhar se apenas a atualização do status der erro
+        }
+
+        showSuccessToast('Feedback enviado com sucesso!');
+        handleFeedbackClose();
+        fetchSolicitacoes(); // Recarregar a lista
+        fetchFeedbacks(); // Recarregar feedbacks
+      } else {
+        showErrorToast(feedbackResponse.mensagem || 'Erro ao enviar feedback');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error);
+      showErrorToast('Erro ao enviar feedback. Tente novamente.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const truncateText = (text: string | null | undefined, maxLength: number = 50) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // Preparar dados para a tabela de solicitações
+  const tableData = solicitacoes?.map(solicitacao => ({
+    ...solicitacao,
+    status: getStatusLabel(solicitacao.status),
+    statusColor: getStatusColor(solicitacao.status),
+    dataSolicitacao: formatDate(solicitacao.dataSolicitacao),
+    mensagemSolicitacao: truncateText(solicitacao.mensagemSolicitacao, 60)
+  })) || [];
+
+  // Preparar dados para a tabela de feedbacks
+  const feedbackTableData = feedbacks?.map(feedback => ({
+    ...feedback,
+    dataRealizacao: formatDate(feedback.dataRealizacao),
+    mensagemFeedback: truncateText(feedback.mensagemFeedback, 60),
+    avaliacao: getRatingStars(feedback.avaliacao)
+  })) || [];
+
+  if (loading) {
+    return (
+      <Container>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingText title="solicitações de feedback" />
+        </div>
+      </Container>
+    );
+  }
+
+  return (
+    <Container>
+      {/* Card de Solicitações de Feedback */}
+      <div className="bg-white rounded-lg shadow-sm p-6 m-4 mb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <MessageSquare className="text-blue-600" size={24} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Solicitações de Feedback</h1>
+              <p className="text-gray-600">Gerencie as solicitações de feedback dos usuários</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Clock className="text-blue-600" size={20} />
+              <span className="text-sm font-medium text-blue-600">Total</span>
+            </div>
+            <p className="text-2xl font-bold text-blue-900">{solicitacoes?.length || 0}</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Clock className="text-yellow-600" size={20} />
+              <span className="text-sm font-medium text-yellow-600">Pendentes</span>
+            </div>
+            <p className="text-2xl font-bold text-yellow-900">
+              {solicitacoes?.filter(s => s.status === 0).length || 0}
+            </p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Clock className="text-green-600" size={20} />
+              <span className="text-sm font-medium text-green-600">Respondidas</span>
+            </div>
+            <p className="text-2xl font-bold text-green-900">
+              {solicitacoes?.filter(s => s.status === 1).length || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Table */}
+        {solicitacoes && solicitacoes.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columns.map((column) => (
+                    <th
+                      key={column.key}
+                      className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
+                    >
+                      {column.label}
+                    </th>
+                  ))}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tableData.map((item, index) => (
+                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.nomeUsuarioSolicitacao}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.dataSolicitacao}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.statusColor}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {item.mensagemSolicitacao}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => handleView(solicitacoes[index])}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 my-2
+                         py-1 rounded text-xs flex items-center gap-1 transition-colors"
+                      >
+                        <Eye size={12} />
+                        Visualizar
+                      </button>
+                      {solicitacoes[index].status !== 1 && (
+                        <button
+                          onClick={() => handleFeedback(solicitacoes[index])}
+                          className="bg-green-500 hover:bg-green-600 text-white px-3
+                           my-2 py-1 rounded text-xs flex items-center gap-1 transition-colors"
+                        >
+                          <Send size={12} />
+                          Responder
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <MessageSquare className="mx-auto text-gray-400" size={48} />
+            <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
+            <p className="mt-2 text-gray-500">Não há solicitações de feedback para exibir.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Card de Feedbacks Enviados */}
+      <div className="bg-white rounded-lg shadow-sm p-6 m-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Star className="text-green-600" size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Feedbacks Enviados</h2>
+              <p className="text-gray-600">Visualize todos os feedbacks enviados pelos administradores</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats dos Feedbacks */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Star className="text-green-600" size={20} />
+              <span className="text-sm font-medium text-green-600">Total</span>
+            </div>
+            <p className="text-2xl font-bold text-green-900">{feedbacks?.length || 0}</p>
+          </div>
+          <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Star className="text-yellow-600" size={20} />
+              <span className="text-sm font-medium text-yellow-600">Avaliação 1-2</span>
+            </div>
+            <p className="text-2xl font-bold text-yellow-900">
+              {feedbacks?.filter(f => f.avaliacao <= 2).length || 0}
+            </p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Star className="text-blue-600" size={20} />
+              <span className="text-sm font-medium text-blue-600">Avaliação 3-4</span>
+            </div>
+            <p className="text-2xl font-bold text-blue-900">
+              {feedbacks?.filter(f => f.avaliacao >= 3 && f.avaliacao <= 4).length || 0}
+            </p>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Star className="text-purple-600" size={20} />
+              <span className="text-sm font-medium text-purple-600">Avaliação 5</span>
+            </div>
+            <p className="text-2xl font-bold text-purple-900">
+              {feedbacks?.filter(f => f.avaliacao === 5).length || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Table de Feedbacks */}
+        {feedbacksLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Carregando feedbacks...</p>
+          </div>
+        ) : feedbacks && feedbacks.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {feedbackColumns.map((column) => (
+                    <th
+                      key={column.key}
+                      className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
+                    >
+                      {column.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {feedbackTableData.map((item, index) => (
+                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {item.dataRealizacao}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {item.avaliacao}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {item.mensagemFeedback}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Star className="mx-auto text-gray-400" size={48} />
+            <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhum feedback encontrado</h3>
+            <p className="mt-2 text-gray-500">Não há feedbacks enviados para exibir.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal de Visualização Melhorada */}
+      {isViewModalOpen && selectedSolicitacao && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            style={{
+              opacity: 0.5
+            }}
+            onClick={handleViewClose}
+          />
+          
+          {/* Modal */}
+          <div 
+            className="bg-white rounded-xl shadow-xl flex flex-col max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-51"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <MessageCircle className="text-blue-600" size={20} />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">Detalhes da Solicitação</h2>
+              </div>
+              <button
+                onClick={handleViewClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X size={24} className="hover:text-red-600 cursor-pointer" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Status Badge */}
+              <div className="flex justify-center">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(selectedSolicitacao.status)}`}>
+                  {getStatusIcon(selectedSolicitacao.status)}
+                  <span className="font-medium">{getStatusLabel(selectedSolicitacao.status)}</span>
+                </div>
+              </div>
+
+              {/* Informações do Solicitante */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <User size={18} className="text-blue-600" />
+                  Informações do Solicitante
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-600">Nome:</label>
+                    <p className="text-gray-900 font-medium">{selectedSolicitacao.nomeUsuarioSolicitacao}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informações da Solicitação */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Clock size={18} className="text-green-600" />
+                  Informações da Solicitação
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-600">Data da Solicitação:</label>
+                    <p className="text-gray-900 font-medium">{formatDate(selectedSolicitacao.dataSolicitacao)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mensagem */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <MessageCircle size={18} className="text-purple-600" />
+                  Mensagem da Solicitação
+                </h4>
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{selectedSolicitacao.mensagemSolicitacao}</p>
+                </div>
+              </div>
+
+              {/* Responsável */}
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-100">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <User size={18} className="text-orange-600" />
+                  Responsável
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-600">Nome:</label>
+                    <p className="text-gray-900 font-medium">{selectedSolicitacao.nomeResponsavelFeedback}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              {selectedSolicitacao.status !== 1 && (
+                <button
+                  onClick={() => {
+                    handleViewClose();
+                    handleFeedback(selectedSolicitacao);
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                >
+                  <Send size={16} />
+                  Responder
+                </button>
+              )}
+              <button
+                onClick={handleViewClose}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Modal de Inserir Feedback */}
+      {isFeedbackModalOpen && selectedSolicitacao && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            style={{
+              opacity: 0.5
+            }}
+            onClick={handleFeedbackClose}
+          />
+          
+          {/* Modal */}
+          <div 
+            className="bg-white rounded-xl shadow-xl flex flex-col max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-51"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Send className="text-green-600" size={20} />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">Inserir Feedback</h2>
+              </div>
+              <button
+                onClick={handleFeedbackClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X size={24} className="hover:text-red-600 cursor-pointer" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Informações da Solicitação */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-gray-900 mb-2">Solicitação de {selectedSolicitacao.nomeUsuarioSolicitacao}</h4>
+                <p className="text-gray-600 text-sm">{selectedSolicitacao.mensagemSolicitacao}</p>
+              </div>
+
+              {/* Formulário de Feedback */}
+              <div className="space-y-4">
+                <TextArea
+                  label="Mensagem do Feedback"
+                  placeholder="Digite sua resposta, feedback ou avaliação para esta solicitação..."
+                  value={feedbackData.mensagemFeedback}
+                  onTextareaChange={(value) => setFeedbackData(prev => ({ ...prev, mensagemFeedback: value }))}
+                  error={feedbackErrors.mensagemFeedback}
+                />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Avaliação (1-5)
+                  </label>
+                  <select
+                    value={feedbackData.avaliacao}
+                    onChange={(e) => setFeedbackData(prev => ({ ...prev, avaliacao: Number(e.target.value) }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value={1}>1 - Muito Ruim</option>
+                    <option value={2}>2 - Ruim</option>
+                    <option value={3}>3 - Regular</option>
+                    <option value={4}>4 - Bom</option>
+                    <option value={5}>5 - Excelente</option>
+                  </select>
+                  {feedbackErrors.avaliacao && (
+                    <p className="text-red-500 text-sm mt-1">{feedbackErrors.avaliacao}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={handleFeedbackClose}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <Button
+                text="Enviar Feedback"
+                onClick={handleSubmitFeedback}
+                isLoading={feedbackLoading}
+                className="px-4 py-2"
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </Container>
+  );
+} 

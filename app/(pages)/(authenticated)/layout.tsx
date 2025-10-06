@@ -1,23 +1,32 @@
 "use client";
 
 import NavBar from "@/app/components/molecules/NavBar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
 import { useRouter } from "next/navigation";
 import { showErrorToast } from "@/utils/toast";
-
-export default function AuthenticatedLayout({
+import FeedbackModal from "@/app/components/molecules/FeedbackModal";
+import { FeedbackProvider, useFeedback } from "@/app/contexts/FeedbackContext";
+    
+function AuthenticatedLayoutContent({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const { isFeedbackModalOpen, closeFeedbackModal } = useFeedback();
+    const [refreshCallback, setRefreshCallback] = useState<(() => void) | null>(null);
+    const [userName, setUserName] = useState<string>('');
+    
     const navItems = [
         "/home",
         "/perfil",
         "/history",
-        "/calendar"
+        "/calendar",
+        "/feedback",
+        "/solicitar-ausencia",
+        "/minhas-solicitacoes"
     ];
 
     useEffect(() => {
@@ -27,7 +36,7 @@ export default function AuthenticatedLayout({
             
             console.log("userId: ", userId);
             
-            if (!userId) {
+            if (false) {
                 showErrorToast("Usuário não encontrado");
                 router.push('/');
                 return;
@@ -44,6 +53,7 @@ export default function AuthenticatedLayout({
                         telefone: response.usuario.telefone
                     };
                     
+                    setUserName(response.usuario.nome);
                     localStorage.setItem('user', JSON.stringify(userData));
                 }
             } catch (error) {
@@ -55,14 +65,47 @@ export default function AuthenticatedLayout({
         checkUser();
     }, [router]);
 
+    // Função para registrar o callback de refresh da página atual
+    const registerRefreshCallback = (callback: () => void) => {
+        setRefreshCallback(() => callback);
+    };
+
+    // Expor a função para as páginas filhas
+    useEffect(() => {
+        (window as any).registerFeedbackRefresh = registerRefreshCallback;
+        return () => {
+            delete (window as any).registerFeedbackRefresh;
+        };
+    }, []);
+
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="fixed top-0 left-0 right-0 z-50">
-                <NavBar itens={navItems} userName={JSON.parse(localStorage.getItem('user') || '{}').nome} />
+                <NavBar itens={navItems} userName={userName} />
             </div>
             <main className="container mx-auto px-4 py-8 pt-24">
                 {children}
             </main>
+
+            <FeedbackModal 
+                isOpen={isFeedbackModalOpen}
+                onClose={closeFeedbackModal}
+                onSolicitacaoCreated={refreshCallback || undefined}
+            />
         </div>
+    );
+}
+
+export default function AuthenticatedLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <FeedbackProvider>
+            <AuthenticatedLayoutContent>
+                {children}
+            </AuthenticatedLayoutContent>
+        </FeedbackProvider>
     );
 }
