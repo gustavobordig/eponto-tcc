@@ -29,7 +29,9 @@ const navItemNames: { [key: string]: string } = {
     "/calendar": "Calendário",
     "/feedback": "Feedback",
     "/solicitar-ausencia": "Solicitar Ausência",
-    "/minhas-solicitacoes": "Minhas Solicitações"
+    "/solicitar-ferias": "Solicitar Férias",
+    "/minhas-solicitacoes": "Minhas Solicitações",
+    "/minhas-ferias": "Minhas Férias"
 };
 
 export default function NavBar({

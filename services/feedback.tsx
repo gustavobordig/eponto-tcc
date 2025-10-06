@@ -140,5 +140,25 @@ export const feedbackService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  // Obter solicitações por responsável
+  getSolicitacoesByResponsavel: async (idResponsavel: number): Promise<SolicitacaoResponse> => {
+    try {
+      const response = await api.get<SolicitacaoResponse>(`/api/Feedback/ListarSolicitacoesResponsavel/${idResponsavel}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Obter feedbacks por usuário
+  getFeedbacksByUsuario: async (idUsuario: number): Promise<FeedbackResponse> => {
+    try {
+      const response = await api.get<FeedbackResponse>(`/api/Feedback/ListarFeedbacksUsuario/${idUsuario}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 }; 

@@ -64,5 +64,14 @@ export const userService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  getContract: async (id: number): Promise<any> => {
+    try {
+      const response = await api.get(`/api/Usuario/Contrato/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 }; 

@@ -50,7 +50,7 @@ export const deleteCargo = async (idCargo: number) => {
 
 export const getCargo = async (idCargo: number) => {
   try {
-    const response = await api.get(`/api/Cargo/Buscar/${idCargo}`);
+    const response = await api.get(`/api/Cargo/${idCargo}`);
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar cargo:', error);

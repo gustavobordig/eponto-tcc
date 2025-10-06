@@ -26,7 +26,9 @@ function AuthenticatedLayoutContent({
         "/calendar",
         "/feedback",
         "/solicitar-ausencia",
-        "/minhas-solicitacoes"
+        "/solicitar-ferias",
+        "/minhas-solicitacoes",
+        "/minhas-ferias"
     ];
 
     useEffect(() => {

@@ -65,4 +65,14 @@ export const updateTimeRecord = async (payload: UpdateTimeRecordPayload) => {
     console.error('Error updating time record:', error);
     throw error;
   }
+};
+
+export const deleteTimeRecord = async (id: number) => {
+  try {
+    const response = await api.delete(`/api/RegistroPonto/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting time record:', error);
+    throw error;
+  }
 }; 

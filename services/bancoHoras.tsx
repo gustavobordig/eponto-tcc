@@ -83,4 +83,26 @@ export const bancoHorasService = {
       };
     }
   },
+
+  // Obtém as horas trabalhadas por mês para um usuário
+  obterHorasTrabalhadasMes: async (userId: number): Promise<BancoHorasResponse> => {
+    try {
+      const response = await api.get(`/api/BancoHoras/HorasTrabalhadasMes/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao obter horas trabalhadas por mês:', error);
+      throw error;
+    }
+  },
+
+  // Obtém as horas extras por mês para um usuário
+  obterHorasExtrasMes: async (userId: number): Promise<BancoHorasResponse> => {
+    try {
+      const response = await api.get(`/api/BancoHoras/HorasExtrasMes/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao obter horas extras por mês:', error);
+      throw error;
+    }
+  },
 }; 
