@@ -1,6 +1,7 @@
 "use client";
 
 import NavBar from "@/app/components/molecules/NavBar";
+import SimpleLanguageSelector from "@/app/components/atoms/SimpleLanguageSelector";
 import { useEffect, useState } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
@@ -86,6 +87,11 @@ function AuthenticatedLayoutContent({
             <main className="container mx-auto px-4 py-8 pt-24">
                 {children}
             </main>
+
+            {/* Language Selector Flutuante */}
+            <div className="fixed bottom-4 right-4 z-40">
+                <SimpleLanguageSelector className="shadow-lg" />
+            </div>
 
             <FeedbackModal 
                 isOpen={isFeedbackModalOpen}

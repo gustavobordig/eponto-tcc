@@ -14,6 +14,7 @@ import Button from "@/app/components/atoms/Button";
 // Utils
 import { showErrorToast, showSuccessToast } from "@/utils/toast";
 import { CustomTooltip } from "@/utils/tooltip";
+import { tokenUtils } from "@/utils/token";
 
 
 interface FormProps {
@@ -45,8 +46,17 @@ export default function Form({
                 email: formData.email,
                 senha: formData.password
             });
+            
             showSuccessToast("Login realizado com sucesso");
-            router.push('/home');
+            
+            // Verificar se o usuário tem perfil ADMIN
+            if (tokenUtils.hasAdminProfile()) {
+                // Se tem perfil ADMIN, vai para página de seleção
+                router.push('/profile-selection');
+            } else {
+                // Se não tem perfil ADMIN, vai direto para home
+                router.push('/home');
+            }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response?.data?.mensagem) {
                 showErrorToast(error.response.data.mensagem);

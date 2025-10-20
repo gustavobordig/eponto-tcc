@@ -1,21 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { tokenUtils } from "@/utils/token";
-
-// Atoms
 import Container from "@/app/components/atoms/container";
-
-// Organisms
 import LoginContainer from "@/app/components/organisms/LoginContainer";
 
-// Utils
-import { showSuccessToast } from "@/utils/toast";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Container>
         <LoginContainer />
       </Container>

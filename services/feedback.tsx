@@ -23,8 +23,8 @@ export interface SolicitacaoData {
 export interface FeedbackInsertData {
   idFeedback: number;
   idUsuarioFeedback: number;
-  idSolicitacaoFeedback: number;
-  dataRealizacao: string;
+  idAutorFeedback: number;
+  idSolicitacaoFeedback?: number;
   mensagemFeedback: string;
   avaliacao: number;
 }

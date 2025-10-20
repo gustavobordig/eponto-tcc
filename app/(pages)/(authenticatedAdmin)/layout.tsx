@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
 import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
+import { tokenUtils } from '@/utils/token';
+import SimpleLanguageSelector from '@/app/components/atoms/SimpleLanguageSelector';
 
 export default function AdminLayout({
   children,
@@ -20,31 +21,47 @@ export default function AdminLayout({
     {href: '/dashboard', label: 'Usuários' },
     {href:"/dashboard/cargos", label:"Cargos"},
     {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
-    {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
     {href:"/dashboard/feriados", label:"Feriados"},
     {href:"/dashboard/ferias", label:"Férias"},
-    {href:"/dashboard/feedback", label:"Feedback"},
-    {href:"/dashboard/solicitacoes-ausencia", label:"Solicitações de Ausência"},
     {href:"/dashboard/calendario", label:"Calendário"},
     {href:"/dashboard/analytics", label:"Estatísticas"},
   ];
 
+  const approvalItems = [
+    {href:"/dashboard/aprovacoes", label:"Central de Aprovações"},
+  ];
+
   useEffect(() => {
-    // Verificar se já está autenticado
-    const authStatus = localStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
+    // Verificar se está logado e tem perfil ADMIN
+    const token = tokenUtils.getToken();
+    const selectedProfile = tokenUtils.getSelectedProfile();
+    
+    if (!token) {
+      router.push('/');
+      return;
     }
-  }, []);
+    
+    if (selectedProfile === 'admin') {
+      setIsAuthenticated(true);
+    } else {
+      // Se não tem perfil admin selecionado, redirecionar para seleção
+      router.push('/profile-selection');
+    }
+  }, [router]);
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('adminAuthenticated');
-    router.push('/');
+    tokenUtils.logout();
   };
 
   if (!isAuthenticated) {
-    return <AdminAuthForm onAuthenticate={setIsAuthenticated} />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Verificando permissões...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -72,10 +89,25 @@ export default function AdminLayout({
                       {item.label}
                     </Link>
                   ))}
+                  <div className="border-l border-gray-300 mx-2"></div>
+                  {approvalItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`${
+                        pathname === item.href
+                          ? 'border-green-500 text-gray-900 bg-green-50'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50'
+                      } inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium whitespace-nowrap transition-colors duration-200 flex-shrink-0`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="hidden lg:flex items-center flex-shrink-0 ml-4">
+            <div className="hidden lg:flex items-center flex-shrink-0 ml-4 gap-3">
+              <SimpleLanguageSelector />
               <button
                 onClick={handleLogout}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
@@ -147,9 +179,25 @@ export default function AdminLayout({
                 {item.label}
               </Link>
             ))}
+            <div className="border-t border-gray-200 my-2"></div>
+            {approvalItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`${
+                  pathname === item.href
+                    ? 'bg-green-50 border-green-500 text-green-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                } block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4">
+            <div className="flex flex-col gap-3 px-4">
+              <SimpleLanguageSelector />
               <button
                 onClick={handleLogout}
                 className="w-full justify-center inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"

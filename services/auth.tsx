@@ -9,13 +9,14 @@ interface LoginPayload {
 }
 
 interface LoginResponse {
+  sucesso: boolean;
+  mensagem: string;
   token: string;
   idUsuario: number;
-  usuario: {
-    id: number;
-    nome: string;
-    email: string;
-  };
+  perfisUsuario: Array<{
+    idPerfil: number;
+    dscPerfil: string;
+  }>;
 }
 
 interface AlterarSenhaPayload {
@@ -40,6 +41,7 @@ export const authService = {
       if (response.data.token) {
         tokenUtils.setToken(response.data.token);
         tokenUtils.setId(response.data.idUsuario.toString());
+        tokenUtils.setProfiles(response.data.perfisUsuario);
       }
       return response.data;
     } catch (error) {

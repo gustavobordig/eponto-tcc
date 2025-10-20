@@ -159,6 +159,28 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
 
       console.log("targetDate: ", targetDate);
 
+      // Obter localização atual
+      let localizacao = "Localização não disponível";
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        });
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1&accept-language=pt-BR`
+        );
+        
+        const data = await response.json();
+        localizacao = data.display_name || "Localização não disponível";
+      } catch (error) {
+        console.error('Erro ao obter localização:', error);
+        localizacao = "Localização não disponível";
+      }
+
       const payload = {
         idSolicitante: parseInt(userId),
         dataRegistroAlteracao: targetDate,
@@ -167,22 +189,26 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
           ...(formData.entrada.time ? [{
             ...(registrosDoDia?.entrada ? { idRegistro: registrosDoDia.entrada } : {}),
             horaRegistro: `${targetDate}T${formData.entrada.time}:00`,
-            idTipoRegistroPonto: 1
+            idTipoRegistroPonto: 1,
+            localizacao: localizacao
           }] : []),
           ...(formData.inicioAlmoco.time ? [{
             ...(registrosDoDia?.inicioAlmoco ? { idRegistro: registrosDoDia.inicioAlmoco } : {}),
             horaRegistro: `${targetDate}T${formData.inicioAlmoco.time}:00`,
-            idTipoRegistroPonto: 2
+            idTipoRegistroPonto: 2,
+            localizacao: localizacao
           }] : []),
           ...(formData.fimAlmoco.time ? [{
             ...(registrosDoDia?.fimAlmoco ? { idRegistro: registrosDoDia.fimAlmoco } : {}),
             horaRegistro: `${targetDate}T${formData.fimAlmoco.time}:00`,
-            idTipoRegistroPonto: 3
+            idTipoRegistroPonto: 3,
+            localizacao: localizacao
           }] : []),
           ...(formData.saida.time ? [{
             ...(registrosDoDia?.saida ? { idRegistro: registrosDoDia.saida } : {}),
             horaRegistro: `${targetDate}T${formData.saida.time}:00`,
-            idTipoRegistroPonto: 4
+            idTipoRegistroPonto: 4,
+            localizacao: localizacao
           }] : [])
         ]
       };

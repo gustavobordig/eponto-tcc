@@ -1,17 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Container from '@/app/components/atoms/container';
+import { useState } from 'react';
+
+// Components
+import ListPageTemplate from '@/app/components/templates/ListPageTemplate';
+
+// Services
 import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+
+// Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { useRouter } from 'next/navigation';
 
-//Components
-import Table from '@/app/components/atoms/Table';
-import EditModal from '@/app/components/atoms/EditModal';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
-
-//Types
+// Types
 import { Column } from '@/types';
 
 
@@ -32,17 +32,6 @@ interface ApiResponse {
 export default function JornadaTrabalhoPage() {
   const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [jornadaToDelete, setJornadaToDelete] = useState<number | null>(null);
-  const [jornadaToEdit, setJornadaToEdit] = useState<JornadaTrabalho | null>(null);
-  const [editedNomeJornada, setEditedNomeJornada] = useState('');
-  const [editedqtdHorasDiarias, setEditedqtdHorasDiarias] = useState('');
-  const [editedStatus, setEditedStatus] = useState(1);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
-
- 
 
   const columns: Column[] = [
     {
@@ -60,7 +49,7 @@ export default function JornadaTrabalhoPage() {
       label: 'Status',
       type: 'status'
     } 
-  ]   
+  ];
 
   const fetchJornadas = async () => {
     try {
@@ -75,147 +64,79 @@ export default function JornadaTrabalhoPage() {
     }
   };
 
-  useEffect(() => {
-    fetchJornadas();
-  }, []);
-
-  const handleEdit = (jornada: JornadaTrabalho) => {
-    if (!jornada || !jornada.idJornada) {
-      showErrorToast('Dados da jornada inválidos');
-      return;
+  const handleUpdateJornada = async (jornada: JornadaTrabalho) => {
+    if (!jornada.idJornada) {
+      throw new Error('ID da jornada não encontrado');
     }
-    setJornadaToEdit(jornada);
-    setEditedNomeJornada(jornada.nomeJornada || '');
-    setEditedqtdHorasDiarias(jornada.qtdHorasDiarias?.toString() || '');
-    setEditedStatus(jornada.indAtivo || 1);
-    setIsEditModalOpen(true);
+    await jornadaTrabalhoService.atualizar(jornada.idJornada, jornada);
   };
 
-  const handleEditClose = () => {
-    setIsEditModalOpen(false);
-    setJornadaToEdit(null);
-    setEditedNomeJornada('');
-    setEditedqtdHorasDiarias('');
-    setEditedStatus(1);
+  const handleDeleteJornada = async (id: number) => {
+    await jornadaTrabalhoService.deletar(id);
   };
 
-  const handleEditConfirm = async () => {
-    if (!jornadaToEdit) return;
-
-    setEditLoading(true);
-    try {
-      const updatedJornada: JornadaTrabalho = {
-        nomeJornada: editedNomeJornada,
-        qtdHorasDiarias: Number(editedqtdHorasDiarias),
-      };
-
-      await jornadaTrabalhoService.atualizar(jornadaToEdit.idJornada!, updatedJornada);
-      showSuccessToast('Jornada atualizada com sucesso!');
-      fetchJornadas();
-      handleEditClose();
-    } catch (error) {
-      showErrorToast('Erro ao atualizar jornada. Tente novamente.');
-      console.error('Erro ao atualizar jornada:', error);
-    } finally {
-      setEditLoading(false);
+  const getEditFields = (jornada: JornadaTrabalho, setField: (field: string, value: any) => void) => [
+    {
+      label: "Nome da Jornada",
+      value: jornada.nomeJornada,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('nomeJornada', e.target.value),
+      fieldName: "nomeJornada",
+      required: true
+    },
+    {
+      label: "Quantidade de Horas Diárias",
+      value: jornada.qtdHorasDiarias?.toString() || '',
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('qtdHorasDiarias', Number(e.target.value)),
+      type: "number" as const,
+      fieldName: "qtdHorasDiarias",
+      required: true
+    },
+    {
+      label: "Status",
+      value: jornada.indAtivo?.toString() || '1',
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indAtivo', Number(e.target.value)),
+      type: "select" as const,
+      options: [
+        { value: "1", label: "Ativo" },
+        { value: "0", label: "Inativo" }
+      ],
+      fieldName: "status",
+      required: false
     }
-  };
+  ];
 
-  const handleDeleteClick = (jornada: JornadaTrabalho) => {
-    setJornadaToDelete(jornada.idJornada!);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!jornadaToDelete) {
-      showErrorToast('ID da jornada não encontrado');
-      setIsDeleteModalOpen(false);
-      setJornadaToDelete(null);
-      return;
+  const getItemId = (jornada: JornadaTrabalho) => {
+    if (!jornada.idJornada) {
+      throw new Error('ID da jornada não encontrado');
     }
-    
-    setDeleteLoading(true);
-    try {
-      await jornadaTrabalhoService.deletar(jornadaToDelete);
-      showSuccessToast('Jornada excluída com sucesso!');
-      fetchJornadas();
-    } catch (error) {
-      showErrorToast('Erro ao excluir jornada. Tente novamente.');
-      console.error('Erro ao excluir jornada:', error);
-    } finally {
-      setDeleteLoading(false);
-      setIsDeleteModalOpen(false);
-      setJornadaToDelete(null);
-    }
+    return jornada.idJornada;
   };
 
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false);
-    setJornadaToDelete(null);
-  };
-
-  if (loading) {
-    return (
-      <Container className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando jornadas...</p>
-        </div>
-      </Container>
-    );
-  }
+  const createUpdatedItem = (originalJornada: JornadaTrabalho, editedFields: Record<string, any>): JornadaTrabalho => ({
+    idJornada: originalJornada.idJornada,
+    nomeJornada: editedFields.nomeJornada,
+    qtdHorasDiarias: editedFields.qtdHorasDiarias,
+    indAtivo: editedFields.indAtivo
+  });
 
   return (
-    <Container className="py-8">
-
-
-       {/* Tabela de Jornadas de Trabalho */}
-      <Table
-        data={jornadas}
-        columns={columns}   
-        title="Jornadas de Trabalho"
-        handleEdit={handleEdit}
-        handleDeleteClick={handleDeleteClick}
-        addItemHref="/adicionar-jornada"
-      />
-
-      {/* Modal de edição */}
-      {isEditModalOpen && jornadaToEdit && (
-        <EditModal
-          title="Editar Jornada"
-          fields={[
-            {
-              label: "Nome da Jornada",
-              value: editedNomeJornada,
-              onChange: (e) => setEditedNomeJornada(e.target.value)
-            },
-            {
-              label: "Quantidade de Horas Diárias",
-              value: editedqtdHorasDiarias,
-              onChange: (e) => setEditedqtdHorasDiarias(e.target.value)
-            },
-            {
-              label: "Status",
-              value: editedStatus.toString(),
-              onChange: (e) => setEditedStatus(Number(e.target.value))
-            }
-          ]}
-          onClose={handleEditClose}
-          onConfirm={handleEditConfirm}
-          loading={editLoading}
-        />
-      )}
-
-      {/* Modal de confirmação de exclusão */}
-      {isDeleteModalOpen && (
-        <ExcludeModal
-          title="Confirmar exclusão"
-          message="Tem certeza que deseja excluir esta jornada? Esta ação não pode ser desfeita."
-          onCancel={handleCancelDelete}
-          onConfirm={handleDeleteConfirm}
-          loading={deleteLoading}
-        />
-      )}
-    </Container>
+    <ListPageTemplate
+      data={jornadas}
+      setData={setJornadas}
+      loading={loading}
+      setLoading={setLoading}
+      title="Jornadas de Trabalho"
+      columns={columns}
+      addItemHref="/adicionar-jornada"
+      fetchData={fetchJornadas}
+      updateItem={handleUpdateJornada}
+      deleteItem={handleDeleteJornada}
+      editModalTitle="Editar Jornada"
+      deleteModalTitle="Confirmar exclusão"
+      deleteModalMessage="Tem certeza que deseja excluir esta jornada? Esta ação não pode ser desfeita."
+      getEditFields={getEditFields}
+      getItemId={getItemId}
+      createUpdatedItem={createUpdatedItem}
+    />
   );
 } 

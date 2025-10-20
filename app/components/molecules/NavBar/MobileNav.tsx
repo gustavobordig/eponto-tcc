@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 // Assets
 import logo from "@/public/images/Logo.png";
@@ -17,6 +18,7 @@ interface MobileNavProps {
 }
 
 export default function MobileNav({ itens, navItemNames }: MobileNavProps) {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -117,7 +119,7 @@ export default function MobileNav({ itens, navItemNames }: MobileNavProps) {
                                         className="flex flex-col gap-4 items-start py-4"
                                     >
                                         <Button 
-                                            text="Bater Ponto" 
+                                            text={t('home.punch-in')} 
                                             backgroundColor="bg-transparent"
                                             textColor="text-[#002085]"
                                             fullWidth={true}

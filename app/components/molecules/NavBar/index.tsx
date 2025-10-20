@@ -13,33 +13,38 @@ import Container from "../../atoms/container";
 import Button from "../../atoms/Button";
 import { Modal } from "@/app/components/molecules/Modal";
 import ConfirmationModal from "../../atoms/ConfirmationModal";
+import SimpleLanguageSelector from "../../atoms/SimpleLanguageSelector";
 
 // Components
 import MobileNav from "./MobileNav";
 import { tokenUtils } from "@/utils/token";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 interface NavBarProps {
     itens: string[];
     userName?: string;
 }
 
-const navItemNames: { [key: string]: string } = {
-    "/perfil": "Meu Perfil",
-    "/history": "Histórico de Pontos",
-    "/calendar": "Calendário",
-    "/feedback": "Feedback",
-    "/solicitar-ausencia": "Solicitar Ausência",
-    "/minhas-solicitacoes": "Minhas Solicitações"
-};
+const getNavItemNames = (t: (key: string) => string) => ({
+    "/perfil": t('nav.profile'),
+    "/history": t('nav.history'),
+    "/calendar": t('nav.calendar'),
+    "/feedback": t('nav.feedback'),
+    "/solicitar-ausencia": t('nav.request-absence'),
+    "/minhas-solicitacoes": t('nav.my-requests')
+});
 
 export default function NavBar({
     itens,
     userName = "Usuário"
 }: NavBarProps) {
+    const { t } = useLanguage();
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [userPhoto, setUserPhoto] = useState<string>("/images/User.png");
+    
+    const navItemNames = getNavItemNames(t);
 
     useEffect(() => {
         // Carregar foto do usuário do localStorage
@@ -105,6 +110,7 @@ export default function NavBar({
                                     </Link>
                                 ))}
                             </nav>
+                            <SimpleLanguageSelector />
                             <div 
                                 className="w-[40px] h-[40px] rounded-full bg-cover bg-center border-2 border-[#002085]"
                                 style={{
@@ -114,7 +120,7 @@ export default function NavBar({
                                 }}
                             />
                             <Button 
-                                text="Sair" 
+                                text={t('nav.logout')} 
                                 backgroundColor="bg-white"
                                 textColor="text-[#002085]"
                                 fullWidth={false}
@@ -128,7 +134,7 @@ export default function NavBar({
                                 onClick={handleLogoutClick}
                             />
                             <Button 
-                                text="Bater Ponto" 
+                                text={t('home.punch-in')} 
                                 backgroundColor="bg-[#002085]"
                                 textColor="text-white"
                                 fullWidth={false}
@@ -155,10 +161,10 @@ export default function NavBar({
                 isOpen={isLogoutModalOpen}
                 onClose={handleCloseLogoutModal}
                 onConfirm={handleConfirmLogout}
-                title="Confirmar Logout"
+                title={t('nav.logout')}
                 message="Tem certeza que deseja sair do sistema?"
-                confirmText="Sair"
-                cancelText="Cancelar"
+                confirmText={t('nav.logout')}
+                cancelText={t('common.cancel')}
             />
         </>
     )

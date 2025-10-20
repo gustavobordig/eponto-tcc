@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { tokenUtils } from "@/utils/token";
 import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
-import { showErrorToast } from "@/utils/toast";
+import { showErrorToast, showSuccessToast } from "@/utils/toast";
 import { useRouter } from "next/navigation";
 import Button from "@/app/components/atoms/Button";
 import LoadingText from "@/app/components/atoms/LoadingText";
@@ -11,24 +11,24 @@ import LoadingText from "@/app/components/atoms/LoadingText";
 export default function MinhasSolicitacoesPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAusencia[]>([]);
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAusencia | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getStatusText = (status: number) => {
     switch (status) {
+      case 0: return "Finalizado";
       case 1: return "Pendente";
-      case 2: return "Aprovada";
-      case 3: return "Reprovada";
       default: return "Desconhecido";
     }
   };
 
   const getStatusColor = (status: number) => {
     switch (status) {
+      case 0: return "bg-green-100 text-green-800";
       case 1: return "bg-yellow-100 text-yellow-800";
-      case 2: return "bg-green-100 text-green-800";
-      case 3: return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -37,52 +37,20 @@ export default function MinhasSolicitacoesPage() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  const loadSolicitacoes = async () => {
+  const loadSolicitacoes = async (isRefresh = false) => {
     try {
-      // DADOS MOCKADOS PARA TESTE - REMOVER QUANDO A API ESTIVER FUNCIONANDO
-      const mockSolicitacoes: SolicitacaoAusencia[] = [
-        {
-          idSolicitacaoAusencia: 1,
-          idUsuario: 1,
-          mensagemSolicitacao: "Preciso me ausentar por motivos médicos. Tenho consulta marcada e exames para realizar.",
-          dataInicioAusencia: "2024-01-15T00:00:00",
-          dataFimAusencia: "2024-01-15T00:00:00",
-          linkArquivo: "/docs/atestado-medico-1.pdf",
-          statusSolicitacao: 1, // Pendente
-          dataSolicitacao: "2024-01-10T00:00:00"
-        },
-        {
-          idSolicitacaoAusencia: 2,
-          idUsuario: 1,
-          mensagemSolicitacao: "Ausência por motivo familiar. Falecimento de parente próximo.",
-          dataInicioAusencia: "2024-01-20T00:00:00",
-          dataFimAusencia: "2024-01-22T00:00:00",
-          linkArquivo: "/docs/atestado-medico-2.pdf",
-          statusSolicitacao: 2, // Aprovada
-          dataSolicitacao: "2024-01-18T00:00:00"
-        },
-        {
-          idSolicitacaoAusencia: 3,
-          idUsuario: 1,
-          mensagemSolicitacao: "Tratamento médico contínuo. Sessões de fisioterapia.",
-          dataInicioAusencia: "2024-02-01T00:00:00",
-          dataFimAusencia: "2024-02-05T00:00:00",
-          linkArquivo: "/docs/atestado-medico-3.pdf",
-          statusSolicitacao: 3, // Reprovada
-          dataSolicitacao: "2024-01-28T00:00:00"
-        }
-      ];
-
-      // Simular delay da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
       
-      setSolicitacoes(mockSolicitacoes);
-
-      // CÓDIGO ORIGINAL COMENTADO - DESCOMENTAR QUANDO A API ESTIVER FUNCIONANDO
-      /*
       const userId = tokenUtils.getId();
       if (!userId) {
-        showErrorToast("Usuário não encontrado");
+        const errorMsg = "Usuário não encontrado";
+        setError(errorMsg);
+        showErrorToast(errorMsg);
         router.push('/');
         return;
       }
@@ -91,15 +59,24 @@ export default function MinhasSolicitacoesPage() {
       
       if (response.sucesso && response.solicitacoes) {
         setSolicitacoes(response.solicitacoes);
+        if (isRefresh) {
+          showSuccessToast("Solicitações atualizadas com sucesso!");
+        }
       } else {
-        showErrorToast(response.mensagem || "Erro ao carregar solicitações");
+        const errorMsg = response.mensagem || "Erro ao carregar solicitações";
+        setError(errorMsg);
+        showErrorToast(errorMsg);
+        setSolicitacoes([]);
       }
-      */
     } catch (error) {
       console.error("Erro ao carregar solicitações:", error);
-      showErrorToast("Erro ao carregar solicitações. Tente novamente.");
+      const errorMsg = "Erro ao carregar solicitações. Tente novamente.";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
+      setSolicitacoes([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -117,6 +94,10 @@ export default function MinhasSolicitacoesPage() {
     setSelectedSolicitacao(null);
   };
 
+  const handleRefresh = () => {
+    loadSolicitacoes(true);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -132,16 +113,56 @@ export default function MinhasSolicitacoesPage() {
           <h1 className="text-2xl font-bold text-gray-800">
             Minhas Solicitações de Ausência
           </h1>
-          <Button
-            text="Nova Solicitação"
-            backgroundColor="bg-blue-600"
-            textColor="text-white"
-            onClick={() => router.push('/solicitar-ausencia')}
-            fullWidth={false}
-          />
+          <div className="flex gap-3">
+            <Button
+              text={refreshing ? "Atualizando..." : "Atualizar"}
+              backgroundColor={refreshing ? "bg-gray-300" : "bg-gray-200"}
+              textColor="text-gray-700"
+              onClick={handleRefresh}
+              fullWidth={false}
+              disabled={refreshing}
+            />
+            <Button
+              text="Nova Solicitação"
+              backgroundColor="bg-blue-600"
+              textColor="text-white"
+              onClick={() => router.push('/solicitar-ausencia')}
+              fullWidth={false}
+            />
+          </div>
         </div>
 
-        {solicitacoes.length === 0 ? (
+        {error ? (
+          <div className="text-center py-12">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+              <svg className="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Erro ao carregar solicitações
+            </h3>
+            <p className="text-gray-500 mb-4">
+              {error}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button
+                text="Tentar Novamente"
+                backgroundColor="bg-blue-600"
+                textColor="text-white"
+                onClick={handleRefresh}
+                fullWidth={false}
+              />
+              <Button
+                text="Nova Solicitação"
+                backgroundColor="bg-gray-200"
+                textColor="text-gray-700"
+                onClick={() => router.push('/solicitar-ausencia')}
+                fullWidth={false}
+              />
+            </div>
+          </div>
+        ) : solicitacoes.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
               <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,6 +185,14 @@ export default function MinhasSolicitacoesPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
+            {refreshing && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  <span className="text-blue-700 text-sm">Atualizando solicitações...</span>
+                </div>
+              </div>
+            )}
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
