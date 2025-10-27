@@ -34,18 +34,17 @@ export default function AdminLayout({
   useEffect(() => {
     // Verificar se está logado e tem perfil ADMIN
     const token = tokenUtils.getToken();
-    const selectedProfile = tokenUtils.getSelectedProfile();
     
     if (!token) {
       router.push('/');
       return;
     }
     
-    if (selectedProfile === 'admin') {
+    if (tokenUtils.isAdmin()) {
       setIsAuthenticated(true);
     } else {
-      // Se não tem perfil admin selecionado, redirecionar para seleção
-      router.push('/profile-selection');
+      // Se não tem perfil admin, redirecionar para home
+      router.push('/home');
     }
   }, [router]);
 
