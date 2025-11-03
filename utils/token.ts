@@ -73,12 +73,12 @@ export const tokenUtils = {
 
     isAdmin(): boolean {
         const role = this.getUserRole();
-        return role === 'Admin';
+        return role === 'ADMIN';
     },
 
     hasAdminProfile(): boolean {
         const profiles = this.getProfiles();
-        return profiles ? profiles.some(profile => profile.dscPerfil === 'Admin') : false;
+        return profiles ? profiles.some(profile => profile.dscPerfil === 'ADMIN') : false;
     },
 
     removeToken(): void {

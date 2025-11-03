@@ -70,7 +70,7 @@ export default function Form({
                     localStorage.removeItem('tempPassword');
                     
                     // Redirecionar baseado no perfil
-                    if (profile.dscPerfil === 'Admin') {
+                    if (profile.dscPerfil === 'ADMIN') {
                         router.push('/dashboard');
                     } else {
                         router.push('/home');

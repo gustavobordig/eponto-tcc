@@ -104,7 +104,7 @@ export default function AjustesPontoPage() {
 
   const formatarData = (dataHora: string) => {
     if (dataHora === "0001-01-01T00:00:00") return "Não definida";
-    return new Date(dataHora).toLocaleDateString('pt-BR');
+    return new Date(dataHora).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR');
   };
 
   const getStatusText = (status: number) => {

@@ -40,7 +40,7 @@ export default function SolicitacoesAusenciaPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR');
   };
 
   const loadSolicitacoes = async () => {

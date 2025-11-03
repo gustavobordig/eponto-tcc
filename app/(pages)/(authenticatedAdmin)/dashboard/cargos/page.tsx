@@ -11,6 +11,7 @@ import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
 // Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { cargoValidations } from '@/utils/validations/cargoValidations';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Types
 import { Column } from '@/types';
@@ -22,6 +23,7 @@ interface Cargo {
   salario: string;
   formacaoMinima: string;
   indAtivo: number;
+  idadeDoCargo: number;
 }
 
 interface ApiResponse {
@@ -32,14 +34,15 @@ interface ApiResponse {
 }
 
 export default function CargosPage() {
+  const { t } = useLanguage();
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const columns: Column[] = [
-    { key: 'nomeCargo', label: 'Nome do Cargo' },
-    { key: 'formacaoMinima', label: 'Formação Mínima' },
-    { key: 'salario', label: 'Salário', type: 'currency' },
-    { key: 'indAtivo', label: 'Status', type: 'status' }
+    { key: 'nomeCargo', label: t('table.role-name') },
+    { key: 'formacaoMinima', label: t('table.minimum-education') },
+    { key: 'salario', label: t('table.salary'), type: 'currency' },
+    { key: 'indAtivo', label: t('table.status'), type: 'status' }
   ];
 
   // Configuração das validações para o EditModal
@@ -54,7 +57,7 @@ export default function CargosPage() {
       const response = await listCargos() as ApiResponse;
       setCargos(response.cargos || []);
     } catch (error) {
-      showErrorToast('Erro ao carregar cargos');
+      showErrorToast(t('table.error-loading-roles'));
       console.error('Erro ao carregar cargos:', error);
       setCargos([]);
     } finally {
@@ -72,14 +75,14 @@ export default function CargosPage() {
 
   const getEditFields = (cargo: Cargo, setField: (field: string, value: any) => void) => [
     {
-      label: "Nome do Cargo",
+      label: t('table.role-name'),
       value: cargo.nomeCargo,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('nomeCargo', e.target.value),
       fieldName: "nomeCargo",
       required: true
     },
     {
-      label: "Salário",
+      label: t('table.salary'),
       value: cargo.salario,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('salario', e.target.value),
       type: "number" as const,
@@ -87,20 +90,20 @@ export default function CargosPage() {
       required: true
     },
     {
-      label: "Formação Mínima",
+      label: t('table.minimum-education'),
       value: cargo.formacaoMinima,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('formacaoMinima', e.target.value),
       fieldName: "formacaoMinima",
       required: true
     },
     {
-      label: "Status",
+      label: t('table.status'),
       value: cargo.indAtivo.toString(),
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indAtivo', Number(e.target.value)),
       type: "select" as const,
       options: [
-        { value: "1", label: "Ativo" },
-        { value: "0", label: "Inativo" }
+        { value: "1", label: t('table.status.active') },
+        { value: "0", label: t('table.status.inactive') }
       ],
       fieldName: "status",
       required: false
@@ -114,7 +117,8 @@ export default function CargosPage() {
     nomeCargo: editedFields.nomeCargo,
     salario: editedFields.salario,
     formacaoMinima: editedFields.formacaoMinima,
-    indAtivo: editedFields.indAtivo
+    indAtivo: editedFields.indAtivo,
+    idadeDoCargo: originalCargo.idadeDoCargo
   });
 
   return (
@@ -123,15 +127,15 @@ export default function CargosPage() {
       setData={setCargos}
       loading={loading}
       setLoading={setLoading}
-      title="Cargos"
+      title={t('admin.roles')}
       columns={columns}
       addItemHref="/adicionar-cargo"
       fetchData={fetchCargos}
       updateItem={handleUpdateCargo}
       deleteItem={handleDeleteCargo}
-      editModalTitle="Editar Cargo"
-      deleteModalTitle="Confirmar exclusão"
-      deleteModalMessage="Tem certeza que deseja excluir este cargo? Esta ação não pode ser desfeita."
+      editModalTitle={t('table.edit') + ' ' + t('admin.roles')}
+      deleteModalTitle={t('common.confirm') + ' ' + t('table.delete')}
+      deleteModalMessage={t('table.confirm-delete-role')}
       validationConfigs={validationConfigs}
       getEditFields={getEditFields}
       getItemId={getItemId}

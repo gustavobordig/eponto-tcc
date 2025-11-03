@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Container from '@/app/components/atoms/container';
 import LoadingText from '@/app/components/atoms/LoadingText';
 import { Clock, CheckCircle, XCircle, FileText, UserCheck, MessageSquare } from 'lucide-react';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Importar componentes das páginas existentes
 import AjustesPontoContent from './components/AjustesPontoContent';
@@ -20,25 +21,25 @@ interface ApprovalOption {
   color: string;
 }
 
-const approvalOptions: ApprovalOption[] = [
+const getApprovalOptions = (t: (key: string) => string): ApprovalOption[] => [
   {
     id: 'ajustes-ponto',
-    label: 'Ajustes de Ponto',
-    description: 'Solicitações de ajuste de registro de ponto',
+    label: t('approval.point-adjustments'),
+    description: t('approval.point-adjustments-desc'),
     icon: <Clock className="w-5 h-5" />,
     color: 'blue'
   },
   {
     id: 'solicitacoes-ausencia',
-    label: 'Solicitações de Ausência',
-    description: 'Aprovação de ausências e licenças',
+    label: t('approval.absence-requests'),
+    description: t('approval.absence-requests-desc'),
     icon: <UserCheck className="w-5 h-5" />,
     color: 'orange'
   },
   {
     id: 'feedback',
-    label: 'Feedback',
-    description: 'Resposta a solicitações de feedback',
+    label: t('approval.feedback'),
+    description: t('approval.feedback-desc'),
     icon: <MessageSquare className="w-5 h-5" />,
     color: 'green'
   }
@@ -47,6 +48,7 @@ const approvalOptions: ApprovalOption[] = [
 export default function AprovacoesPage() {
   const [selectedType, setSelectedType] = useState<ApprovalType>('ajustes-ponto');
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const handleTypeChange = (type: ApprovalType) => {
     setSelectedType(type);
@@ -108,17 +110,17 @@ export default function AprovacoesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Central de Aprovações
+          {t('approval.title')}
         </h1>
         <p className="text-gray-600">
-          Gerencie todas as solicitações que necessitam de aprovação administrativa
+          {t('approval.subtitle')}
         </p>
       </div>
 
       {/* Selector de Tipo */}
       <div className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {approvalOptions.map((option) => {
+          {getApprovalOptions(t).map((option) => {
             const colors = getColorClasses(option.color);
             const isSelected = selectedType === option.id;
             
@@ -149,7 +151,7 @@ export default function AprovacoesPage() {
                   <div className="mt-3 flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                     <span className="text-sm text-green-600 font-medium">
-                      Selecionado
+                      {t('approval.selected')}
                     </span>
                   </div>
                 )}

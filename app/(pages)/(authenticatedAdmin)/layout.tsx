@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
 import { tokenUtils } from '@/utils/token';
 import SimpleLanguageSelector from '@/app/components/atoms/SimpleLanguageSelector';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function AdminLayout({
   children,
@@ -16,19 +17,20 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const navigationItems = [
-    {href: '/dashboard', label: 'Usuários' },
-    {href:"/dashboard/cargos", label:"Cargos"},
-    {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
-    {href:"/dashboard/feriados", label:"Feriados"},
-    {href:"/dashboard/ferias", label:"Férias"},
-    {href:"/dashboard/calendario", label:"Calendário"},
-    {href:"/dashboard/analytics", label:"Estatísticas"},
+    {href: '/dashboard', label: t('admin.users') },
+    {href:"/dashboard/cargos", label: t('admin.roles')},
+    {href:"/dashboard/jornada-trabalho", label: t('admin.work-schedule')},
+    {href:"/dashboard/feriados", label: t('admin.holidays')},
+    {href:"/dashboard/ferias", label: t('admin.vacations')},
+    {href:"/dashboard/calendario", label: t('admin.calendar')},
+    {href:"/dashboard/analytics", label: t('admin.statistics')},
   ];
 
   const approvalItems = [
-    {href:"/dashboard/aprovacoes", label:"Central de Aprovações"},
+    {href:"/dashboard/aprovacoes", label: t('admin.approval-center')},
   ];
 
   useEffect(() => {
@@ -111,7 +113,7 @@ export default function AdminLayout({
                 onClick={handleLogout}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
               >
-                Sair
+                {t('admin.logout')}
               </button>
             </div>
             <div className="flex items-center lg:hidden">

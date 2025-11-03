@@ -56,7 +56,7 @@ export default function ProfileSelectionPage() {
       showSuccessToast(`Perfil ${selectedProfile.dscPerfil} selecionado com sucesso!`);
       
       // Redirecionar baseado no perfil
-      if (selectedProfile.dscPerfil === 'Admin') {
+      if (selectedProfile.dscPerfil === 'ADMIN') {
         router.push('/dashboard');
       } else {
         router.push('/home');
@@ -94,11 +94,11 @@ export default function ProfileSelectionPage() {
               <div className="relative">
                 <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-transparent group-hover:border-white transition-all duration-300 transform group-hover:scale-105">
                   <div className={`w-full h-full ${
-                    profile.dscPerfil === 'Admin' 
+                    profile.dscPerfil === 'ADMIN' 
                       ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
                       : 'bg-gradient-to-br from-green-600 to-green-800'
                   } flex items-center justify-center`}>
-                    {profile.dscPerfil === 'Admin' ? (
+                    {profile.dscPerfil === 'ADMIN' ? (
                       <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
@@ -111,10 +111,10 @@ export default function ProfileSelectionPage() {
                 </div>
                 <div className="text-center">
                   <h3 className="text-xl font-medium text-white group-hover:text-gray-300 transition-colors">
-                    {profile.dscPerfil === 'Admin' ? t('profile.admin') : t('profile.user')}
+                    {profile.dscPerfil === 'ADMIN' ? t('profile.admin') : t('profile.user')}
                   </h3>
                   <p className="text-sm text-gray-400 mt-2">
-                    {profile.dscPerfil === 'Admin' ? t('profile.admin-desc') : t('profile.user-desc')}
+                    {profile.dscPerfil === 'ADMIN' ? t('profile.admin-desc') : t('profile.user-desc')}
                   </p>
                 </div>
               </div>

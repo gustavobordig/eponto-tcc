@@ -19,6 +19,7 @@ import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 //Types
 import { Column } from '@/types';
@@ -42,7 +43,7 @@ interface UserWithDetails extends UserData {
 }
 
 export default function CargosPage() {
-  
+    const { t } = useLanguage();
     const [users, setUsers] = useState<UserWithDetails[]>([]);
     const [cargos, setCargos] = useState<Cargo[]>([]);
     const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
@@ -61,12 +62,12 @@ export default function CargosPage() {
     const [editLoading, setEditLoading] = useState(false);
   
     const columns: Column[] = [
-      { key: 'nome', label: 'Nome' },
-      { key: 'email', label: 'Email' },
-      { key: 'telefone', label: 'Telefone' },
-      { key: 'cargo', label: 'Cargo' },
-      { key: 'jornada', label: 'Jornada' },
-      { key: 'indAtivo', label: 'Status', type: 'status' }
+      { key: 'nome', label: t('table.name') },
+      { key: 'email', label: t('table.email') },
+      { key: 'telefone', label: t('table.phone') },
+      { key: 'cargo', label: t('table.role') },
+      { key: 'jornada', label: t('table.work-schedule') },
+      { key: 'indAtivo', label: t('table.status'), type: 'status' }
     ];
 
     const fetchCargos = async () => {
@@ -221,7 +222,7 @@ export default function CargosPage() {
     };
   
     if (loading) {
-      return <LoadingText title="usuários" />
+      return <LoadingText title={t('admin.users').toLowerCase()} />
     }
   
     return (
@@ -230,7 +231,7 @@ export default function CargosPage() {
         {/* Tabela de Cargos */}
         <Table
           data={users}
-          title="Usuários"
+          title={t('admin.users')}
           columns={columns}
           handleEdit={handleEdit}
           handleDeleteClick={handleDeleteClick}
@@ -240,35 +241,35 @@ export default function CargosPage() {
         {/* Modal de edição */}
         {isEditModalOpen && userToEdit && (
           <EditModal
-            title="Editar Usuário"
+            title={t('table.edit') + ' ' + t('admin.users')}
             fields={[
               {
-                label: "Nome",
+                label: t('table.name'),
                 value: editedNome,
                 onChange: (e) => setEditedNome(e.target.value)
               },
               {
-                label: "Email",
+                label: t('table.email'),
                 value: editedEmail,
                 onChange: (e) => setEditedEmail(e.target.value)
               },
               {
-                label: "Telefone",
+                label: t('table.phone'),
                 value: editedTelefone,
                 onChange: (e) => setEditedTelefone(e.target.value)
               },
               {
-                label: "Cargo",
+                label: t('table.role'),
                 value: editedCargo,
                 onChange: (e) => setEditedCargo(e.target.value)
               },
               {
-                label: "Jornada",
+                label: t('table.work-schedule'),
                 value: editedJornada,
                 onChange: (e) => setEditedJornada(e.target.value)
               },
               {
-                label: "Status",
+                label: t('table.status'),
                 value: editedStatus.toString(),
                 onChange: (e) => setEditedStatus(Number(e.target.value))
 
@@ -283,8 +284,8 @@ export default function CargosPage() {
         {/* Modal de confirmação de exclusão */}
         {isDeleteModalOpen && (
           <ExcludeModal
-            title="Confirmar exclusão"
-            message="Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+            title={t('common.confirm') + ' ' + t('table.delete')}
+            message={t('table.confirm-delete-user')}
             onCancel={handleCancelDelete}
             onConfirm={handleDeleteConfirm}
             loading={deleteLoading}

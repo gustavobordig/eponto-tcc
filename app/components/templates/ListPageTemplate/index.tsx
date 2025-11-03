@@ -12,6 +12,7 @@ import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 
 // Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Types
 import { Column } from '@/types';
@@ -79,6 +80,7 @@ export default function ListPageTemplate<T extends Record<string, any>>({
   createUpdatedItem
 }: ListPageTemplateProps<T>) {
   const router = useRouter();
+  const { language } = useLanguage();
   
   // Estados dos modais
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

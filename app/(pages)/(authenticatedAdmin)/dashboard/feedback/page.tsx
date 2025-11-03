@@ -16,6 +16,7 @@ import { feedbackService, SolicitacaoData, FeedbackInsertData, FeedbackData } fr
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { tokenUtils } from '@/utils/token';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 //Types
 import { Column } from '@/types';
@@ -38,6 +39,7 @@ interface FeedbackResponse {
 }
 
 export default function FeedbackPage() {
+  const { language } = useLanguage();
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoData[]>([]);
   const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -255,7 +257,7 @@ export default function FeedbackPage() {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
+      return date.toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

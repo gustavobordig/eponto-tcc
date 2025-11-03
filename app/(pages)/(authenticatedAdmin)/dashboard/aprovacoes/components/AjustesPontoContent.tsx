@@ -10,6 +10,7 @@ import ActionButton from '@/app/components/atoms/ActionButton';
 import StatusBadge from '@/app/components/atoms/StatusBadge';
 import StatsCard from '@/app/components/atoms/StatsCard';
 import { TimeRecordAdjustment, ItemRegistro } from '@/services/timeRecordAdjustment';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function AjustesPontoContent() {
   const [solicitacoes, setSolicitacoes] = useState<TimeRecordAdjustment[]>([]);
@@ -23,6 +24,7 @@ export default function AjustesPontoContent() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<'approve' | 'reject' | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const { t, language } = useLanguage();
 
   const fetchSolicitacoes = async () => {
     try {
@@ -31,10 +33,10 @@ export default function AjustesPontoContent() {
         setSolicitacoes(response.solicitacoes);
       } else {
         setSolicitacoes([]);
-        showErrorToast(response.mensagem || 'Erro ao carregar solicitações');
+        showErrorToast(response.mensagem || t('approval.error-loading'));
       }
     } catch (error) {
-      showErrorToast('Erro ao carregar solicitações');
+      showErrorToast(t('approval.error-loading'));
       console.error('Erro ao carregar solicitações:', error);
       setSolicitacoes([]);
     } finally {
@@ -52,11 +54,11 @@ export default function AjustesPontoContent() {
       if (response.sucesso && response.usuario) {
         setSolicitanteNome(response.usuario.nome);
       } else {
-        setSolicitanteNome('Usuário não encontrado');
+        setSolicitanteNome(t('approval.user-not-found'));
       }
     } catch (error) {
       console.error('Erro ao buscar nome do solicitante:', error);
-      setSolicitanteNome('Erro ao carregar nome');
+      setSolicitanteNome(t('approval.error-loading-name'));
     }
   };
 
@@ -130,11 +132,11 @@ export default function AjustesPontoContent() {
 
     try {
       await validateAdjustmentRequest(selectedSolicitacao.idSolicitacao, selectedStatus);
-      showSuccessToast(`Solicitação ${selectedStatus === 1 ? 'aprovada' : 'reprovada'} com sucesso!`);
+      showSuccessToast(selectedStatus === 1 ? t('approval.request-approved') : t('approval.request-rejected'));
       fetchSolicitacoes();
       handleCloseModal();
     } catch (error) {
-      showErrorToast('Erro ao atualizar solicitação');
+      showErrorToast(t('approval.error-updating'));
       console.error('Erro ao atualizar solicitação:', error);
     } finally {
       setUpdateLoading(false);
@@ -142,24 +144,24 @@ export default function AjustesPontoContent() {
   };
 
   const formatarHora = (dataHora: string) => {
-    if (dataHora === "0001-01-01T00:00:00") return "Não definida";
-    return new Date(dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    if (dataHora === "0001-01-01T00:00:00") return t('approval.not-defined');
+    return new Date(dataHora).toLocaleTimeString(language === 'en' ? 'en-US' : 'pt-BR', { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatarData = (dataHora: string) => {
-    if (dataHora === "0001-01-01T00:00:00") return "Não definida";
-    return new Date(dataHora).toLocaleDateString('pt-BR');
+    if (dataHora === "0001-01-01T00:00:00") return t('approval.not-defined');
+    return new Date(dataHora).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR');
   };
 
   const formatarRegistros = (registros: ItemRegistro[]) => {
     return registros.map(registro => ({
       hora: formatarHora(registro.horaRegistro),
-      tipo: registro.idTipoRegistroPonto === 1 ? 'Entrada' : 'Saída'
+      tipo: registro.idTipoRegistroPonto === 1 ? t('approval.entry') : t('approval.exit')
     }));
   };
 
   const calcularDiferenca = (horaOriginal: string, horaSolicitada: string) => {
-    if (horaOriginal === "Não definida" || horaSolicitada === "Não definida") {
+    if (horaOriginal === t('approval.not-defined') || horaSolicitada === t('approval.not-defined')) {
       return "N/A";
     }
     
@@ -170,7 +172,7 @@ export default function AjustesPontoContent() {
     const minutos2 = h2 * 60 + m2;
     const diferenca = minutos2 - minutos1;
     
-    if (diferenca === 0) return "Sem alteração";
+    if (diferenca === 0) return t('approval.no-change');
     
     const horas = Math.abs(diferenca) / 60;
     const mins = Math.abs(diferenca) % 60;
@@ -216,7 +218,7 @@ export default function AjustesPontoContent() {
       <div className="p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando solicitações de ajuste de ponto...</p>
+          <p className="mt-4 text-gray-600">{t('approval.loading-requests')}</p>
         </div>
       </div>
     );
@@ -227,11 +229,11 @@ export default function AjustesPontoContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Solicitações de Ajuste de Ponto</h2>
-          <p className="text-gray-600">Avalie e aprove solicitações de ajuste de registro de ponto</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('approval.point-adjustment-requests')}</h2>
+          <p className="text-gray-600">{t('approval.point-adjustment-requests-desc')}</p>
         </div>
         <div className="text-sm text-gray-500">
-          Total: {solicitacoes.length} solicitações
+          {t('approval.total-requests').replace('{count}', solicitacoes.length.toString())}
         </div>
       </div>
 
@@ -244,7 +246,7 @@ export default function AjustesPontoContent() {
           }`}
         >
           <StatsCard
-            title="Pendentes"
+            title={t('approval.pending')}
             count={solicitacoes.filter(s => s.statusSolicitacao === 0).length}
             type="pending"
           />
@@ -256,7 +258,7 @@ export default function AjustesPontoContent() {
           }`}
         >
           <StatsCard
-            title="Aprovadas"
+            title={t('approval.approved')}
             count={solicitacoes.filter(s => s.statusSolicitacao === 1).length}
             type="approved"
           />
@@ -268,7 +270,7 @@ export default function AjustesPontoContent() {
           }`}
         >
           <StatsCard
-            title="Reprovadas"
+            title={t('approval.rejected')}
             count={solicitacoes.filter(s => s.statusSolicitacao === 2).length}
             type="rejected"
           />
@@ -279,21 +281,21 @@ export default function AjustesPontoContent() {
       {statusFilter !== 'all' && (
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Filtro ativo:</span>
+            <span className="text-sm text-gray-600">{t('approval.active-filter')}</span>
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
               statusFilter === 'pending' ? 'bg-yellow-100 text-yellow-800' :
               statusFilter === 'approved' ? 'bg-green-100 text-green-800' :
               'bg-red-100 text-red-800'
             }`}>
-              {statusFilter === 'pending' ? 'Pendentes' :
-               statusFilter === 'approved' ? 'Aprovadas' : 'Reprovadas'}
+              {statusFilter === 'pending' ? t('approval.pending') :
+               statusFilter === 'approved' ? t('approval.approved') : t('approval.rejected')}
             </span>
           </div>
           <button
             onClick={() => setStatusFilter('all')}
             className="text-sm text-gray-500 hover:text-gray-700 underline"
           >
-            Limpar filtro
+            {t('approval.clear-filter')}
           </button>
         </div>
       )}
@@ -307,10 +309,10 @@ export default function AjustesPontoContent() {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Nenhuma solicitação encontrada
+            {t('approval.no-requests-found')}
           </h3>
           <p className="text-gray-500">
-            Não há solicitações de ajuste de ponto no momento.
+            {t('approval.no-requests-desc')}
           </p>
         </div>
       ) : (
@@ -319,19 +321,19 @@ export default function AjustesPontoContent() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data Alteração
+                  {t('approval.change-date')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Justificativa
+                  {t('approval.justification')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('table.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Registros
+                  {t('approval.records')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ações
+                  {t('table.actions')}
                 </th>
               </tr>
             </thead>
@@ -352,7 +354,7 @@ export default function AjustesPontoContent() {
                       {solicitacao.itens.map((registro: ItemRegistro, i: number) => (
                         <div key={i} className="text-sm">
                           {formatarHora(registro.horaRegistro)} - 
-                          {registro.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
+                          {registro.idTipoRegistroPonto === 1 ? ` ${t('approval.entry')}` : ` ${t('approval.exit')}`}
                         </div>
                       ))}
                     </div>

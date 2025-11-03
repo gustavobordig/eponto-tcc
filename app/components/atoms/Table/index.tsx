@@ -1,5 +1,6 @@
 import { useRouter } from "next/navigation";
 import Button from "@/app/components/atoms/Button";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 //Types
 import { Column } from "@/types";
@@ -24,6 +25,7 @@ export default function Table({
     isAjustePonto = false
 }: TableProps) {
   const router = useRouter();
+  const { t, language } = useLanguage();
 
   const renderCell = (item: any, column: Column) => {
     if (!item || !column) return null;
@@ -55,17 +57,20 @@ export default function Table({
           >
             {isAjustePonto
               ? value === 1 
-                ? "Aprovado" 
+                ? t('table.status.approved')
                 : value === 0 
-                ? "Pendente" 
-                : "Reprovado"
+                ? t('table.status.pending')
+                : t('table.status.rejected')
               : value === 1 
-                ? "Ativo" 
-                : "Inativo"}
+                ? t('table.status.active')
+                : t('table.status.inactive')}
           </span>
         );
       case 'date':
-        return new Date(value).toLocaleDateString('pt-BR');
+        console.log('Date formatting - Value:', value, 'Language:', language, 'Is English:', language === 'en');
+        const formattedDate = new Date(value).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR');
+        console.log('Formatted date:', formattedDate);
+        return formattedDate;
       default:
         return value;
     }
@@ -75,11 +80,11 @@ export default function Table({
     <div>
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex flex-col gap-2 md:gap-0 md:flex-row  justify-between items-start md:items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Lista de {title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('table.list-of')} {title}</h1>
           {addItemHref && (
             <div className="w-fit">
               <Button
-                text={`Adicionar ${title}`}
+                text={`${t('table.add')} ${title}`}
               backgroundColor="bg-indigo-600"
               textColor="text-white"
               className="whitespace-nowrap p-2"
@@ -102,7 +107,7 @@ export default function Table({
                   </th>
                 ))}
                 <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Ações
+                  {t('table.actions')}
                 </th>
               </tr>
             </thead>
@@ -125,7 +130,7 @@ export default function Table({
                             onClick={() => handleEdit(item)}
                             className="text-indigo-600 hover:text-indigo-900"
                           >
-                            Editar
+{t('table.edit')}
                           </button>
                         )}
                         {handleDeleteClick && (
@@ -133,7 +138,7 @@ export default function Table({
                             onClick={() => handleDeleteClick(item)}
                             className="text-red-600 hover:text-red-900"
                           >
-                            Excluir
+{t('table.delete')}
                           </button>
                         )}
                       </div>
@@ -147,7 +152,7 @@ export default function Table({
 
         {data.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-black">Nenhum {title} cadastrado.</p>
+            <p className="text-black">{t('table.no-data').replace('{item}', title)}</p>
           </div>
         )}
       </div>

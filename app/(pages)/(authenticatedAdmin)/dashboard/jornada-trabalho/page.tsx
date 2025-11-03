@@ -10,6 +10,7 @@ import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 
 // Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Types
 import { Column } from '@/types';
@@ -30,23 +31,24 @@ interface ApiResponse {
 }
 
 export default function JornadaTrabalhoPage() {
+  const { t } = useLanguage();
   const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
   const [loading, setLoading] = useState(true);
 
   const columns: Column[] = [
     {
       key: 'nomeJornada',
-      label: 'Nome da Jornada',
+      label: t('table.schedule-name'),
       type: 'text'
     },
     {
       key: 'qtdHorasDiarias',
-      label: 'Quantidade de Horas Diárias',
+      label: t('table.daily-hours'),
       type: 'text'
     },
     {
       key: 'indAtivo',
-      label: 'Status',
+      label: t('table.status'),
       type: 'status'
     } 
   ];
@@ -56,7 +58,7 @@ export default function JornadaTrabalhoPage() {
       const response = await jornadaTrabalhoService.listar() as ApiResponse;
       setJornadas(response.jornadas || []);
     } catch (error) {
-      showErrorToast('Erro ao carregar jornadas');
+      showErrorToast(t('table.error-loading-schedules'));
       console.error('Erro ao carregar jornadas:', error);
       setJornadas([]);
     } finally {
@@ -77,14 +79,14 @@ export default function JornadaTrabalhoPage() {
 
   const getEditFields = (jornada: JornadaTrabalho, setField: (field: string, value: any) => void) => [
     {
-      label: "Nome da Jornada",
+      label: t('table.schedule-name'),
       value: jornada.nomeJornada,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('nomeJornada', e.target.value),
       fieldName: "nomeJornada",
       required: true
     },
     {
-      label: "Quantidade de Horas Diárias",
+      label: t('table.daily-hours'),
       value: jornada.qtdHorasDiarias?.toString() || '',
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('qtdHorasDiarias', Number(e.target.value)),
       type: "number" as const,
@@ -92,13 +94,13 @@ export default function JornadaTrabalhoPage() {
       required: true
     },
     {
-      label: "Status",
+      label: t('table.status'),
       value: jornada.indAtivo?.toString() || '1',
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indAtivo', Number(e.target.value)),
       type: "select" as const,
       options: [
-        { value: "1", label: "Ativo" },
-        { value: "0", label: "Inativo" }
+        { value: "1", label: t('table.status.active') },
+        { value: "0", label: t('table.status.inactive') }
       ],
       fieldName: "status",
       required: false
@@ -125,15 +127,15 @@ export default function JornadaTrabalhoPage() {
       setData={setJornadas}
       loading={loading}
       setLoading={setLoading}
-      title="Jornadas de Trabalho"
+      title={t('admin.work-schedule')}
       columns={columns}
       addItemHref="/adicionar-jornada"
       fetchData={fetchJornadas}
       updateItem={handleUpdateJornada}
       deleteItem={handleDeleteJornada}
-      editModalTitle="Editar Jornada"
-      deleteModalTitle="Confirmar exclusão"
-      deleteModalMessage="Tem certeza que deseja excluir esta jornada? Esta ação não pode ser desfeita."
+      editModalTitle={t('table.edit') + ' ' + t('admin.work-schedule')}
+      deleteModalTitle={t('common.confirm') + ' ' + t('table.delete')}
+      deleteModalMessage={t('table.confirm-delete-schedule')}
       getEditFields={getEditFields}
       getItemId={getItemId}
       createUpdatedItem={createUpdatedItem}

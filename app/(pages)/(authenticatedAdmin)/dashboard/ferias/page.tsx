@@ -16,6 +16,7 @@ import { feriasService } from '@/services/ferias';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 //Types
 import { Column } from '@/types';
@@ -58,6 +59,7 @@ interface ApiResponse {
 }
 
 export default function FeriasPage() {
+  const { t } = useLanguage();
   const [ferias, setFerias] = useState<Ferias[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -67,10 +69,10 @@ export default function FeriasPage() {
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>([]);
 
   const columns: Column[] = [
-    { key: 'dscFerias', label: 'Descrição' },
-    { key: 'datIncioFerias', label: 'Data Início', type: 'date' },
-    { key: 'datFimFerias', label: 'Data Fim', type: 'date' },
-    { key: 'idUsuario', label: 'ID Usuário' }
+    { key: 'dscFerias', label: t('table.description') },
+    { key: 'datIncioFerias', label: t('table.start-date'), type: 'date' },
+    { key: 'datFimFerias', label: t('table.end-date'), type: 'date' },
+    { key: 'idUsuario', label: t('table.user-id') }
   ];
 
   // Função para processar os dados da API
@@ -97,7 +99,7 @@ export default function FeriasPage() {
       // Evento de início
       eventos.push({
         id: `${descricao}-inicio`,
-        title: `Início - ${descricao}`,
+        title: `${t('table.vacation-start')} - ${descricao}`,
         start: dataInicio,
         end: dataInicio,
         desc: 'ferias'
@@ -106,7 +108,7 @@ export default function FeriasPage() {
       // Evento de fim
       eventos.push({
         id: `${descricao}-fim`,
-        title: `Último dia - ${descricao}`,
+        title: `${t('table.vacation-end')} - ${descricao}`,
         start: dataFim,
         end: dataFim,
         desc: 'ferias'
@@ -135,7 +137,7 @@ export default function FeriasPage() {
       const eventos = processarDadosCalendario(response);
       setEventosCalendario(eventos);
     } catch (error) {
-      showErrorToast('Erro ao carregar férias');
+      showErrorToast(t('table.error-loading-vacations'));
       console.error('Erro ao carregar férias:', error);
       setFerias([]);
       setEventosCalendario([]);
@@ -150,7 +152,7 @@ export default function FeriasPage() {
 
   const handleDeleteClick = (ferias: Ferias) => {
     if (ferias.idFerias === undefined) {
-      showErrorToast('ID das férias não encontrado');
+      showErrorToast(t('table.vacation-id-not-found'));
       return;
     }
     setFeriasToDelete(ferias.idFerias);
@@ -159,7 +161,7 @@ export default function FeriasPage() {
 
   const handleDeleteConfirm = async () => {
     if (!feriasToDelete) {
-      showErrorToast('ID das férias não encontrado');
+      showErrorToast(t('table.vacation-id-not-found'));
       setIsDeleteModalOpen(false);
       setFeriasToDelete(null);
       return;
@@ -168,10 +170,10 @@ export default function FeriasPage() {
     setDeleteLoading(true);
     try {
       await feriasService.excluirFerias(feriasToDelete);
-      showSuccessToast('Férias excluídas com sucesso!');
+      showSuccessToast(t('table.vacation-deleted-success'));
       fetchFerias();
     } catch (error) {
-      showErrorToast('Erro ao excluir férias. Tente novamente.');
+      showErrorToast(t('table.error-deleting-vacation'));
       console.error('Erro ao excluir férias:', error);
     } finally {
       setDeleteLoading(false);
@@ -186,7 +188,7 @@ export default function FeriasPage() {
   };
 
   if (loading) {
-    return <LoadingText title="férias" />
+    return <LoadingText title={t('admin.vacations').toLowerCase()} />
   }
 
   return (
@@ -219,7 +221,7 @@ export default function FeriasPage() {
       {view === 'table' && (
         <Table
           data={ferias}
-          title="Férias"
+          title={t('admin.vacations')}
           columns={columns}
           handleDeleteClick={handleDeleteClick}
           addItemHref="/adicionar-ferias"
@@ -236,18 +238,18 @@ export default function FeriasPage() {
             endAccessor="end"
             style={{ height: '100%' }}
             messages={{
-              next: "Próximo",
-              previous: "Anterior",
-              today: "Hoje",
-              month: "Mês",
-              week: "Semana",
-              day: "Dia",
-              agenda: "Agenda",
-              noEventsInRange: "Não existem férias para este período",
-              showMore: (total) => `+ ${total} eventos`,
-              date: "Data",
-              time: "Hora",
-              event: "Evento"
+              next: t('calendar.next'),
+              previous: t('calendar.previous'),
+              today: t('calendar.today'),
+              month: t('calendar.month'),
+              week: t('calendar.week'),
+              day: t('calendar.day'),
+              agenda: t('calendar.agenda'),
+              noEventsInRange: t('calendar.no-vacations-period'),
+              showMore: (total) => `+ ${total} ${t('calendar.events')}`,
+              date: t('calendar.date'),
+              time: t('calendar.time'),
+              event: t('calendar.event')
             }}
             culture="pt-BR"
             eventPropGetter={(event) => ({
@@ -260,8 +262,8 @@ export default function FeriasPage() {
       {/* Modal de confirmação de exclusão */}
       {isDeleteModalOpen && (
         <ExcludeModal
-          title="Confirmar exclusão"
-          message="Tem certeza que deseja excluir estas férias? Esta ação não pode ser desfeita."
+          title={t('common.confirm') + ' ' + t('table.delete')}
+          message={t('table.confirm-delete-vacation')}
           onCancel={handleCancelDelete}
           onConfirm={handleDeleteConfirm}
           loading={deleteLoading}
