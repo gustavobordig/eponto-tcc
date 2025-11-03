@@ -58,6 +58,9 @@ interface ListPageTemplateProps<T> {
   
   // Função para criar item atualizado
   createUpdatedItem: (originalItem: T, editedFields: Record<string, any>) => T;
+  
+  // Permitir edição (opcional, padrão: true)
+  allowEdit?: boolean;
 }
 
 export default function ListPageTemplate<T extends Record<string, any>>({
@@ -77,7 +80,8 @@ export default function ListPageTemplate<T extends Record<string, any>>({
   validationConfigs,
   getEditFields,
   getItemId,
-  createUpdatedItem
+  createUpdatedItem,
+  allowEdit = true
 }: ListPageTemplateProps<T>) {
   const router = useRouter();
   const { language } = useLanguage();
@@ -190,7 +194,7 @@ export default function ListPageTemplate<T extends Record<string, any>>({
         data={data}
         title={title}
         columns={columns}
-        handleEdit={handleEdit}
+        handleEdit={allowEdit ? handleEdit : undefined}
         handleDeleteClick={handleDeleteClick}
         addItemHref={addItemHref}
       />

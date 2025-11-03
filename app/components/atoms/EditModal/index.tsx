@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { EditModalField, ValidationResult } from '@/app/types';
 import { X } from 'lucide-react';
 import ValidationMessage from '../ValidationMessage';
@@ -25,16 +25,27 @@ const EditModal: React.FC<EditModalProps> = ({
   const [validations, setValidations] = useState<Record<string, ValidationResult>>({});
   const [showValidations, setShowValidations] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const previousFieldsRef = useRef<string>('');
 
-  // Inicializa o formData com os valores dos campos
+  // Inicializa o formData com os valores dos campos apenas quando realmente necessário
   useEffect(() => {
-    const initialData: Record<string, string> = {};
-    fields.forEach(field => {
-      if (field.fieldName) {
-        initialData[field.fieldName] = field.value;
-      }
-    });
-    setFormData(initialData);
+    // Cria uma chave única baseada nos valores iniciais dos campos
+    const fieldsKey = fields.map(f => `${f.fieldName || ''}:${f.value || ''}`).join('|');
+    
+    // Só reinicializa se os valores iniciais realmente mudaram (não apenas a referência)
+    if (previousFieldsRef.current !== fieldsKey) {
+      const initialData: Record<string, string> = {};
+      fields.forEach(field => {
+        if (field.fieldName) {
+          initialData[field.fieldName] = field.value || '';
+        }
+      });
+      setFormData(initialData);
+      previousFieldsRef.current = fieldsKey;
+      // Reseta validações quando os campos mudam
+      setValidations({});
+      setShowValidations({});
+    }
   }, [fields]);
 
   const validateField = (fieldName: string, value: string) => {
@@ -46,16 +57,13 @@ const EditModal: React.FC<EditModalProps> = ({
   };
 
   const handleFieldChange = (field: EditModalField, value: string) => {
-    // Atualiza o formData
+    // Atualiza o formData (estado interno)
     if (field.fieldName) {
       setFormData(prev => ({ ...prev, [field.fieldName!]: value }));
     }
 
-    // Chama o onChange original do campo
-    const mockEvent = {
-      target: { value }
-    } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
-    field.onChange(mockEvent);
+    // NÃO chama field.onChange durante a digitação para evitar re-renders
+    // que causam reset dos valores. Os valores serão atualizados no blur ou no confirm.
 
     // Valida o campo se já foi tocado
     if (showValidations[field.fieldName || '']) {
@@ -64,13 +72,32 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   };
 
-  const handleFieldBlur = (fieldName: string, value: string) => {
+  const handleFieldBlur = (fieldName: string, value: string, field: EditModalField) => {
+    // Atualiza o estado do componente pai quando o campo perde o foco
+    if (field.onChange) {
+      const mockEvent = {
+        target: { value }
+      } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
+      field.onChange(mockEvent);
+    }
+
     setShowValidations(prev => ({ ...prev, [fieldName]: true }));
     const validation = validateField(fieldName, value);
     setValidations(prev => ({ ...prev, [fieldName]: validation }));
   };
 
   const handleConfirm = () => {
+    // Atualiza todos os campos no componente pai antes de validar
+    fields.forEach(field => {
+      if (field.fieldName && field.onChange) {
+        const value = formData[field.fieldName] || '';
+        const mockEvent = {
+          target: { value }
+        } as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
+        field.onChange(mockEvent);
+      }
+    });
+
     // Valida todos os campos antes de confirmar
     const newValidations: Record<string, ValidationResult> = {};
     const newShowValidations: Record<string, boolean> = {};
@@ -136,9 +163,9 @@ const EditModal: React.FC<EditModalProps> = ({
               </label>
               {field.type === 'select' ? (
                 <select
-                  value={field.value}
+                  value={field.fieldName ? (formData[field.fieldName] || '') : field.value}
                   onChange={(e) => handleFieldChange(field, e.target.value)}
-                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
+                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value, field)}
                   className={`w-full p-2 border rounded-md text-black ${
                     field.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''
                   } ${
@@ -158,9 +185,9 @@ const EditModal: React.FC<EditModalProps> = ({
               ) : (
                 <input
                   type={field.type === 'date' ? 'date' : field.type || 'text'}
-                  value={field.value}
+                  value={field.fieldName ? (formData[field.fieldName] || '') : field.value}
                   onChange={(e) => handleFieldChange(field, e.target.value)}
-                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
+                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value, field)}
                   className={`w-full p-2 border rounded-md text-black ${
                     field.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''
                   } ${

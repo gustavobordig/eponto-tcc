@@ -235,9 +235,9 @@ export default function PerfilPage() {
               </div>
 
               {/* Informações Contratuais */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <ContractualInfo userId={userData.idUsuario} />
-              </div>
+              </div> */}
 
               {/* Informações Pessoais */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

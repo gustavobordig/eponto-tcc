@@ -246,33 +246,59 @@ export default function CargosPage() {
               {
                 label: t('table.name'),
                 value: editedNome,
-                onChange: (e) => setEditedNome(e.target.value)
+                onChange: (e) => setEditedNome(e.target.value),
+                fieldName: 'nome',
+                required: true
               },
               {
                 label: t('table.email'),
                 value: editedEmail,
-                onChange: (e) => setEditedEmail(e.target.value)
+                onChange: (e) => setEditedEmail(e.target.value),
+                fieldName: 'email',
+                required: true
               },
               {
                 label: t('table.phone'),
                 value: editedTelefone,
-                onChange: (e) => setEditedTelefone(e.target.value)
+                onChange: (e) => setEditedTelefone(e.target.value),
+                fieldName: 'telefone',
+                required: true
               },
               {
                 label: t('table.role'),
+                type: 'select',
                 value: editedCargo,
-                onChange: (e) => setEditedCargo(e.target.value)
+                onChange: (e) => setEditedCargo(e.target.value),
+                fieldName: 'idCargo',
+                required: true,
+                options: cargos.map(cargo => ({
+                  value: cargo.idCargo.toString(),
+                  label: cargo.nomeCargo
+                }))
               },
               {
                 label: t('table.work-schedule'),
+                type: 'select',
                 value: editedJornada,
-                onChange: (e) => setEditedJornada(e.target.value)
+                onChange: (e) => setEditedJornada(e.target.value),
+                fieldName: 'idJornada',
+                required: true,
+                options: jornadas.map(jornada => ({
+                  value: jornada.idJornada.toString(),
+                  label: jornada.nomeJornada
+                }))
               },
               {
                 label: t('table.status'),
+                type: 'select',
                 value: editedStatus.toString(),
-                onChange: (e) => setEditedStatus(Number(e.target.value))
-
+                onChange: (e) => setEditedStatus(Number(e.target.value)),
+                fieldName: 'indAtivo',
+                required: true,
+                options: [
+                  { value: '1', label: t('table.active') || 'Ativo' },
+                  { value: '0', label: t('table.inactive') || 'Inativo' }
+                ]
               }
             ]}
             onClose={handleEditClose}

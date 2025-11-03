@@ -74,14 +74,14 @@ export default function FeriadosPage() {
   const getEditFields = (feriado: Feriado, setField: (field: string, value: any) => void) => [
     {
       label: t('table.holiday-description'),
-      value: feriado.dscFeriado,
+      value: feriado.dscFeriado || '',
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('dscFeriado', e.target.value),
       fieldName: "dscFeriado",
       required: true
     },
     {
       label: t('table.holiday-date'),
-      value: feriado.datFeriado,
+      value: feriado.datFeriado || '',
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('datFeriado', e.target.value),
       type: "date" as const,
       fieldName: "datFeriado",
@@ -89,7 +89,7 @@ export default function FeriadosPage() {
     },
     {
       label: t('table.holiday-type-label'),
-      value: feriado.indTipoFeriado.toString(),
+      value: feriado.indTipoFeriado !== undefined && feriado.indTipoFeriado !== null ? feriado.indTipoFeriado.toString() : '1',
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indTipoFeriado', Number(e.target.value)),
       type: "select" as const,
       options: [
@@ -134,6 +134,7 @@ export default function FeriadosPage() {
       getEditFields={getEditFields}
       getItemId={getItemId}
       createUpdatedItem={createUpdatedItem}
+      allowEdit={false}
     />
   );
 } 

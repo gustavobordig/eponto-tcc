@@ -5,7 +5,7 @@ import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { jornadaValidations } from '@/utils/jornadaValidations';
+import { jornadaValidations } from '@/utils/validations/jornadaValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
 import { ValidationResult } from '@/utils/validations/userValidations';
 

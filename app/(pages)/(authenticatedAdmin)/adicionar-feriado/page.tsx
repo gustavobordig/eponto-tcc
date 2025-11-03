@@ -6,7 +6,7 @@ import { feriadoService } from '@/services/feriado';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 import { useRouter } from 'next/navigation';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { feriadoValidations } from '@/utils/feriadoValidations';
+import { feriadoValidations } from '@/utils/validations/feriadoValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
 import { ValidationResult } from '@/utils/validations/userValidations';
 
