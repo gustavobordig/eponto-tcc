@@ -7,9 +7,18 @@ interface RelatorioHorasExtrasParams {
   IdUsuario?: number;
 }
 
-interface RelatorioResponse {
+export interface RelatorioItem {
+  nomeUsuario: string;
+  saldoHoras: string;
+  cargo: string;
+  jornadaTrabalho: string;
+  horasTrabalhadasTotal: string | null;
+}
+
+export interface RelatorioResponse {
   sucesso: boolean;
   mensagem: string;
+  listaItens?: RelatorioItem[];
 }
 
 export const relatorioService = {
@@ -36,4 +45,3 @@ export const relatorioService = {
     }
   }
 };
-

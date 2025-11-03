@@ -399,4 +399,33 @@ export const formatSaldo = (saldoString: string): string => {
     console.error('Erro ao formatar saldo:', error);
     return "0h";
   }
+};
+
+/**
+ * Converte saldo de horas para horas decimais
+ * Tenta diferentes formatos: milissegundos, minutos ou segundos
+ * @param saldoHorasValue - String ou número representando o saldo (ex: "-2630000")
+ * @returns Número de horas decimais
+ */
+export const convertSaldoHorasToHours = (saldoHorasValue: string | number): number => {
+  try {
+    const value = typeof saldoHorasValue === 'string' ? parseInt(saldoHorasValue) : saldoHorasValue;
+    
+    // Se o valor for muito grande (maior que 1 milhão), provavelmente são milissegundos
+    // Se for médio (entre 1000 e 1 milhão), podem ser segundos
+    // Se for menor, podem ser minutos
+    if (Math.abs(value) > 1000000) {
+      // Assumindo milissegundos: converter para horas
+      return value / (1000 * 60 * 60);
+    } else if (Math.abs(value) > 1000) {
+      // Assumindo segundos: converter para horas
+      return value / (60 * 60);
+    } else {
+      // Assumindo minutos: converter para horas
+      return value / 60;
+    }
+  } catch (error) {
+    console.error('Erro ao converter saldo de horas:', error);
+    return 0;
+  }
 }; 
