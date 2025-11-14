@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface ActionButtonProps {
   type: 'view' | 'approve' | 'reject' | 'evaluate' | 'respond';
@@ -15,46 +16,48 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   loading = false,
   size = 'sm'
 }) => {
+  const { t } = useLanguage();
+  
   const getButtonConfig = () => {
     switch (type) {
       case 'view':
         return {
-          text: 'Ver',
+          text: t('admin.actions.view'),
           bgColor: 'bg-gray-200',
           textColor: 'text-gray-700',
           hoverColor: 'hover:bg-gray-300'
         };
       case 'approve':
         return {
-          text: 'Aprovar',
+          text: t('admin.actions.approve'),
           bgColor: 'bg-green-600',
           textColor: 'text-white',
           hoverColor: 'hover:bg-green-700'
         };
       case 'reject':
         return {
-          text: 'Reprovar',
+          text: t('admin.actions.reject'),
           bgColor: 'bg-red-600',
           textColor: 'text-white',
           hoverColor: 'hover:bg-red-700'
         };
       case 'evaluate':
         return {
-          text: 'Avaliar',
+          text: t('admin.actions.evaluate'),
           bgColor: 'bg-blue-600',
           textColor: 'text-white',
           hoverColor: 'hover:bg-blue-700'
         };
       case 'respond':
         return {
-          text: 'Responder',
+          text: t('admin.actions.respond'),
           bgColor: 'bg-green-600',
           textColor: 'text-white',
           hoverColor: 'hover:bg-green-700'
         };
       default:
         return {
-          text: 'Ação',
+          text: t('admin.actions.action'),
           bgColor: 'bg-gray-600',
           textColor: 'text-white',
           hoverColor: 'hover:bg-gray-700'

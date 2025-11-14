@@ -27,10 +27,40 @@ const TimeComparisonModal: React.FC<TimeComparisonModalProps> = ({
     return new Date(dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getTipoRegistro = (idTipo: number): string => {
+    switch (idTipo) {
+      case 1:
+        return 'Entrada';
+      case 2:
+        return 'Início Almoço';
+      case 3:
+        return 'Volta Almoço';
+      case 4:
+        return 'Saída';
+      default:
+        return 'Desconhecido';
+    }
+  };
+
+  const getTipoColor = (tipo: string): string => {
+    switch (tipo) {
+      case 'Entrada':
+        return 'bg-green-100 text-green-800';
+      case 'Início Almoço':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Volta Almoço':
+        return 'bg-orange-100 text-orange-800';
+      case 'Saída':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const formatarRegistros = (registros: ItemRegistro[]) => {
     return registros.map(registro => ({
       hora: formatarHora(registro.horaRegistro),
-      tipo: registro.idTipoRegistroPonto === 1 ? 'Entrada' : 'Saída'
+      tipo: getTipoRegistro(registro.idTipoRegistroPonto)
     }));
   };
 
@@ -88,11 +118,7 @@ const TimeComparisonModal: React.FC<TimeComparisonModalProps> = ({
                       <span className="text-2xl font-mono font-bold text-red-700">
                         {registro.hora}
                       </span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        registro.tipo === 'Entrada' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-orange-100 text-orange-800'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTipoColor(registro.tipo)}`}>
                         {registro.tipo}
                       </span>
                     </div>
@@ -120,11 +146,7 @@ const TimeComparisonModal: React.FC<TimeComparisonModalProps> = ({
                     <span className="text-2xl font-mono font-bold text-blue-700">
                       {registro.hora}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      registro.tipo === 'Entrada' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-orange-100 text-orange-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTipoColor(registro.tipo)}`}>
                       {registro.tipo}
                     </span>
                   </div>

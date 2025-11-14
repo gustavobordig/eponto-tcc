@@ -83,42 +83,66 @@ export default function NavBar({
     return (
         <>
             {/* Mobile Nav */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
                 <MobileNav itens={itens} navItemNames={navItemNames} />
             </div>
 
             {/* Desktop Nav */}
-            <div className="hidden md:block border-b-2 border-[#002085] fixed top-0 left-0 right-0 z-50 bg-white">
+            <div className="hidden lg:block border-b-2 border-[#002085] fixed top-0 left-0 right-0 z-50 bg-white">
                 <Container>
-                    <div className="flex justify-between items-center py-4">
+                    {/* Primeira linha - Logo e Navegação */}
+                    <div className="flex items-center justify-between py-2">
+                        {/* Logo */}
                         <div
-                            className="cursor-pointer"
+                            className="cursor-pointer flex-shrink-0"
                             onClick={() => router.push('/home')}
                         >
-                            <Image src={logo.src} alt="logo" width={100} height={100} />
+                            <Image 
+                                src={logo.src} 
+                                alt="logo" 
+                                width={60} 
+                                height={60} 
+                                className="xl:w-[80px] xl:h-[80px]"
+                            />
                         </div>
 
-                        <div className="flex items-center gap-8">
-                            <nav className="flex gap-6">
+                        {/* Navegação Central */}
+                        <nav className="flex items-center justify-center flex-1 max-w-4xl">
+                            <div className="flex items-center gap-3 xl:gap-6">
                                 {itens.map((item, index) => (
                                     <Link 
                                         key={index} 
                                         href={item}
-                                        className="text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap"
+                                        className="text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap text-sm xl:text-base font-medium px-2 py-1 rounded-md hover:bg-blue-50"
                                     >
-                                        {navItemNames[item]}
+                                        {navItemNames[item as keyof typeof navItemNames]}
                                     </Link>
                                 ))}
-                            </nav>
+                            </div>
+                        </nav>
+
+                        {/* Espaçador para manter logo e navegação alinhados */}
+                        <div className="w-[60px] xl:w-[80px]"></div>
+                    </div>
+
+                    {/* Segunda linha - Elementos de ação */}
+                    <div className="flex items-center justify-between py-2 border-t border-gray-100">
+                        {/* Lado esquerdo - Seletor de idioma */}
+                        <div className="flex items-center">
                             <SimpleLanguageSelector />
+                        </div>
+
+                        {/* Lado direito - Perfil, Logout e Bater Ponto */}
+                        <div className="flex items-center gap-3 xl:gap-4">
                             <div 
-                                className="w-[40px] h-[40px] rounded-full bg-cover bg-center border-2 border-[#002085]"
+                                className="w-[35px] h-[35px] xl:w-[40px] xl:h-[40px] rounded-full bg-cover bg-center border-2 border-[#002085] cursor-pointer hover:border-blue-400 transition-colors"
                                 style={{
                                     backgroundImage: `url(${userPhoto})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center'
                                 }}
                             />
+                            
                             <Button 
                                 text={t('nav.logout')} 
                                 backgroundColor="bg-white"
@@ -128,11 +152,12 @@ export default function NavBar({
                                     borderRadius: '30px',
                                     borderColor: '#002085',
                                     borderWidth: '1px',
-                                    padding: '0.5rem 1.5rem'
+                                    padding: '0.4rem 0.8rem'
                                  }}
-                                className="px-6 font-medium"
+                                className="font-medium text-xs xl:text-sm hover:bg-gray-50 transition-colors"
                                 onClick={handleLogoutClick}
                             />
+                            
                             <Button 
                                 text={t('home.punch-in')} 
                                 backgroundColor="bg-[#002085]"
@@ -140,8 +165,9 @@ export default function NavBar({
                                 fullWidth={false}
                                 style={{
                                    borderRadius: '30px',
-                                   padding: '0.5rem 1.5rem'
+                                   padding: '0.4rem 0.8rem'
                                 }}
+                                className="text-xs xl:text-sm hover:bg-blue-700 transition-colors"
                                 hoverSwapColors={false}
                                 onClick={handleOpenModal}
                             />
@@ -162,7 +188,7 @@ export default function NavBar({
                 onClose={handleCloseLogoutModal}
                 onConfirm={handleConfirmLogout}
                 title={t('nav.logout')}
-                message="Tem certeza que deseja sair do sistema?"
+                message={t('common.logout-confirmation')}
                 confirmText={t('nav.logout')}
                 cancelText={t('common.cancel')}
             />

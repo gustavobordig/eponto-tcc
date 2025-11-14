@@ -1,7 +1,6 @@
 "use client"; 
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getAllTimeRecords } from "@/services/timeRecord";
@@ -10,8 +9,6 @@ import { bancoHorasService } from "@/services/bancoHoras";
 import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
-// Assets
-import UserImage from "@/public/images/User.png";
 // Icons
 import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from "lucide-react";
 
@@ -52,12 +49,19 @@ export default function Home() {
     horasTrabalhadas: string;
     saldo: string;
   } | null>(null);
+  const [userPhoto, setUserPhoto] = useState<string>("/images/User.png");
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       const { nome } = JSON.parse(userData);
       setUserName(nome);
+    }
+    
+    // Carregar foto do usuário do localStorage
+    const savedPhoto = localStorage.getItem('userProfilePhoto');
+    if (savedPhoto) {
+      setUserPhoto(savedPhoto);
     }
   }, []);
 
@@ -231,53 +235,62 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <PageEntrance>
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
           {/* Header Section */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            <div className="flex flex-col gap-4 sm:gap-6">
               {/* First Row: User Info and Time */}
-              <div className="flex flex-col md:flex-row items-center  justify-center md:justify-between">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-[#002085]">
-                    <Image src={UserImage} alt="User" fill className="object-cover" />
-                  </div>
-                  <div className="flex flex-col gap-2 items-center md:items-start">
-                    <h1 className="text-2xl font-bold text-[#002085]">{getGreeting()}, {userName}!</h1>
-                    <p className="text-gray-500 text-sm">{t('home.welcome')}</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                  <div 
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-cover bg-center border-4 border-[#002085] flex-shrink-0"
+                    style={{
+                      backgroundImage: `url(${userPhoto})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  />
+                  <div className="flex flex-col gap-1 sm:gap-2 items-center sm:items-start">
+                    <h1 className="text-xl sm:text-2xl font-bold text-[#002085] text-center sm:text-left">
+                      {getGreeting()}, {userName}!
+                    </h1>
+                    <p className="text-gray-500 text-xs sm:text-sm text-center sm:text-left">{t('home.welcome')}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-center md:justify-end my-2 md:my-0 gap-2 text-gray-500">
-                  <Clock className="w-5 h-5" />
-                  <span className="text-3xl font-bold text-[#002085]">
+                <div className="flex items-center justify-center sm:justify-end gap-2 text-gray-500">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-2xl sm:text-3xl font-bold text-[#002085]">
                     {format(currentTime, "HH:mm")}
                   </span>
                 </div>
               </div>
 
               {/* Second Row: Date and Location */}
-              <div className="flex flex-col md:flex-row gap-2 items-center justify-between border-t pt-4">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Calendar className="w-5 h-5" />
-                  <span>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 items-center sm:justify-between border-t pt-4">
+                <div className="flex items-center gap-2 text-gray-500 text-sm sm:text-base">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="text-center sm:text-left">
                     {format(currentTime, "EEEE',' d 'de' MMMM',' yyyy", { locale: ptBR })}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <MapPin className="w-5 h-5" />
-                  <span className="truncate max-w-[200px] md:max-w-[300px]">{locationError || location}</span>
+                <div className="flex items-center gap-2 text-gray-500 text-sm sm:text-base">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="truncate max-w-[250px] sm:max-w-[300px] md:max-w-[400px] text-center sm:text-left">
+                    {locationError || location}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Main Info Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Actions Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
-              <h2 className="text-lg font-semibold text-[#002085]">{t('home.actions')}</h2>
-              <div className="flex flex-col gap-3">
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm space-y-3 sm:space-y-4">
+              <h2 className="text-base sm:text-lg font-semibold text-[#002085]">{t('home.actions')}</h2>
+              <div className="flex flex-col gap-2 sm:gap-3">
                 <Button
                   text={t('home.punch-in')}
                   backgroundColor="bg-[#002085]"
@@ -297,9 +310,9 @@ export default function Home() {
             </div>
 
             {/* Points Status Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">{t('home.daily-punches')}</h2>
-              <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-base sm:text-lg font-semibold text-[#002085] mb-3 sm:mb-4">{t('home.daily-punches')}</h2>
+              <div className="grid grid-cols-4 gap-2 sm:gap-4">
                 {loading ? (
                   <div className="col-span-4 text-center text-gray-500">
                     {t('common.loading')}
@@ -313,19 +326,21 @@ export default function Home() {
                     
                     return (
                       <div key={index} className="flex flex-col items-center">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-1 sm:mb-2 ${
                           isCurrentPoint 
                             ? "bg-green-100 text-green-600" 
                             : isMarked 
                               ? "bg-gray-100 text-[#002085]" 
                               : "bg-gray-50 text-gray-400"
                         }`}>
-                          {indicator.icon}
+                          {React.cloneElement(indicator.icon, { 
+                            className: "w-5 h-5 sm:w-6 sm:h-6" 
+                          })}
                         </div>
-                        <span className={`text-xs ${isCurrentPoint ? "text-green-600 font-semibold" : "text-[#002085]"}`}>
+                        <span className={`text-[10px] sm:text-xs text-center ${isCurrentPoint ? "text-green-600 font-semibold" : "text-[#002085]"}`}>
                           {indicator.label}
                         </span>
-                        <span className={`text-sm font-semibold ${isCurrentPoint ? "text-green-600" : "text-[#002085]"}`}>
+                        <span className={`text-xs sm:text-sm font-semibold ${isCurrentPoint ? "text-green-600" : "text-[#002085]"}`}>
                           {time}
                         </span>
                       </div>
@@ -336,41 +351,15 @@ export default function Home() {
             </div>
 
             {/* Punctuality Status Card */}
-            <DailyStatus points={points} />
+            {/* <DailyStatus points={points} /> */}
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Monthly Hours Balance Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm h-fit">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Saldo de Horas</h2>
-              <div className="h-fit flex flex-col justify-start items-start gap-4">
-                {bancoHoras ? (
-                  <>
-                    <div className="text-left">
-                      <p className="text-sm text-gray-600">Horas Trabalhadas</p>
-                      <p className="text-xl font-bold text-[#002085]">{formatHorasTrabalhadas(bancoHoras.horasTrabalhadas)}</p>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm text-gray-600">Saldo</p>
-                      <p className={`text-xl font-bold ${getSaldoColor(bancoHoras.saldo)}`}>
-                        {formatSaldo(bancoHoras.saldo)}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-gray-500">Não foi possível carregar o saldo</p>
-                    <p className="text-sm text-gray-400">Verifique sua conexão e tente novamente</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {/* Punctuality Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Pontualidade</h2>
-              <div className="h-64">
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+              <h2 className="text-base sm:text-lg font-semibold text-[#002085] mb-3 sm:mb-4">Pontualidade</h2>
+              <div className="h-48 sm:h-64">
                 <PunctualityChart data={mockMonthlyData.punctuality} />
               </div>
             </div>

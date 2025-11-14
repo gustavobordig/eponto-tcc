@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
 import { tokenUtils } from '@/utils/token';
 import SimpleLanguageSelector from '@/app/components/atoms/SimpleLanguageSelector';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function AdminLayout({
   children,
@@ -14,21 +15,23 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    {href: '/dashboard', label: 'Usuários' },
-    {href:"/dashboard/cargos", label:"Cargos"},
-    {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
-    {href:"/dashboard/feriados", label:"Feriados"},
-    {href:"/dashboard/ferias", label:"Férias"},
-    {href:"/dashboard/calendario", label:"Calendário"},
-    {href:"/dashboard/analytics", label:"Estatísticas"},
+    {href: '/dashboard', label: t('admin.users') },
+    {href:"/dashboard/cargos", label: t('admin.positions')},
+    {href:"/dashboard/jornada-trabalho", label: t('admin.work-schedule')},
+    {href:"/dashboard/feriados", label: t('admin.holidays')},
+    {href:"/dashboard/ferias", label: t('admin.vacations')},
+    {href:"/dashboard/calendario", label: t('admin.calendar')},
+    {href:"/dashboard/analytics", label: t('admin.statistics')},
+    {href:"/criar-admin", label: t('admin.create-admin')},
   ];
 
   const approvalItems = [
-    {href:"/dashboard/aprovacoes", label:"Central de Aprovações"},
+    {href:"/dashboard/aprovacoes", label: t('admin.approvals')},
   ];
 
   useEffect(() => {

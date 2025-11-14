@@ -15,6 +15,9 @@ import { feriadoValidations } from '@/utils/validations/feriadoValidations';
 // Types
 import { Column } from '@/types';
 
+// Context
+import { useLanguage } from '@/app/contexts/LanguageContext';
+
 interface Feriado {
   idFeriado?: number;
   dscFeriado: string;
@@ -23,18 +26,19 @@ interface Feriado {
 }
 
 export default function FeriadosPage() {
+  const { t } = useLanguage();
   const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState(true);
 
   const columns: Column[] = [
-    { key: 'dscFeriado', label: 'Descrição' },
-    { key: 'datFeriado', label: 'Data', type: 'date' },
+    { key: 'dscFeriado', label: t('admin.table.description') },
+    { key: 'datFeriado', label: t('admin.table.date'), type: 'date' },
     { 
       key: 'indTipoFeriado', 
-      label: 'Tipo',
+      label: t('admin.table.type'),
       render: (value: number) => {
         console.log('Tipo Feriado value:', value, typeof value); // Debug log
-        return Number(value) === 1 ? 'Integral' : 'Meio Período';
+        return Number(value) === 1 ? t('admin.table.integral') : t('admin.table.half-day');
       }
     }
   ];
@@ -71,14 +75,14 @@ export default function FeriadosPage() {
 
   const getEditFields = (feriado: Feriado, setField: (field: string, value: any) => void) => [
     {
-      label: "Descrição do Feriado",
+      label: t('admin.table.description'),
       value: feriado.dscFeriado,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('dscFeriado', e.target.value),
       fieldName: "dscFeriado",
       required: true
     },
     {
-      label: "Data do Feriado",
+      label: t('admin.table.date'),
       value: feriado.datFeriado,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('datFeriado', e.target.value),
       type: "date" as const,
@@ -86,13 +90,13 @@ export default function FeriadosPage() {
       required: true
     },
     {
-      label: "Tipo de Feriado",
+      label: t('admin.table.holiday-type'),
       value: feriado.indTipoFeriado.toString(),
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indTipoFeriado', Number(e.target.value)),
       type: "select" as const,
       options: [
-        { value: "1", label: "Integral" },
-        { value: "2", label: "Meio Período" }
+        { value: "1", label: t('admin.table.integral') },
+        { value: "2", label: t('admin.table.half-day') }
       ],
       fieldName: "indTipoFeriado",
       required: false
@@ -119,7 +123,7 @@ export default function FeriadosPage() {
       setData={setFeriados}
       loading={loading}
       setLoading={setLoading}
-      title="Feriados"
+      title={t('admin.page.holidays')}
       columns={columns}
       addItemHref="/adicionar-feriado"
       fetchData={fetchFeriados}

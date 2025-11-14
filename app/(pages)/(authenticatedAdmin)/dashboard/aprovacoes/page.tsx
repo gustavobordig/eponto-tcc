@@ -10,6 +10,9 @@ import AjustesPontoContent from './components/AjustesPontoContent';
 import SolicitacoesAusenciaContent from './components/SolicitacoesAusenciaContent';
 import FeedbackContent from './components/FeedbackContent';
 
+// Context
+import { useLanguage } from '@/app/contexts/LanguageContext';
+
 type ApprovalType = 'ajustes-ponto' | 'solicitacoes-ausencia' | 'feedback';
 
 interface ApprovalOption {
@@ -20,33 +23,36 @@ interface ApprovalOption {
   color: string;
 }
 
-const approvalOptions: ApprovalOption[] = [
-  {
-    id: 'ajustes-ponto',
-    label: 'Ajustes de Ponto',
-    description: 'Solicitações de ajuste de registro de ponto',
-    icon: <Clock className="w-5 h-5" />,
-    color: 'blue'
-  },
-  {
-    id: 'solicitacoes-ausencia',
-    label: 'Solicitações de Ausência',
-    description: 'Aprovação de ausências e licenças',
-    icon: <UserCheck className="w-5 h-5" />,
-    color: 'orange'
-  },
-  {
-    id: 'feedback',
-    label: 'Feedback',
-    description: 'Resposta a solicitações de feedback',
-    icon: <MessageSquare className="w-5 h-5" />,
-    color: 'green'
-  }
-];
+// Mover para dentro do componente para usar traduções
 
 export default function AprovacoesPage() {
+  const { t } = useLanguage();
   const [selectedType, setSelectedType] = useState<ApprovalType>('ajustes-ponto');
   const [loading, setLoading] = useState(false);
+
+  const approvalOptions: ApprovalOption[] = [
+    {
+      id: 'ajustes-ponto',
+      label: t('admin.approval-center.punch-adjustments'),
+      description: t('admin.approval-center.punch-adjustments-desc'),
+      icon: <Clock className="w-5 h-5" />,
+      color: 'blue'
+    },
+    {
+      id: 'solicitacoes-ausencia',
+      label: t('admin.approval-center.absence-requests'),
+      description: t('admin.approval-center.absence-requests-desc'),
+      icon: <UserCheck className="w-5 h-5" />,
+      color: 'orange'
+    },
+    {
+      id: 'feedback',
+      label: t('admin.approval-center.feedback'),
+      description: t('admin.approval-center.feedback-desc'),
+      icon: <MessageSquare className="w-5 h-5" />,
+      color: 'green'
+    }
+  ];
 
   const handleTypeChange = (type: ApprovalType) => {
     setSelectedType(type);
@@ -86,7 +92,7 @@ export default function AprovacoesPage() {
     if (loading) {
       return (
         <div className="flex items-center justify-center min-h-[400px]">
-          <LoadingText title="carregando" />
+          <LoadingText title={t('admin.approval-center.loading')} />
         </div>
       );
     }
@@ -108,10 +114,10 @@ export default function AprovacoesPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Central de Aprovações
+          {t('admin.approval-center.title')}
         </h1>
         <p className="text-gray-600">
-          Gerencie todas as solicitações que necessitam de aprovação administrativa
+          {t('admin.approval-center.description')}
         </p>
       </div>
 
@@ -149,7 +155,7 @@ export default function AprovacoesPage() {
                   <div className="mt-3 flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                     <span className="text-sm text-green-600 font-medium">
-                      Selecionado
+                      {t('admin.approval-center.selected')}
                     </span>
                   </div>
                 )}

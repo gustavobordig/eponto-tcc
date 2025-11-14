@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface StatusBadgeProps {
   status: 'pending' | 'approved' | 'rejected' | 'answered' | 'evaluated';
@@ -6,41 +7,43 @@ interface StatusBadgeProps {
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'sm' }) => {
+  const { t } = useLanguage();
+  
   const getStatusConfig = () => {
     switch (status) {
       case 'pending':
         return {
-          text: 'Pendente',
+          text: t('admin.status.pending'),
           bgColor: 'bg-yellow-100',
           textColor: 'text-yellow-800'
         };
       case 'approved':
         return {
-          text: 'Aprovado',
+          text: t('admin.status.approved'),
           bgColor: 'bg-green-100',
           textColor: 'text-green-800'
         };
       case 'rejected':
         return {
-          text: 'Reprovado',
+          text: t('admin.status.rejected'),
           bgColor: 'bg-red-100',
           textColor: 'text-red-800'
         };
       case 'answered':
         return {
-          text: 'Respondido',
+          text: t('admin.status.answered'),
           bgColor: 'bg-green-100',
           textColor: 'text-green-800'
         };
       case 'evaluated':
         return {
-          text: 'Avaliado',
+          text: t('admin.status.evaluated'),
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-800'
         };
       default:
         return {
-          text: 'Desconhecido',
+          text: t('admin.status.unknown'),
           bgColor: 'bg-gray-100',
           textColor: 'text-gray-800'
         };

@@ -17,19 +17,35 @@ export default function MinhasSolicitacoesPage() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getStatusText = (status: number) => {
-    switch (status) {
-      case 0: return "Finalizado";
+  const getStatusText = (status: number | null | undefined) => {
+    // Trata valores null, undefined ou inválidos
+    if (status === null || status === undefined || isNaN(Number(status))) {
+      return "Pendente";
+    }
+    
+    const statusNum = Number(status);
+    switch (statusNum) {
+      case 0: return "Pendente";
       case 1: return "Pendente";
-      default: return "Desconhecido";
+      case 2: return "Aprovada";
+      case 3: return "Reprovada";
+      default: return "Pendente"; // Fallback para pendente ao invés de desconhecido
     }
   };
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 0: return "bg-green-100 text-green-800";
+  const getStatusColor = (status: number | null | undefined) => {
+    // Trata valores null, undefined ou inválidos
+    if (status === null || status === undefined || isNaN(Number(status))) {
+      return "bg-yellow-100 text-yellow-800";
+    }
+    
+    const statusNum = Number(status);
+    switch (statusNum) {
+      case 0: return "bg-yellow-100 text-yellow-800";
       case 1: return "bg-yellow-100 text-yellow-800";
-      default: return "bg-gray-100 text-gray-800";
+      case 2: return "bg-green-100 text-green-800";
+      case 3: return "bg-red-100 text-red-800";
+      default: return "bg-yellow-100 text-yellow-800"; // Fallback para pendente
     }
   };
 

@@ -35,12 +35,22 @@ const getDelayTime = (expectedTime: string, actualTime: string) => {
   return delayMinutes;
 };
 
+// Dados mockados para quando não houver pontos
+const mockPoints: Point[] = [
+  { type: "entrada", timestamp: new Date().toISOString().split('T')[0] + "T08:05:00" },
+  { type: "inicio_almoco", timestamp: new Date().toISOString().split('T')[0] + "T12:00:00" },
+  { type: "fim_almoco", timestamp: new Date().toISOString().split('T')[0] + "T13:00:00" },
+];
+
 export function DailyStatus({ points }: DailyStatusProps) {
+  // Usar dados mockados se não houver pontos
+  const displayPoints = points.length > 0 ? points : mockPoints;
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-[#002085] mb-4">Status do Dia</h2>
       <div className="space-y-4">
-        {points.map((point, index) => {
+        {displayPoints.map((point, index) => {
           const indicator = timeIndicators.find(i => i.type === point.type);
           const expectedTime = indicator?.time;
           const actualTime = format(new Date(point.timestamp), "HH:mm");

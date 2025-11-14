@@ -15,6 +15,9 @@ import { cargoValidations } from '@/utils/validations/cargoValidations';
 // Types
 import { Column } from '@/types';
 
+// Context
+import { useLanguage } from '@/app/contexts/LanguageContext';
+
 
 interface Cargo {
   idCargo: number;
@@ -32,14 +35,15 @@ interface ApiResponse {
 }
 
 export default function CargosPage() {
+  const { t } = useLanguage();
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
 
   const columns: Column[] = [
-    { key: 'nomeCargo', label: 'Nome do Cargo' },
-    { key: 'formacaoMinima', label: 'Formação Mínima' },
-    { key: 'salario', label: 'Salário', type: 'currency' },
-    { key: 'indAtivo', label: 'Status', type: 'status' }
+    { key: 'nomeCargo', label: t('admin.page.position') },
+    { key: 'formacaoMinima', label: t('admin.table.minimum-education') },
+    { key: 'salario', label: t('admin.table.salary'), type: 'currency' },
+    { key: 'indAtivo', label: t('admin.table.status'), type: 'status' }
   ];
 
   // Configuração das validações para o EditModal
@@ -72,14 +76,14 @@ export default function CargosPage() {
 
   const getEditFields = (cargo: Cargo, setField: (field: string, value: any) => void) => [
     {
-      label: "Nome do Cargo",
+      label: t('admin.page.position'),
       value: cargo.nomeCargo,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('nomeCargo', e.target.value),
       fieldName: "nomeCargo",
       required: true
     },
     {
-      label: "Salário",
+      label: t('admin.table.salary'),
       value: cargo.salario,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('salario', e.target.value),
       type: "number" as const,
@@ -87,20 +91,20 @@ export default function CargosPage() {
       required: true
     },
     {
-      label: "Formação Mínima",
+      label: t('admin.table.minimum-education'),
       value: cargo.formacaoMinima,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('formacaoMinima', e.target.value),
       fieldName: "formacaoMinima",
       required: true
     },
     {
-      label: "Status",
+      label: t('admin.table.status'),
       value: cargo.indAtivo.toString(),
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indAtivo', Number(e.target.value)),
       type: "select" as const,
       options: [
-        { value: "1", label: "Ativo" },
-        { value: "0", label: "Inativo" }
+        { value: "1", label: t('admin.table.active') },
+        { value: "0", label: t('admin.table.inactive') }
       ],
       fieldName: "status",
       required: false
@@ -123,7 +127,7 @@ export default function CargosPage() {
       setData={setCargos}
       loading={loading}
       setLoading={setLoading}
-      title="Cargos"
+      title={t('admin.page.positions')}
       columns={columns}
       addItemHref="/adicionar-cargo"
       fetchData={fetchCargos}

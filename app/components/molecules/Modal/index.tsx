@@ -48,38 +48,134 @@ export const Modal: React.FC<ModalProps> = ({
   const [location, setLocation] = useState<string>("Carregando localização...");
   const [locationError, setLocationError] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      // Reset states when modal closes
+      setLocation("Carregando localização...");
+      setLocationError("");
+      setIsLoadingLocation(true);
+      return;
+    }
 
     const getLocation = async () => {
+      setIsLoadingLocation(true);
+      setLocationError("");
+      
       try {
+        // Verificar se a geolocalização está disponível
+        if (!navigator.geolocation) {
+          throw new Error("Geolocalização não suportada pelo navegador");
+        }
+
         // Get user's coordinates
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
+          navigator.geolocation.getCurrentPosition(
+            resolve, 
+            reject, 
+            {
+              enableHighAccuracy: true,
+              timeout: 10000, // Aumentado para 10 segundos
+              maximumAge: 0
+            }
+          );
         });
 
         // Convert coordinates to address using OpenStreetMap's Nominatim API
+        // Adiciona delay para evitar rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1&accept-language=pt-BR`
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1&accept-language=pt-BR`,
+          {
+            headers: {
+              'User-Agent': 'MK-Ponto-App/1.0',
+              'Accept': 'application/json'
+            }
+          }
         );
+        
+        if (!response.ok) {
+          // Se for erro 429 (rate limit), tenta novamente após delay
+          if (response.status === 429) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            const retryResponse = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1&accept-language=pt-BR`,
+              {
+                headers: {
+                  'User-Agent': 'MK-Ponto-App/1.0',
+                  'Accept': 'application/json'
+                }
+              }
+            );
+            
+            if (!retryResponse.ok) {
+              throw new Error(`Erro na API após retry: ${retryResponse.status}`);
+            }
+            
+            const retryData = await retryResponse.json();
+            if (retryData && retryData.display_name) {
+              setLocation(retryData.display_name);
+              setLocationError("");
+              setIsLoadingLocation(false);
+              return;
+            }
+          }
+          
+          throw new Error(`Erro na API: ${response.status}`);
+        }
         
         const data = await response.json();
         
-        if (data.display_name) {
+        if (data && data.display_name) {
           setLocation(data.display_name);
+          setLocationError("");
         } else {
-          setLocation("Localização não disponível");
+          // Se não tiver display_name, tenta usar outros campos
+          const address = data.address;
+          if (address) {
+            const addressParts = [
+              address.road,
+              address.house_number,
+              address.neighbourhood || address.suburb,
+              address.city || address.town || address.village,
+              address.state
+            ].filter(Boolean);
+            
+            if (addressParts.length > 0) {
+              setLocation(addressParts.join(", "));
+              setLocationError("");
+            } else {
+              setLocation("Localização não disponível");
+              setLocationError("Endereço não encontrado");
+            }
+          } else {
+            setLocation("Localização não disponível");
+            setLocationError("Endereço não encontrado");
+          }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erro ao obter localização:', error);
-        setLocationError("Não foi possível obter sua localização");
+        
+        // Mensagens de erro mais específicas
+        let errorMessage = "Não foi possível obter sua localização";
+        
+        if (error.code === 1) {
+          errorMessage = "Permissão de localização negada. Por favor, permita o acesso à localização nas configurações do navegador.";
+        } else if (error.code === 2) {
+          errorMessage = "Localização indisponível. Verifique se o GPS está ativado.";
+        } else if (error.code === 3) {
+          errorMessage = "Tempo de espera esgotado ao obter localização.";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        setLocationError(errorMessage);
         setLocation("Localização não disponível");
+      } finally {
+        setIsLoadingLocation(false);
       }
     };
 
@@ -175,8 +271,8 @@ export const Modal: React.FC<ModalProps> = ({
         onClick={onClose}
       />
       <SlideUp>
-        <div className="bg-white rounded-lg p-8 w-[90%] max-w-md shadow-xl relative z-10">
-          <div className="flex flex-col items-center space-y-6">
+        <div className="bg-white rounded-lg p-6 sm:p-8 w-[90%] max-w-md shadow-xl relative z-10">
+          <div className="flex flex-col items-center space-y-4 sm:space-y-6">
             {/* User Image */}
             <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-[#002085]">
               <Image
@@ -190,13 +286,29 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Greeting Text */}
             <p className="text-xl font-semibold text-[#002085]">{greeting}</p>
 
-            <div className="flex flex-col gap-2 justify-center items-center">
+            <div className="flex flex-col gap-2 justify-center items-center w-full px-2">
               {/* Location */}
-              <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <MapPin className="w-4 h-4" />
-                <span className="max-w-[250px] truncate">
-                  {locationError || location}
-                </span>
+              <div className={`flex items-start gap-2 text-sm w-full max-w-[320px] px-3 py-2.5 rounded-lg ${
+                locationError ? "bg-red-50 border border-red-200" : isLoadingLocation ? "bg-blue-50 border border-blue-200" : "bg-gray-50 border border-gray-200"
+              }`}>
+                <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                  locationError ? "text-red-500" : isLoadingLocation ? "text-blue-500" : "text-[#002085]"
+                }`} />
+                <div className="flex flex-col gap-1 flex-1 min-w-0">
+                  {isLoadingLocation ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 text-xs font-medium">Carregando localização...</span>
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : locationError ? (
+                    <>
+                      <span className="text-red-600 text-xs font-medium">Erro ao obter localização</span>
+                      <span className="text-red-500 text-xs break-words leading-relaxed">{locationError}</span>
+                    </>
+                  ) : (
+                    <span className="text-gray-700 text-xs break-words leading-relaxed font-medium">{location}</span>
+                  )}
+                </div>
               </div>
 
               {/* Date */}

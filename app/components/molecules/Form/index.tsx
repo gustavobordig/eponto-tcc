@@ -71,19 +71,20 @@ export default function Form({
     };
 
     return (
-        <div className="flex flex-col items-center justify-center bg-white rounded-lg h-full w-full p-8">
+        <div className="flex flex-col items-center justify-center bg-white rounded-lg h-full w-full p-4 sm:p-6 lg:p-8 max-w-md mx-auto">
             {logo && (
                 <Image 
                     src={logo} 
                     alt="logo" 
                     width={200} 
-                    height={100} 
+                    height={100}
+                    className="w-auto h-auto max-w-[180px] sm:max-w-[200px]"
                 />
             )}
 
-            <h2 className="text-2xl font-bold text-black my-8">{title}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-black my-4 sm:my-6 lg:my-8 text-center">{title}</h2>
 
-            <div className="flex flex-col gap-8 w-full">
+            <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 w-full">
                 <Input
                     label="Email"
                     placeholder="Digite seu email"
@@ -124,7 +125,7 @@ export default function Form({
                     </div>
                 </CustomTooltip>
                 <p 
-                    className="text-sm text-gray-500 cursor-pointer hover:underline"
+                    className="text-xs sm:text-sm text-gray-500 cursor-pointer hover:underline text-center"
                     onClick={() => router.push('/forgot-password')}
                 >
                     Esqueceu sua senha? clique aqui.
