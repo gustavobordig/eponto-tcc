@@ -1,553 +1,191 @@
 # Documentação da API - EPonto
 
-Este documento contém todas as rotas, métodos HTTP e payloads esperados da API do sistema EPonto.
+Este documento contém todas as rotas disponíveis na API do sistema EPonto, incluindo métodos HTTP, parâmetros e exemplos de payload.
 
-## Base URL
-```
-/api
-```
+## Autenticação
+
+A maioria das rotas requer autenticação via token JWT. O token deve ser enviado no header `Authorization: Bearer {token}`.
 
 ---
 
-## 1. Banco de Horas
+## 1. Login Controller (`/api/login`)
 
-### 1.1 Processar Banco de Horas
-**POST** `/api/BancoHoras/Processar/{idUsuario}`
+### POST `/api/login/RealizarLogin`
+**Descrição:** Realiza login do usuário no sistema
+**Autenticação:** Não requerida
 
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-- `data` (DateTime) - Data para processamento (query parameter)
+**Payload:**
+```json
+{
+  "email": "usuario@exemplo.com",
+  "senha": "senha123"
+}
+```
 
 **Resposta:**
 ```json
 {
   "sucesso": true,
-  "mensagem": "string"
-}
-```
-
-### 1.2 Obter Saldos Diários
-**GET** `/api/BancoHoras/SaldosDiarios/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
-### 1.3 Obter Banco de Horas Atual
-**GET** `/api/BancoHoras/Atual/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
-### 1.4 Obter Horas Trabalhadas por Mês
-**GET** `/api/BancoHoras/HorasTrabalhadasMes/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
-### 1.5 Obter Horas Extras por Mês
-**GET** `/api/BancoHoras/HorasExtrasMes/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
----
-
-## 2. Calendário
-
-### 2.1 Buscar Calendário
-**GET** `/api/Calendario/BuscaCalendario`
-
-**Parâmetros:**
-- `ano` (int) - Ano do calendário
-- `idUsuario` (int, opcional) - ID do usuário
-
-**Resposta:**
-```json
-{
-  "sucesso": true,
-  "mensagem": "string",
-  "calendario": "object"
-}
-```
-
----
-
-## 3. Cargo
-
-### 3.1 Criar Cargo
-**POST** `/api/Cargo/Inserir`
-
-**Payload:**
-```json
-{
-  "idCargo": 0,
-  "nomeCargo": "string",
-  "salario": "string",
-  "indAtivo": 1,
-  "formacaoMinima": "string"
-}
-```
-
-### 3.2 Obter Cargo por ID
-**GET** `/api/Cargo/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do cargo
-
-### 3.3 Listar Todos os Cargos
-**GET** `/api/Cargo/Listar`
-
-### 3.4 Atualizar Cargo
-**PUT** `/api/Cargo/Atualizar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do cargo
-
-**Payload:**
-```json
-{
-  "idCargo": 0,
-  "nomeCargo": "string",
-  "salario": "string",
-  "indAtivo": 1,
-  "formacaoMinima": "string"
-}
-```
-
-### 3.5 Excluir Cargo
-**PUT** `/api/Cargo/Deletar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do cargo
-
----
-
-## 4. Comunicado
-
-### 4.1 Cadastrar Comunicado
-**POST** `/api/Comunicado/CadastrarComunicado`
-
-**Payload:**
-```json
-{
-  "idComunicado": 0,
-  "titulo": "string",
-  "mensagem": "string",
-  "dataInicio": "2024-01-01T00:00:00",
-  "dataFim": "2024-01-01T00:00:00",
-  "indAtivo": 1
-}
-```
-
-### 4.2 Deletar Comunicado
-**DELETE** `/api/Comunicado/DeletarComunicado`
-
-**Parâmetros:**
-- `idComunicado` (int) - ID do comunicado
-
-### 4.3 Listar Comunicados
-**GET** `/api/Comunicado/ListarComunicados`
-
-**Resposta:**
-```json
-{
-  "sucesso": true,
-  "mensagem": "string",
-  "listaComunicados": [
+  "mensagem": "Login realizado com sucesso",
+  "idUsuario": 1,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "perfisUsuario": [
     {
-      "idComunicado": 0,
-      "titulo": "string",
-      "mensagem": "string",
-      "dataInicio": "2024-01-01T00:00:00",
-      "dataFim": "2024-01-01T00:00:00",
-      "indAtivo": 1
+      "idPerfil": 1,
+      "dscPerfil": "Administrador"
     }
   ]
 }
 ```
 
----
-
-## 5. Feedback
-
-### 5.1 Inserir Solicitação de Feedback
-**POST** `/api/Feedback/InserirSolicitacao`
+### POST `/api/login/RecuperarSenha`
+**Descrição:** Inicia processo de recuperação de senha
+**Autenticação:** Não requerida
 
 **Payload:**
 ```json
 {
-  "idSolicitacaoFeedback": 0,
-  "idUsuario": 0,
-  "idResponsavel": 0,
-  "mensagemSolicitacao": "string",
-  "dataSolicitacao": "2024-01-01T00:00:00",
-  "statusSolicitacao": 1
+  "email": "usuario@exemplo.com"
 }
 ```
 
-### 5.2 Inserir Feedback
-**POST** `/api/Feedback/InserirFeedback`
+### POST `/api/login/ValidaCodigoRecuperacao`
+**Descrição:** Valida código de recuperação de senha
+**Autenticação:** Não requerida
 
 **Payload:**
 ```json
 {
-  "idFeedback": 0,
-  "idSolicitacaoFeedback": 0,
-  "mensagemFeedback": "string",
-  "avaliacao": 1,
-  "dataFeedback": "2024-01-01T00:00:00"
+  "email": "usuario@exemplo.com",
+  "codigo": 123456
 }
 ```
 
-### 5.3 Listar Solicitações
-**GET** `/api/Feedback/ListarSolicitacao`
-
-### 5.4 Listar Feedbacks
-**GET** `/api/Feedback/ListarFeedback`
-
-### 5.5 Obter Solicitação por ID
-**GET** `/api/Feedback/ListarSolicitacao/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
-
-### 5.6 Obter Solicitações por Usuário
-**GET** `/api/Feedback/ListarSolicitacoesUsuario/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
-### 5.7 Obter Solicitações por Responsável
-**GET** `/api/Feedback/ListarSolicitacoesResponsavel/{idResponsavel}`
-
-**Parâmetros:**
-- `idResponsavel` (int) - ID do responsável
-
-### 5.8 Obter Feedback por ID
-**GET** `/api/Feedback/ListarFeedback/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do feedback
-
-### 5.9 Atualizar Solicitação
-**PUT** `/api/Feedback/AtualizarSolicitacao/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
+### POST `/api/login/AlteraSenhaLogin`
+**Descrição:** Altera senha após validação do código
+**Autenticação:** Não requerida
 
 **Payload:**
 ```json
 {
-  "idSolicitacaoFeedback": 0,
-  "idUsuario": 0,
-  "idResponsavel": 0,
-  "mensagemSolicitacao": "string",
-  "dataSolicitacao": "2024-01-01T00:00:00",
-  "statusSolicitacao": 1
-}
-```
-
-### 5.10 Obter Feedbacks por Usuário
-**GET** `/api/Feedback/ListarFeedbacksUsuario/{idUsuario}`
-
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
-
-### 5.11 Excluir Solicitação
-**DELETE** `/api/Feedback/Deletar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
-
----
-
-## 6. Feriado
-
-### 6.1 Cadastrar Feriado
-**POST** `/api/feriado/CadastrarFeriado`
-
-**Payload:**
-```json
-{
-  "idFeriado": 0,
-  "nomeFeriado": "string",
-  "dataFeriado": "2024-01-01T00:00:00",
-  "indAtivo": 1
-}
-```
-
-### 6.2 Deletar Feriado
-**DELETE** `/api/feriado/DeletarFeriado/{idFeriado}`
-
-**Parâmetros:**
-- `idFeriado` (int) - ID do feriado
-
-### 6.3 Listar Feriados
-**GET** `/api/feriado/ListarFeriados`
-
-**Resposta:**
-```json
-{
-  "sucesso": true,
-  "mensagem": "string",
-  "feriados": [
-    {
-      "idFeriado": 0,
-      "nomeFeriado": "string",
-      "dataFeriado": "2024-01-01T00:00:00",
-      "indAtivo": 1
-    }
-  ]
+  "senha": "novaSenha123",
+  "email": "usuario@exemplo.com"
 }
 ```
 
 ---
 
-## 7. Férias
+## 2. Usuario Controller (`/api/Usuario`)
 
-### 7.1 Cadastrar Férias
-**POST** `/api/Ferias/CadastrarFerias`
-
-**Payload:**
-```json
-{
-  "idFerias": 0,
-  "idUsuario": 0,
-  "dataInicio": "2024-01-01T00:00:00",
-  "dataFim": "2024-01-01T00:00:00",
-  "diasFerias": 0,
-  "indAtivo": 1
-}
-```
-
-### 7.2 Deletar Férias
-**DELETE** `/api/Ferias/DeletarFerias/{idFerias}`
-
-**Parâmetros:**
-- `idFerias` (int) - ID das férias
-
-### 7.3 Listar Férias
-**GET** `/api/Ferias/ListarFerias`
-
-**Parâmetros:**
-- `idUsuario` (int, opcional) - ID do usuário
-
-### 7.4 Cadastrar Solicitação de Férias
-**POST** `/api/Ferias/CadastrarSolicitacaoFerias`
+### POST `/api/Usuario/Inserir`
+**Descrição:** Cria um novo usuário
+**Autenticação:** Requerida
 
 **Payload:**
 ```json
 {
-  "idSolicitacaoFerias": 0,
-  "idUsuario": 0,
-  "dataInicio": "2024-01-01T00:00:00",
-  "dataFim": "2024-01-01T00:00:00",
-  "diasSolicitados": 0,
-  "statusSolicitacao": 1,
-  "dataSolicitacao": "2024-01-01T00:00:00"
+  "nome": "João Silva",
+  "dataNascimento": "1990-05-15T00:00:00Z",
+  "senha": "senha123",
+  "email": "joao@exemplo.com",
+  "telefone": 11999999999,
+  "idCargo": 1,
+  "idJornada": 1,
+  "indAtivo": 1,
+  "fotoPerfil": "https://exemplo.com/foto.jpg",
+  "idChefe": 2
 }
 ```
 
-### 7.5 Listar Solicitações de Férias
-**GET** `/api/Ferias/ListarSolicitacoesFerias`
+### GET `/api/Usuario/{id}`
+**Descrição:** Obtém usuário por ID
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `idUsuario` (int, opcional) - ID do usuário
+### GET `/api/Usuario/Contrato/{id}`
+**Descrição:** Obtém contrato do usuário
+**Autenticação:** Requerida
 
-### 7.6 Retornar Saldo de Férias
-**GET** `/api/Ferias/RetornaSaldoFerias`
+### GET `/api/Usuario/Listar`
+**Descrição:** Lista todos os usuários
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `idUsuario` (int, opcional) - ID do usuário
+### PUT `/api/Usuario/Atualizar/{id}`
+**Descrição:** Atualiza dados do usuário
+**Autenticação:** Requerida
 
-### 7.7 Atualizar Solicitação de Férias
-**POST** `/api/Ferias/AtualizaSolicitacaoFerias`
+**Payload:** Mesmo formato do POST `/api/Usuario/Inserir`
 
-**Parâmetros:**
-- `idSolicitacao` (int, opcional) - ID da solicitação
-- `indSituacao` (int, opcional) - Situação da solicitação
+### PUT `/api/Usuario/Deletar/{id}`
+**Descrição:** Exclui usuário (soft delete)
+**Autenticação:** Requerida
+
+### GET `/api/Usuario/Hierarquia`
+**Descrição:** Obtém hierarquia organizacional
+**Autenticação:** Requerida
 
 ---
 
-## 8. Jornada de Trabalho
+## 3. RegistroPonto Controller (`/api/RegistroPonto`)
 
-### 8.1 Criar Jornada de Trabalho
-**POST** `/api/JornadaTrabalho/Inserir`
-
-**Payload:**
-```json
-{
-  "idJornada": 0,
-  "nomeJornada": "string",
-  "horaInicio": "08:00:00",
-  "horaFim": "17:00:00",
-  "cargaHoraria": 8,
-  "indAtivo": 1
-}
-```
-
-### 8.2 Obter Jornada por ID
-**GET** `/api/JornadaTrabalho/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da jornada
-
-### 8.3 Listar Jornadas
-**GET** `/api/JornadaTrabalho/Listar`
-
-### 8.4 Atualizar Jornada
-**PUT** `/api/JornadaTrabalho/Atualizar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da jornada
+### POST `/api/RegistroPonto/Inserir`
+**Descrição:** Registra ponto do funcionário
+**Autenticação:** Requerida
 
 **Payload:**
 ```json
 {
-  "idJornada": 0,
-  "nomeJornada": "string",
-  "horaInicio": "08:00:00",
-  "horaFim": "17:00:00",
-  "cargaHoraria": 8,
-  "indAtivo": 1
-}
-```
-
-### 8.5 Excluir Jornada
-**PUT** `/api/JornadaTrabalho/Deletar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da jornada
-
----
-
-## 9. Login
-
-### 9.1 Realizar Login
-**POST** `/api/login/RealizarLogin`
-
-**Payload:**
-```json
-{
-  "email": "string",
-  "senha": "string"
-}
-```
-
-**Resposta:**
-```json
-{
-  "sucesso": true,
-  "mensagem": "string",
-  "idUsuario": 0,
-  "token": "string"
-}
-```
-
-### 9.2 Recuperar Senha
-**POST** `/api/login/RecuperarSenha`
-
-**Payload:**
-```json
-{
-  "email": "string"
-}
-```
-
-### 9.3 Validar Código de Recuperação
-**POST** `/api/login/ValidaCodigoRecuperacao`
-
-**Payload:**
-```json
-{
-  "codigo": "string",
-  "email": "string"
-}
-```
-
-### 9.4 Alterar Senha
-**POST** `/api/login/AlteraSenhaLogin`
-
-**Payload:**
-```json
-{
-  "senha": "string",
-  "email": "string"
-}
-```
-
----
-
-## 10. Registro de Ponto
-
-### 10.1 Criar Registro de Ponto
-**POST** `/api/RegistroPonto/Inserir`
-
-**Payload:**
-```json
-{
-  "idUsuario": 0,
-  "horaRegistro": "2024-01-01T08:00:00",
-  "dataRegistro": "2024-01-01T00:00:00",
+  "idUsuario": 1,
+  "horaRegistro": "2024-01-15T08:30:00Z",
+  "dataRegistro": "2024-01-15T00:00:00Z",
   "idTipoRegistroPonto": 1,
-  "localizacao": "string"
+  "localizacao": "Rua das Flores, 123"
 }
 ```
 
-### 10.2 Obter Registro por ID
-**GET** `/api/RegistroPonto/{id}`
+### GET `/api/RegistroPonto/{id}`
+**Descrição:** Obtém registro de ponto por ID
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `id` (int) - ID do registro
+### GET `/api/RegistroPonto/ObterRegistrosUsuario`
+**Descrição:** Obtém registros de ponto de um usuário
+**Autenticação:** Requerida
+**Parâmetros:** `idUsuario` (query)
 
-### 10.3 Obter Registros do Usuário
-**GET** `/api/RegistroPonto/ObterRegistrosUsuario`
+### GET `/api/RegistroPonto/Listar`
+**Descrição:** Lista todos os registros de ponto
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
+### DELETE `/api/RegistroPonto/{id}`
+**Descrição:** Exclui registro de ponto
+**Autenticação:** Requerida
 
-### 10.4 Listar Todos os Registros
-**GET** `/api/RegistroPonto/Listar`
-
-### 10.5 Excluir Registro
-**DELETE** `/api/RegistroPonto/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do registro
-
-### 10.6 Criar Solicitação de Alteração
-**POST** `/api/RegistroPonto/CriarSolicitacaoAlteracao`
+### POST `/api/RegistroPonto/CriarSolicitacaoAlteracao`
+**Descrição:** Cria solicitação de alteração de ponto
+**Autenticação:** Requerida
 
 **Payload:**
 ```json
 {
-  "idSolicitacao": 0,
-  "idUsuario": 0,
-  "idRegistroPonto": 0,
-  "justificativa": "string",
-  "novaHora": "2024-01-01T08:00:00",
-  "statusSolicitacao": 1,
-  "dataSolicitacao": "2024-01-01T00:00:00"
+  "idUsuario": 1,
+  "dataRegistro": "2024-01-15T00:00:00Z",
+  "horaRegistro": "2024-01-15T08:30:00Z",
+  "justificativa": "Esqueci de bater o ponto",
+  "idTipoRegistroPonto": 1
 }
 ```
 
-### 10.7 Listar Solicitações de Alteração
-**GET** `/api/RegistroPonto/ListarSolicitacoesAlteracao`
+### GET `/api/RegistroPonto/ListarSolicitacoesAlteracao`
+**Descrição:** Lista solicitações de alteração
+**Autenticação:** Requerida
+**Parâmetros:** `status` (query, opcional)
 
-**Parâmetros:**
-- `status` (int, opcional) - Status da solicitação
+### GET `/api/RegistroPonto/ObterSolicitacaoAlteracao/{id}`
+**Descrição:** Obtém solicitação de alteração por ID
+**Autenticação:** Requerida
 
-### 10.8 Obter Solicitação de Alteração
-**GET** `/api/RegistroPonto/ObterSolicitacaoAlteracao/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
-
-### 10.9 Validar Solicitação
-**POST** `/api/RegistroPonto/ValidarSolicitacao/{idSolicitacao}`
-
-**Parâmetros:**
-- `idSolicitacao` (int) - ID da solicitação
+### POST `/api/RegistroPonto/ValidarSolicitacao/{idSolicitacao}`
+**Descrição:** Aprova ou reprova solicitação de alteração
+**Autenticação:** Requerida
 
 **Payload:**
 ```json
@@ -558,148 +196,418 @@ Este documento contém todas as rotas, métodos HTTP e payloads esperados da API
 
 ---
 
-## 11. Solicitação de Ausência
+## 4. BancoHoras Controller (`/api/BancoHoras`)
 
-### 11.1 Listar Solicitações de Ausência
-**GET** `/api/SolicitacaoAusencia/ListarSolicitacaoAusencia`
+### POST `/api/BancoHoras/Processar/{idUsuario}`
+**Descrição:** Processa banco de horas para um usuário
+**Autenticação:** Requerida
+**Parâmetros:** `data` (query)
 
-### 11.2 Obter Solicitação por ID
-**GET** `/api/SolicitacaoAusencia/ListarSolicitacaoAusencia/{id}`
+### GET `/api/BancoHoras/SaldosDiarios/{idUsuario}`
+**Descrição:** Obtém saldos diários do banco de horas
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `id` (int) - ID da solicitação
+### GET `/api/BancoHoras/Atual/{idUsuario}`
+**Descrição:** Obtém saldo atual do banco de horas
+**Autenticação:** Requerida
 
-### 11.3 Obter Solicitações por Usuário
-**GET** `/api/SolicitacaoAusencia/ListarSolicitacoesAusenciaUsuario/{idUsuario}`
+### GET `/api/BancoHoras/HorasTrabalhadasMes/{idUsuario}`
+**Descrição:** Obtém horas trabalhadas por mês
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `idUsuario` (int) - ID do usuário
+### GET `/api/BancoHoras/HorasExtrasMes/{idUsuario}`
+**Descrição:** Obtém horas extras por mês
+**Autenticação:** Requerida
 
-### 11.4 Inserir Solicitação de Ausência
-**POST** `/api/SolicitacaoAusencia/InserirSolicitacaoAusencia`
+---
 
+## 5. Calendario Controller (`/api/Calendario`)
+
+### GET `/api/Calendario/BuscaCalendario`
+**Descrição:** Busca calendário por ano
+**Autenticação:** Requerida
+**Parâmetros:** `ano` (query), `idUsuario` (query, opcional)
+
+---
+
+## 6. Cargo Controller (`/api/Cargo`)
+
+### POST `/api/Cargo/Inserir`
+**Descrição:** Cria um novo cargo
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "nomeCargo": "Desenvolvedor",
+  "salario": "5000.00",
+  "indAtivo": 1,
+  "formacaoMinima": "Superior em Tecnologia"
+}
+```
+
+### GET `/api/Cargo/{id}`
+**Descrição:** Obtém cargo por ID
+**Autenticação:** Requerida
+
+### GET `/api/Cargo/Listar`
+**Descrição:** Lista todos os cargos
+**Autenticação:** Requerida
+
+### PUT `/api/Cargo/Atualizar/{id}`
+**Descrição:** Atualiza cargo
+**Autenticação:** Requerida
+
+**Payload:** Mesmo formato do POST
+
+### PUT `/api/Cargo/Deletar/{id}`
+**Descrição:** Exclui cargo (soft delete)
+**Autenticação:** Requerida
+
+---
+
+## 7. Comunicado Controller (`/api/Comunicado`)
+
+### POST `/api/Comunicado/CadastrarComunicado`
+**Descrição:** Cria um novo comunicado
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "titulo": "Comunicado Importante",
+  "mensagem": "Conteúdo do comunicado",
+  "dataInicio": "2024-01-15T00:00:00Z",
+  "dataFim": "2024-01-30T00:00:00Z",
+  "idUsuario": 1
+}
+```
+
+### DELETE `/api/Comunicado/DeletarComunicado`
+**Descrição:** Exclui comunicado
+**Autenticação:** Requerida
+**Parâmetros:** `idComunicado` (query)
+
+### GET `/api/Comunicado/ListarComunicados`
+**Descrição:** Lista todos os comunicados
+**Autenticação:** Requerida
+
+---
+
+## 8. Feedback Controller (`/api/Feedback`)
+
+### POST `/api/Feedback/InserirSolicitacao`
+**Descrição:** Cria solicitação de feedback
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "idUsuario": 1,
+  "idResponsavel": 2,
+  "mensagem": "Solicitação de feedback",
+  "dataSolicitacao": "2024-01-15T00:00:00Z"
+}
+```
+
+### POST `/api/Feedback/InserirFeedback`
+**Descrição:** Cria feedback
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "idUsuarioFeedback": 1,
+  "idAutorFeedback": 2,
+  "idSolicitacaoFeedback": 1,
+  "mensagemFeedback": "Feedback do responsável",
+  "avaliacao": 4
+}
+```
+
+**Campos obrigatórios:**
+- `idUsuarioFeedback` - ID do usuário que recebe o feedback
+- `idAutorFeedback` - ID do usuário que está respondendo
+- `mensagemFeedback` - Mensagem do feedback
+- `avaliacao` - Nota de 0 a 4 (0=Péssimo, 1=Ruim, 2=Regular, 3=Bom, 4=Excelente)
+
+**Campos opcionais:**
+- `idSolicitacaoFeedback` - ID da solicitação (se for resposta a uma solicitação)
+
+### GET `/api/Feedback/ListarSolicitacao`
+**Descrição:** Lista todas as solicitações de feedback
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarFeedback`
+**Descrição:** Lista todos os feedbacks
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarSolicitacao/{id}`
+**Descrição:** Obtém solicitação por ID
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarSolicitacoesUsuario/{idUsuario}`
+**Descrição:** Obtém solicitações por usuário
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarSolicitacoesResponsavel/{idResponsavel}`
+**Descrição:** Obtém solicitações por responsável
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarFeedback/{id}`
+**Descrição:** Obtém feedback por ID
+**Autenticação:** Requerida
+
+### PUT `/api/Feedback/AtualizarSolicitacao/{id}`
+**Descrição:** Atualiza solicitação de feedback
+**Autenticação:** Requerida
+
+### GET `/api/Feedback/ListarFeedbacksUsuario/{idUsuario}`
+**Descrição:** Obtém feedbacks por usuário
+**Autenticação:** Requerida
+
+### DELETE `/api/Feedback/Deletar/{id}`
+**Descrição:** Exclui solicitação de feedback
+**Autenticação:** Requerida
+
+---
+
+## 9. Feriado Controller (`/api/feriado`)
+
+### POST `/api/feriado/CadastrarFeriado`
+**Descrição:** Cria um novo feriado
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "nomeFeriado": "Dia da Independência",
+  "dataFeriado": "2024-09-07T00:00:00Z",
+  "tipoFeriado": "Nacional"
+}
+```
+
+### DELETE `/api/feriado/DeletarFeriado/{idFeriado}`
+**Descrição:** Exclui feriado
+**Autenticação:** Requerida
+
+### GET `/api/feriado/ListarFeriados`
+**Descrição:** Lista todos os feriados
+**Autenticação:** Requerida
+
+---
+
+## 10. Ferias Controller (`/api/Ferias`)
+
+### POST `/api/Ferias/CadastrarFerias`
+**Descrição:** Cadastra período de férias
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "idUsuario": 1,
+  "dataInicio": "2024-07-01T00:00:00Z",
+  "dataFim": "2024-07-15T00:00:00Z",
+  "observacoes": "Férias de verão"
+}
+```
+
+### DELETE `/api/Ferias/DeletarFerias/{idFerias}`
+**Descrição:** Exclui período de férias
+**Autenticação:** Requerida
+
+### GET `/api/Ferias/ListarFerias`
+**Descrição:** Lista férias
+**Autenticação:** Requerida
+**Parâmetros:** `idUsuario` (query, opcional)
+
+### POST `/api/Ferias/CadastrarSolicitacaoFerias`
+**Descrição:** Cria solicitação de férias
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "idUsuario": 1,
+  "dataInicio": "2024-07-01T00:00:00Z",
+  "dataFim": "2024-07-15T00:00:00Z",
+  "observacoes": "Solicitação de férias"
+}
+```
+
+### GET `/api/Ferias/ListarSolicitacoesFerias`
+**Descrição:** Lista solicitações de férias
+**Autenticação:** Requerida
+**Parâmetros:** `idUsuario` (query, opcional)
+
+### GET `/api/Ferias/RetornaSaldoFerias`
+**Descrição:** Retorna saldo de férias
+**Autenticação:** Requerida
+**Parâmetros:** `idUsuario` (query, opcional)
+
+### POST `/api/Ferias/AtualizaSolicitacaoFerias`
+**Descrição:** Atualiza status da solicitação de férias
+**Autenticação:** Requerida
+**Parâmetros:** `idSolicitacao` (query, opcional), `indSituacao` (query, opcional)
+
+---
+
+## 11. JornadaTrabalho Controller (`/api/JornadaTrabalho`)
+
+### POST `/api/JornadaTrabalho/Inserir`
+**Descrição:** Cria nova jornada de trabalho
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "nomeJornada": "Jornada 8h",
+  "horarioInicio": "08:00:00",
+  "horarioFim": "17:00:00",
+  "horarioAlmoco": "12:00:00",
+  "duracaoAlmoco": 60,
+  "indAtivo": 1
+}
+```
+
+### GET `/api/JornadaTrabalho/{id}`
+**Descrição:** Obtém jornada por ID
+**Autenticação:** Requerida
+
+### GET `/api/JornadaTrabalho/Listar`
+**Descrição:** Lista todas as jornadas
+**Autenticação:** Requerida
+
+### PUT `/api/JornadaTrabalho/Atualizar/{id}`
+**Descrição:** Atualiza jornada de trabalho
+**Autenticação:** Requerida
+
+### PUT `/api/JornadaTrabalho/Deletar/{id}`
+**Descrição:** Exclui jornada (soft delete)
+**Autenticação:** Requerida
+
+---
+
+## 12. Perfil Controller (`/api/Perfil`)
+
+### POST `/api/Perfil/CadastrarPerfil`
+**Descrição:** Cria novo perfil
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "dscPerfil": "Administrador",
+  "indAcessoAdmin": 1,
+  "indPermiteCadastrar": 1,
+  "indPermiteEditar": 1,
+  "indPermiteDeletar": 1,
+  "indPermiteRegularSolicitacoes": 1
+}
+```
+
+### GET `/api/Perfil/ListarPerfis`
+**Descrição:** Lista todos os perfis
+**Autenticação:** Requerida
+
+### GET `/api/Perfil/ListarPerfil`
+**Descrição:** Obtém perfil por ID
+**Autenticação:** Requerida
+**Parâmetros:** `idPerfil` (query)
+
+### PUT `/api/Perfil/EditarPerfil`
+**Descrição:** Edita perfil
+**Autenticação:** Requerida
+
+### DELETE `/api/Perfil/RemoverPerfil/{idPerfil}`
+**Descrição:** Remove perfil
+**Autenticação:** Requerida
+
+### POST `/api/Perfil/CadastrarVinculoPerfilUsuario`
+**Descrição:** Cria vínculo entre perfil e usuário
+**Autenticação:** Requerida
+
+**Payload:**
+```json
+{
+  "idUsuario": 1,
+  "idPerfil": 2
+}
+```
+
+---
+
+## 13. SolicitacaoAusencia Controller (`/api/SolicitacaoAusencia`)
+
+### GET `/api/SolicitacaoAusencia/ListarSolicitacaoAusencia`
+**Descrição:** Lista todas as solicitações de ausência
+**Autenticação:** Requerida
+
+### GET `/api/SolicitacaoAusencia/ListarSolicitacaoAusencia/{id}`
+**Descrição:** Obtém solicitação por ID
+**Autenticação:** Requerida
+
+### GET `/api/SolicitacaoAusencia/ListarSolicitacoesAusenciaUsuario/{idUsuario}`
+**Descrição:** Obtém solicitações por usuário
+**Autenticação:** Requerida
+
+### POST `/api/SolicitacaoAusencia/InserirSolicitacaoAusencia`
+**Descrição:** Cria solicitação de ausência (com upload de arquivo)
+**Autenticação:** Requerida
 **Content-Type:** `multipart/form-data`
 
-**Campos:**
-- `idUsuario` (int) - ID do usuário
-- `mensagemSolicitacao` (string, opcional) - Mensagem da solicitação
-- `dataInicioAusencia` (DateTime, opcional) - Data de início da ausência
-- `dataFimAusencia` (DateTime, opcional) - Data de fim da ausência
-- `arquivo` (file, opcional) - Arquivo anexo (PDF, JPEG, PNG, WebP, DOC, DOCX)
-- `camposAtivos` (string[], opcional) - Campos que devem ser processados
-
-### 11.5 Atualizar Solicitação
-**PUT** `/api/SolicitacaoAusencia/AtualizarSolicitacao/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
-
-**Payload:**
-```json
-{
-  "idSolicitacaoAusencia": 0,
-  "idUsuario": 0,
-  "mensagemSolicitacao": "string",
-  "dataInicioAusencia": "2024-01-01T00:00:00",
-  "dataFimAusencia": "2024-01-01T00:00:00",
-  "linkArquivo": "string",
-  "statusSolicitacao": 1,
-  "dataSolicitacao": "2024-01-01T00:00:00"
-}
+**Payload (form-data):**
+```
+idUsuario: 1
+mensagemSolicitacao: "Preciso me ausentar por motivo médico"
+dataInicioAusencia: "2024-01-20T00:00:00Z"
+dataFimAusencia: "2024-01-22T00:00:00Z"
+arquivo: [arquivo.pdf]
+camposAtivos: ["mensagemSolicitacao", "dataInicioAusencia", "dataFimAusencia", "arquivo"]
 ```
 
-### 11.6 Excluir Solicitação
-**DELETE** `/api/SolicitacaoAusencia/Deletar/{id}`
+### PUT `/api/SolicitacaoAusencia/AtualizarSolicitacao/{id}`
+**Descrição:** Atualiza solicitação de ausência
+**Autenticação:** Requerida
 
-**Parâmetros:**
-- `id` (int) - ID da solicitação
+### DELETE `/api/SolicitacaoAusencia/Deletar/{id}`
+**Descrição:** Exclui solicitação de ausência
+**Autenticação:** Requerida
 
-### 11.7 Responder Solicitação
-**PUT** `/api/SolicitacaoAusencia/ResponderSolicitacao/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID da solicitação
-- `aprovar` (bool) - Aprovar ou reprovar a solicitação
+### PUT `/api/SolicitacaoAusencia/ResponderSolicitacao/{id}`
+**Descrição:** Aprova ou reprova solicitação de ausência
+**Autenticação:** Requerida
+**Parâmetros:** `aprovar` (query)
 
 ---
 
-## 12. Usuário
+## Códigos de Resposta HTTP
 
-### 12.1 Criar Usuário
-**POST** `/api/Usuario/Inserir`
+- **200 OK:** Operação realizada com sucesso
+- **400 Bad Request:** Dados inválidos ou erro na operação
+- **401 Unauthorized:** Token de autenticação inválido ou ausente
+- **404 Not Found:** Recurso não encontrado
+- **500 Internal Server Error:** Erro interno do servidor
 
-**Payload:**
+## Estrutura de Resposta Padrão
+
+Todas as respostas seguem o padrão:
+
 ```json
 {
-  "idUsuario": 0,
-  "nome": "string",
-  "dataNascimento": "2024-01-01T00:00:00",
-  "senha": "string",
-  "email": "string",
-  "telefone": 0,
-  "idCargo": 0,
-  "idJornada": 0,
-  "indAtivo": 1,
-  "fotoPerfil": "string"
+  "sucesso": true,
+  "mensagem": "Operação realizada com sucesso",
+  "dados": { ... }
 }
 ```
 
-### 12.2 Obter Usuário por ID
-**GET** `/api/Usuario/{id}`
+## Observações Importantes
 
-**Parâmetros:**
-- `id` (int) - ID do usuário
-
-### 12.3 Listar Todos os Usuários
-**GET** `/api/Usuario/Listar`
-
-### 12.4 Atualizar Usuário
-**PUT** `/api/Usuario/Atualizar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do usuário
-
-**Payload:**
-```json
-{
-  "idUsuario": 0,
-  "nome": "string",
-  "dataNascimento": "2024-01-01T00:00:00",
-  "senha": "string",
-  "email": "string",
-  "telefone": 0,
-  "idCargo": 0,
-  "idJornada": 0,
-  "indAtivo": 1,
-  "fotoPerfil": "string"
-}
-```
-
-### 12.5 Excluir Usuário
-**PUT** `/api/Usuario/Deletar/{id}`
-
-**Parâmetros:**
-- `id` (int) - ID do usuário
-
----
-
-## Códigos de Status HTTP
-
-- **200 OK** - Requisição bem-sucedida
-- **400 Bad Request** - Dados inválidos ou erro na requisição
-- **401 Unauthorized** - Não autorizado (principalmente para login)
-- **404 Not Found** - Recurso não encontrado
-
-## Observações Gerais
-
-1. **Autenticação:** A maioria dos endpoints requer autenticação via token JWT retornado no login.
-
-2. **Formato de Data:** Todas as datas devem estar no formato ISO 8601 (`YYYY-MM-DDTHH:mm:ss`).
-
-3. **Upload de Arquivos:** O endpoint de solicitação de ausência suporta upload de arquivos com limite de 50MB.
-
-4. **Campos Opcionais:** Muitos campos são opcionais e podem ser omitidos do payload.
-
-5. **Respostas Padrão:** Todas as respostas seguem um padrão com `sucesso` (boolean) e `mensagem` (string).
-
-6. **Soft Delete:** Alguns endpoints usam PUT para exclusão lógica em vez de DELETE físico.
+1. **Autenticação:** A maioria das rotas requer token JWT válido no header `Authorization: Bearer {token}`
+2. **Content-Type:** Para uploads de arquivo, use `multipart/form-data`
+3. **Datas:** Todas as datas devem estar no formato ISO 8601
+4. **Soft Delete:** A exclusão de registros é feita via soft delete (campo `indAtivo`)
+5. **Paginação:** Algumas listagens podem implementar paginação (não documentada aqui)
+6. **Validações:** Todos os campos obrigatórios devem ser fornecidos
+7. **Tamanho de Arquivo:** Limite de 50MB para uploads de arquivo

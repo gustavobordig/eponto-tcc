@@ -98,8 +98,21 @@ const EditModal: React.FC<EditModalProps> = ({
   };
 
   const isFormValid = () => {
-    return Object.values(validations).every(v => v.isValid) &&
-           Object.keys(validationConfigs).length > 0;
+    // Se não há validações configuradas, considera válido se todos os campos obrigatórios estão preenchidos
+    if (Object.keys(validationConfigs).length === 0) {
+      return fields.every(field => {
+        if (field.required === false) return true;
+        const value = formData[field.fieldName || ''] || field.value || '';
+        return value.toString().trim() !== '';
+      });
+    }
+    
+    // Se há validações configuradas, verifica se todos os campos obrigatórios são válidos
+    const requiredFields = fields.filter(field => field.required !== false && field.fieldName);
+    return requiredFields.every(field => {
+      const validation = validations[field.fieldName!];
+      return validation ? validation.isValid : true;
+    });
   };
 
   return (

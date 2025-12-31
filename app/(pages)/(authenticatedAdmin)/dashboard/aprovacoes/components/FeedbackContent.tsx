@@ -2,23 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { MessageSquare, Eye, Clock, User, X, CheckCircle, AlertCircle, MessageCircle, Send, Star } from 'lucide-react';
-
-//Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import TextArea from '@/app/components/atoms/TextArea';
-import Button from '@/app/components/atoms/Button';
-
-//Services
 import { feedbackService, SolicitacaoData, FeedbackInsertData, FeedbackData } from '@/services/feedback';
-
-//Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { tokenUtils } from '@/utils/token';
-
-//Types
-import { Column } from '@/types';
+import TextArea from '@/app/components/atoms/TextArea';
+import Button from '@/app/components/atoms/Button';
+import ActionButton from '@/app/components/atoms/ActionButton';
+import StatusBadge from '@/app/components/atoms/StatusBadge';
+import StatsCard from '@/app/components/atoms/StatsCard';
 
 interface SolicitacaoResponse {
   sucesso: boolean;
@@ -37,7 +28,7 @@ interface FeedbackResponse {
   feedbacks: FeedbackData[] | null;
 }
 
-export default function FeedbackPage() {
+export default function FeedbackContent() {
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoData[]>([]);
   const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,40 +42,32 @@ export default function FeedbackPage() {
   });
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackErrors, setFeedbackErrors] = useState<Record<string, string>>({});
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'answered'>('all');
 
-  const columns: Column[] = [
-    { key: 'nomeUsuarioSolicitacao', label: 'Solicitante' },
-    { key: 'dataSolicitacao', label: 'Data da Solicitação', type: 'date' },
-    { key: 'status', label: 'Status', type: 'status' },
-    { key: 'mensagemSolicitacao', label: 'Mensagem', type: 'text' }
-  ];
-
-  const feedbackColumns: Column[] = [
-    { key: 'dataRealizacao', label: 'Data do Feedback', type: 'date' },
-    { key: 'avaliacao', label: 'Avaliação' },
-    { key: 'mensagemFeedback', label: 'Mensagem', type: 'text' }
-  ];
-
-  const getStatusLabel = (status: number) => {
+  const getStatusType = (status: number): 'pending' | 'answered' => {
     switch (status) {
       case 0:
-        return 'Pendente';
+        return 'pending';
       case 1:
-        return 'Respondido';
+        return 'answered';
       default:
-        return 'Desconhecido';
+        return 'pending';
     }
   };
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 0:
-        return 'bg-yellow-100 text-yellow-800';
-      case 1:
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getFilteredSolicitacoes = () => {
+    if (statusFilter === 'all') return solicitacoes;
+    
+    return solicitacoes.filter(solicitacao => {
+      switch (statusFilter) {
+        case 'pending':
+          return solicitacao.status === 0;
+        case 'answered':
+          return solicitacao.status === 1;
+        default:
+          return true;
+      }
+    });
   };
 
   const getStatusIcon = (status: number) => {
@@ -274,10 +257,9 @@ export default function FeedbackPage() {
   };
 
   // Preparar dados para a tabela de solicitações
-  const tableData = solicitacoes?.map(solicitacao => ({
+  const tableData = getFilteredSolicitacoes()?.map(solicitacao => ({
     ...solicitacao,
-    status: getStatusLabel(solicitacao.status),
-    statusColor: getStatusColor(solicitacao.status),
+    statusType: getStatusType(solicitacao.status),
     dataSolicitacao: formatDate(solicitacao.dataSolicitacao),
     mensagemSolicitacao: truncateText(solicitacao.mensagemSolicitacao, 60)
   })) || [];
@@ -292,239 +274,160 @@ export default function FeedbackPage() {
 
   if (loading) {
     return (
-      <Container>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <LoadingText title="solicitações de feedback" />
+      <div className="p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando solicitações de feedback...</p>
         </div>
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container>
-      {/* Card de Solicitações de Feedback */}
-      <div className="bg-white rounded-lg shadow-sm p-6 m-4 mb-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <MessageSquare className="text-blue-600" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Solicitações de Feedback</h1>
-              <p className="text-gray-600">Gerencie as solicitações de feedback dos usuários</p>
-            </div>
-          </div>
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Solicitações de Feedback</h2>
+          <p className="text-gray-600">Responda a solicitações de feedback dos usuários</p>
         </div>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Clock className="text-blue-600" size={20} />
-              <span className="text-sm font-medium text-blue-600">Total</span>
-            </div>
-            <p className="text-2xl font-bold text-blue-900">{solicitacoes?.length || 0}</p>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Clock className="text-yellow-600" size={20} />
-              <span className="text-sm font-medium text-yellow-600">Pendentes</span>
-            </div>
-            <p className="text-2xl font-bold text-yellow-900">
-              {solicitacoes?.filter(s => s.status === 0).length || 0}
-            </p>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Clock className="text-green-600" size={20} />
-              <span className="text-sm font-medium text-green-600">Respondidas</span>
-            </div>
-            <p className="text-2xl font-bold text-green-900">
-              {solicitacoes?.filter(s => s.status === 1).length || 0}
-            </p>
-          </div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div 
+          onClick={() => setStatusFilter('all')}
+          className={`cursor-pointer transition-all duration-200 hover:scale-105 rounded-lg ${
+            statusFilter === 'all' ? 'ring-2 ring-blue-400 shadow-lg' : ''
+          }`}
+        >
+          <StatsCard
+            title="Total"
+            count={solicitacoes?.length || 0}
+            type="total"
+            icon={<Clock className="text-blue-600" size={20} />}
+          />
         </div>
+        <div 
+          onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
+          className={`cursor-pointer transition-all duration-200 hover:scale-105 rounded-lg ${
+            statusFilter === 'pending' ? 'ring-2 ring-yellow-400 shadow-lg' : ''
+          }`}
+        >
+          <StatsCard
+            title="Pendentes"
+            count={solicitacoes?.filter(s => s.status === 0).length || 0}
+            type="pending"
+            icon={<Clock className="text-yellow-600" size={20} />}
+          />
+        </div>
+        <div 
+          onClick={() => setStatusFilter(statusFilter === 'answered' ? 'all' : 'answered')}
+          className={`cursor-pointer transition-all duration-200 hover:scale-105 rounded-lg ${
+            statusFilter === 'answered' ? 'ring-2 ring-green-400 shadow-lg' : ''
+          }`}
+        >
+          <StatsCard
+            title="Respondidas"
+            count={solicitacoes?.filter(s => s.status === 1).length || 0}
+            type="answered"
+            icon={<Clock className="text-green-600" size={20} />}
+          />
+        </div>
+      </div>
 
-        {/* Table */}
-        {solicitacoes && solicitacoes.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {columns.map((column) => (
-                    <th
-                      key={column.key}
-                      className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
-                    >
-                      {column.label}
-                    </th>
-                  ))}
-                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {tableData.map((item, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.nomeUsuarioSolicitacao}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.dataSolicitacao}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.statusColor}`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {item.mensagemSolicitacao}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
+      {/* Filtro Ativo */}
+      {statusFilter !== 'all' && (
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Filtro ativo:</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              statusFilter === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-green-100 text-green-800'
+            }`}>
+              {statusFilter === 'pending' ? 'Pendentes' : 'Respondidas'}
+            </span>
+          </div>
+          <button
+            onClick={() => setStatusFilter('all')}
+            className="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Limpar filtro
+          </button>
+        </div>
+      )}
+
+      {/* Tabela de Solicitações */}
+      {getFilteredSolicitacoes() && getFilteredSolicitacoes().length > 0 ? (
+        <div className="overflow-x-auto mb-8">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Solicitante
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Data da Solicitação
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Mensagem
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tableData.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.nomeUsuarioSolicitacao}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.dataSolicitacao}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <StatusBadge status={item.statusType} />
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {item.mensagemSolicitacao}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex gap-2">
+                      <ActionButton
+                        type="view"
                         onClick={() => handleView(solicitacoes[index])}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 my-2
-                         py-1 rounded text-xs flex items-center gap-1 transition-colors"
-                      >
-                        <Eye size={12} />
-                        Visualizar
-                      </button>
+                      />
                       {solicitacoes[index].status !== 1 && (
-                        <button
+                        <ActionButton
+                          type="respond"
                           onClick={() => handleFeedback(solicitacoes[index])}
-                          className="bg-green-500 hover:bg-green-600 text-white px-3
-                           my-2 py-1 rounded text-xs flex items-center gap-1 transition-colors"
-                        >
-                          <Send size={12} />
-                          Responder
-                        </button>
+                        />
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <MessageSquare className="mx-auto text-gray-400" size={48} />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
-            <p className="mt-2 text-gray-500">Não há solicitações de feedback para exibir.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Card de Feedbacks Enviados */}
-      <div className="bg-white rounded-lg shadow-sm p-6 m-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Star className="text-green-600" size={24} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Feedbacks Enviados</h2>
-              <p className="text-gray-600">Visualize todos os feedbacks enviados pelos administradores</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats dos Feedbacks */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Star className="text-green-600" size={20} />
-              <span className="text-sm font-medium text-green-600">Total</span>
-            </div>
-            <p className="text-2xl font-bold text-green-900">{feedbacks?.length || 0}</p>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Star className="text-yellow-600" size={20} />
-              <span className="text-sm font-medium text-yellow-600">Avaliação 1-2</span>
-            </div>
-            <p className="text-2xl font-bold text-yellow-900">
-              {feedbacks?.filter(f => f.avaliacao <= 2).length || 0}
-            </p>
-          </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Star className="text-blue-600" size={20} />
-              <span className="text-sm font-medium text-blue-600">Avaliação 3-4</span>
-            </div>
-            <p className="text-2xl font-bold text-blue-900">
-              {feedbacks?.filter(f => f.avaliacao >= 3 && f.avaliacao <= 4).length || 0}
-            </p>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Star className="text-purple-600" size={20} />
-              <span className="text-sm font-medium text-purple-600">Avaliação 5</span>
-            </div>
-            <p className="text-2xl font-bold text-purple-900">
-              {feedbacks?.filter(f => f.avaliacao === 5).length || 0}
-            </p>
-          </div>
-        </div>
-
-        {/* Table de Feedbacks */}
-        {feedbacksLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Carregando feedbacks...</p>
-          </div>
-        ) : feedbacks && feedbacks.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {feedbackColumns.map((column) => (
-                    <th
-                      key={column.key}
-                      className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
-                    >
-                      {column.label}
-                    </th>
-                  ))}
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {feedbackTableData.map((item, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.dataRealizacao}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {item.avaliacao}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {item.mensagemFeedback}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Star className="mx-auto text-gray-400" size={48} />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhum feedback encontrado</h3>
-            <p className="mt-2 text-gray-500">Não há feedbacks enviados para exibir.</p>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-center py-12 mb-8">
+          <MessageSquare className="mx-auto text-gray-400" size={48} />
+          <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
+          <p className="mt-2 text-gray-500">Não há solicitações de feedback para exibir.</p>
+        </div>
+      )}
 
-      {/* Modal de Visualização Melhorada */}
+      {/* Modal de Visualização */}
       {isViewModalOpen && selectedSolicitacao && (
         <>
           {/* Overlay */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            style={{
-              opacity: 0.5
-            }}
+            className="fixed inset-0 bg-black/10 flex items-center justify-center z-50"
             onClick={handleViewClose}
           />
           
@@ -553,10 +456,7 @@ export default function FeedbackPage() {
             <div className="p-6 space-y-6">
               {/* Status Badge */}
               <div className="flex justify-center">
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(selectedSolicitacao.status)}`}>
-                  {getStatusIcon(selectedSolicitacao.status)}
-                  <span className="font-medium">{getStatusLabel(selectedSolicitacao.status)}</span>
-                </div>
+                <StatusBadge status={getStatusType(selectedSolicitacao.status)} size="md" />
               </div>
 
               {/* Informações do Solicitante */}
@@ -616,23 +516,20 @@ export default function FeedbackPage() {
             {/* Footer */}
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
               {selectedSolicitacao.status !== 1 && (
-                <button
+                <ActionButton
+                  type="respond"
                   onClick={() => {
                     handleViewClose();
                     handleFeedback(selectedSolicitacao);
                   }}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-                >
-                  <Send size={16} />
-                  Responder
-                </button>
+                  size="md"
+                />
               )}
-              <button
+              <ActionButton
+                type="view"
                 onClick={handleViewClose}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Fechar
-              </button>
+                size="md"
+              />
             </div>
           </div>
         </>
@@ -643,10 +540,7 @@ export default function FeedbackPage() {
         <>
           {/* Overlay */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            style={{
-              opacity: 0.5
-            }}
+            className="fixed inset-0 bg-black/10 flex items-center justify-center z-50"
             onClick={handleFeedbackClose}
           />
           
@@ -729,6 +623,6 @@ export default function FeedbackPage() {
           </div>
         </>
       )}
-    </Container>
+    </div>
   );
-} 
+}

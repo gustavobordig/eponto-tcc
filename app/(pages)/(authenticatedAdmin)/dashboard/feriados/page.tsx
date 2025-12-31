@@ -1,23 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-//Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import EditModal from '@/app/components/atoms/EditModal';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
+// Components
+import ListPageTemplate from '@/app/components/templates/ListPageTemplate';
 
-//Services
+// Services
 import { feriadoService } from '@/services/feriado';
 
-//Utils
+// Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { feriadoValidations } from '@/utils/validations/feriadoValidations';
 
-//Types
+// Types
 import { Column } from '@/types';
 
 interface Feriado {
@@ -30,15 +25,6 @@ interface Feriado {
 export default function FeriadosPage() {
   const [feriados, setFeriados] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [feriadoToDelete, setFeriadoToDelete] = useState<number | null>(null);
-  const [feriadoToEdit, setFeriadoToEdit] = useState<Feriado | null>(null);
-  const [editedDscFeriado, setEditedDscFeriado] = useState('');
-  const [editedDatFeriado, setEditedDatFeriado] = useState('');
-  const [editedIndTipoFeriado, setEditedIndTipoFeriado] = useState(1);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
 
   const columns: Column[] = [
     { key: 'dscFeriado', label: 'Descrição' },
@@ -72,153 +58,80 @@ export default function FeriadosPage() {
     }
   };
 
-  useEffect(() => {
-    fetchFeriados();
-  }, []);
-
-  const handleEdit = (feriado: Feriado) => {
-    setFeriadoToEdit(feriado);
-    setEditedDscFeriado(feriado.dscFeriado);
-    setEditedDatFeriado(feriado.datFeriado);
-    setEditedIndTipoFeriado(feriado.indTipoFeriado);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditClose = () => {
-    setIsEditModalOpen(false);
-    setFeriadoToEdit(null);
-    setEditedDscFeriado('');
-    setEditedDatFeriado('');
-    setEditedIndTipoFeriado(1);
-  };
-
-  const handleEditConfirm = async () => {
-    if (!feriadoToEdit || !feriadoToEdit.idFeriado) return;
-
-    setEditLoading(true);
-    try {
-      const updatedFeriado: Feriado = {
-        idFeriado: feriadoToEdit.idFeriado,
-        dscFeriado: editedDscFeriado,
-        datFeriado: editedDatFeriado,
-        indTipoFeriado: editedIndTipoFeriado
-      };
-
-      await feriadoService.cadastrarFeriado(updatedFeriado);
-      showSuccessToast('Feriado atualizado com sucesso!');
-      fetchFeriados();
-      handleEditClose();
-    } catch (error) {
-      showErrorToast('Erro ao atualizar feriado. Tente novamente.');
-      console.error('Erro ao atualizar feriado:', error);
-    } finally {
-      setEditLoading(false);
+  const handleUpdateFeriado = async (feriado: Feriado) => {
+    if (!feriado.idFeriado) {
+      throw new Error('ID do feriado não encontrado');
     }
+    await feriadoService.cadastrarFeriado(feriado);
   };
 
-  const handleDeleteClick = (feriado: Feriado) => {
-    if (feriado.idFeriado === undefined) {
-      showErrorToast('ID do feriado não encontrado');
-      return;
+  const handleDeleteFeriado = async (id: number) => {
+    await feriadoService.excluirFeriado(id);
+  };
+
+  const getEditFields = (feriado: Feriado, setField: (field: string, value: any) => void) => [
+    {
+      label: "Descrição do Feriado",
+      value: feriado.dscFeriado,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('dscFeriado', e.target.value),
+      fieldName: "dscFeriado",
+      required: true
+    },
+    {
+      label: "Data do Feriado",
+      value: feriado.datFeriado,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('datFeriado', e.target.value),
+      type: "date" as const,
+      fieldName: "datFeriado",
+      required: true
+    },
+    {
+      label: "Tipo de Feriado",
+      value: feriado.indTipoFeriado.toString(),
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setField('indTipoFeriado', Number(e.target.value)),
+      type: "select" as const,
+      options: [
+        { value: "1", label: "Integral" },
+        { value: "2", label: "Meio Período" }
+      ],
+      fieldName: "indTipoFeriado",
+      required: false
     }
-    setFeriadoToDelete(feriado.idFeriado);
-    setIsDeleteModalOpen(true);
-  };
+  ];
 
-  const handleDeleteConfirm = async () => {
-    if (!feriadoToDelete) {
-      showErrorToast('ID do feriado não encontrado');
-      setIsDeleteModalOpen(false);
-      setFeriadoToDelete(null);
-      return;
+  const getItemId = (feriado: Feriado) => {
+    if (!feriado.idFeriado) {
+      throw new Error('ID do feriado não encontrado');
     }
-    
-    setDeleteLoading(true);
-    try {
-      await feriadoService.excluirFeriado(feriadoToDelete);
-      showSuccessToast('Feriado excluído com sucesso!');
-      fetchFeriados();
-    } catch (error) {
-      showErrorToast('Erro ao excluir feriado. Tente novamente.');
-      console.error('Erro ao excluir feriado:', error);
-    } finally {
-      setDeleteLoading(false);
-      setIsDeleteModalOpen(false);
-      setFeriadoToDelete(null);
-    }
+    return feriado.idFeriado;
   };
 
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false);
-    setFeriadoToDelete(null);
-  };
-
-  if (loading) {
-    return <LoadingText title="feriados" />
-  }
+  const createUpdatedItem = (originalFeriado: Feriado, editedFields: Record<string, any>): Feriado => ({
+    idFeriado: originalFeriado.idFeriado,
+    dscFeriado: editedFields.dscFeriado,
+    datFeriado: editedFields.datFeriado,
+    indTipoFeriado: editedFields.indTipoFeriado
+  });
 
   return (
-    <Container className="py-8">
-      {/* Tabela de Feriados */}
-      <Table
-        data={feriados}
-        title="Feriados"
-        columns={columns}
-        handleEdit={handleEdit}
-        handleDeleteClick={handleDeleteClick}
-        addItemHref="/adicionar-feriado"
-      />
-
-      {/* Modal de edição */}
-      {isEditModalOpen && feriadoToEdit && (
-        <EditModal
-          title="Editar Feriado"
-          fields={[
-            {
-              label: "Descrição do Feriado",
-              value: editedDscFeriado,
-              onChange: (e) => setEditedDscFeriado(e.target.value),
-              fieldName: "dscFeriado",
-              required: true
-            },
-            {
-              label: "Data do Feriado",
-              value: editedDatFeriado,
-              onChange: (e) => setEditedDatFeriado(e.target.value),
-              type: "date",
-              fieldName: "datFeriado",
-              required: true
-            },
-            {
-              label: "Tipo de Feriado",
-              value: editedIndTipoFeriado.toString(),
-              onChange: (e) => setEditedIndTipoFeriado(Number(e.target.value)),
-              type: "select",
-              options: [
-                { value: "1", label: "Integral" },
-                { value: "2", label: "Meio Período" }
-              ],
-              fieldName: "indTipoFeriado",
-              required: false
-            }
-          ]}
-          onClose={handleEditClose}
-          onConfirm={handleEditConfirm}
-          loading={editLoading}
-          validationConfigs={validationConfigs}
-        />
-      )}
-
-      {/* Modal de confirmação de exclusão */}
-      {isDeleteModalOpen && (
-        <ExcludeModal
-          title="Confirmar exclusão"
-          message="Tem certeza que deseja excluir este feriado? Esta ação não pode ser desfeita."
-          onCancel={handleCancelDelete}
-          onConfirm={handleDeleteConfirm}
-          loading={deleteLoading}
-        />
-      )}
-    </Container>
+    <ListPageTemplate
+      data={feriados}
+      setData={setFeriados}
+      loading={loading}
+      setLoading={setLoading}
+      title="Feriados"
+      columns={columns}
+      addItemHref="/adicionar-feriado"
+      fetchData={fetchFeriados}
+      updateItem={handleUpdateFeriado}
+      deleteItem={handleDeleteFeriado}
+      editModalTitle="Editar Feriado"
+      deleteModalTitle="Confirmar exclusão"
+      deleteModalMessage="Tem certeza que deseja excluir este feriado? Esta ação não pode ser desfeita."
+      validationConfigs={validationConfigs}
+      getEditFields={getEditFields}
+      getItemId={getItemId}
+      createUpdatedItem={createUpdatedItem}
+    />
   );
 } 

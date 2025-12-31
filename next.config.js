@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Isso ajuda a evitar erros de hidratação em desenvolvimento
-  swcMinify: true,
   // Suprimir warnings de hidratação em desenvolvimento
   onDemandEntries: {
     // Período em ms em que a página será mantida em memória

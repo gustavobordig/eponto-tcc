@@ -8,6 +8,7 @@ import { getAllTimeRecords } from "@/services/timeRecord";
 import { tokenUtils } from "@/utils/token";
 import { bancoHorasService } from "@/services/bancoHoras";
 import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 // Assets
 import UserImage from "@/public/images/User.png";
@@ -40,6 +41,7 @@ const mockMonthlyData = {
 };
 
 export default function Home() {
+  const { t, language } = useLanguage();
   const [location, setLocation] = useState<string>("Carregando localização...");
   const [locationError, setLocationError] = useState<string>("");
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -191,9 +193,9 @@ export default function Home() {
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour < 12) return "Bom dia";
-    if (hour < 18) return "Boa tarde";
-    return "Boa noite";
+    if (hour < 12) return t('home.good-morning');
+    if (hour < 18) return t('home.good-afternoon');
+    return t('home.good-evening');
   };
 
   const getCurrentPoint = (): PointType | null => {
@@ -208,10 +210,10 @@ export default function Home() {
   const currentPoint = getCurrentPoint();
 
   const timeIndicators = [
-    { type: "entrada" as PointType, icon: <LogIn className="w-6 h-6" />, label: "Entrada", time: "08:00" },
-    { type: "inicio_almoco" as PointType, icon: <Coffee className="w-6 h-6" />, label: "Início Almoço", time: "12:00" },
-    { type: "fim_almoco" as PointType, icon: <UtensilsCrossed className="w-6 h-6" />, label: "Fim Almoço", time: "13:00" },
-    { type: "saida" as PointType, icon: <LogOut className="w-6 h-6" />, label: "Saída", time: "17:00" },
+    { type: "entrada" as PointType, icon: <LogIn className="w-6 h-6" />, label: t('home.entry'), time: "08:00" },
+    { type: "inicio_almoco" as PointType, icon: <Coffee className="w-6 h-6" />, label: t('home.lunch-start'), time: "12:00" },
+    { type: "fim_almoco" as PointType, icon: <UtensilsCrossed className="w-6 h-6" />, label: t('home.lunch-end'), time: "13:00" },
+    { type: "saida" as PointType, icon: <LogOut className="w-6 h-6" />, label: t('home.exit'), time: "17:00" },
   ];
 
   const handleMarkPoint = () => {
@@ -243,7 +245,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col gap-2 items-center md:items-start">
                     <h1 className="text-2xl font-bold text-[#002085]">{getGreeting()}, {userName}!</h1>
-                    <p className="text-gray-500 text-sm">Bem-vindo de volta</p>
+                    <p className="text-gray-500 text-sm">{t('home.welcome')}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-center md:justify-end my-2 md:my-0 gap-2 text-gray-500">
@@ -274,17 +276,17 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Actions Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
-              <h2 className="text-lg font-semibold text-[#002085]">Ações</h2>
+              <h2 className="text-lg font-semibold text-[#002085]">{t('home.actions')}</h2>
               <div className="flex flex-col gap-3">
                 <Button
-                  text="Bater Ponto"
+                  text={t('home.punch-in')}
                   backgroundColor="bg-[#002085]"
                   className="w-full"
                   textColor="text-white"
                   onClick={handleMarkPoint}
                 />
                 <Button
-                  text="Editar localização"
+                  text={t('home.edit-location')}
                   icon={<MapPin className="w-4 h-4" />}
                   backgroundColor="bg-transparent"
                   className="w-full border border-[#002085]"
@@ -296,11 +298,11 @@ export default function Home() {
 
             {/* Points Status Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Pontos do Dia</h2>
+              <h2 className="text-lg font-semibold text-[#002085] mb-4">{t('home.daily-punches')}</h2>
               <div className="grid grid-cols-4 gap-4">
                 {loading ? (
                   <div className="col-span-4 text-center text-gray-500">
-                    Carregando pontos...
+                    {t('common.loading')}
                   </div>
                 ) : (
                   timeIndicators.map((indicator, index) => {

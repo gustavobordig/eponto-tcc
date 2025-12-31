@@ -87,16 +87,15 @@ Cypress.Commands.add('loginAsAdmin', () => {
   });
 });
 
-// Comando para verificar e fazer autenticação administrativa se necessário
+// Comando para verificar e fazer seleção de perfil admin se necessário
 Cypress.Commands.add('ensureAdminAuth', () => {
-  // Verificar se aparece o formulário de autenticação administrativa
+  // Verificar se está na página de seleção de perfil
   cy.get('body').then(($body) => {
-    if ($body.find('input[placeholder="Digite a senha para acessar a área administrativa"]').length > 0) {
-      // Se encontrar o campo de senha administrativa, fazer login
-      cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').type('123');
-      cy.get('button').contains('Entrar').click();
+    if ($body.find('text:contains("Quem está usando?")').length > 0) {
+      // Se encontrar a página de seleção de perfil, clicar no perfil admin
+      cy.contains('Administrador').click();
       
-      // Aguardar um pouco para a autenticação processar
+      // Aguardar um pouco para o redirecionamento processar
       cy.wait(1000);
     }
   });
