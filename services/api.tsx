@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { tokenUtils } from '@/utils/token';
+import { showErrorToast } from '@/utils/toast';
 
 // Configuração base do Axios
 const api = axios.create({
@@ -32,6 +33,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expirado ou inválido - fazer logout automático
       tokenUtils.logout();
+    } else if (error.response?.status === 403) {
+      // Acesso negado - usuário não tem permissão para acessar o recurso
+      showErrorToast('Acesso negado. Você não possui permissão de Administrador.');
     }
     return Promise.reject(error);
   }

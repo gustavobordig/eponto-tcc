@@ -5,46 +5,68 @@ import { useRouter } from "next/navigation";
 import { tokenUtils } from "@/utils/token";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { useLanguage } from "@/app/contexts/LanguageContext";
+import { authService } from "@/services/auth";
 
 export default function ProfileSelectionPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [profiles, setProfiles] = useState<Array<{idPerfil: number, dscPerfil: string}>>([]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Verificar se está logado
-    const token = tokenUtils.getToken();
-    if (!token) {
+    // Verificar se tem perfis salvos
+    const savedProfiles = tokenUtils.getProfiles();
+    if (savedProfiles && savedProfiles.length > 0) {
+      setProfiles(savedProfiles);
+    } else {
+      // Se não tem perfis, redirecionar para login
       router.push('/');
-      return;
-    }
-
-    // Verificar se já tem perfil selecionado
-    const selectedProfile = tokenUtils.getSelectedProfile();
-    if (selectedProfile === 'admin') {
-      router.push('/dashboard');
-    } else if (selectedProfile === 'user') {
-      router.push('/home');
     }
   }, [router]);
 
-  const handleProfileSelection = async (profile: 'admin' | 'user') => {
+  const handleProfileSelection = async (selectedProfile: {idPerfil: number, dscPerfil: string}) => {
     try {
       setIsLoading(true);
       
-      // Salvar perfil selecionado
-      tokenUtils.setSelectedProfile(profile);
+      // Buscar email e senha do localStorage ou sessionStorage
+      // Como não temos acesso direto, vamos pedir para o usuário inserir novamente
+      // ou podemos salvar temporariamente no primeiro login
+      const email = localStorage.getItem('tempEmail') || '';
+      const password = localStorage.getItem('tempPassword') || '';
       
-      showSuccessToast(`Perfil ${profile === 'admin' ? 'Administrador' : 'Usuário'} selecionado com sucesso!`);
+      if (!email || !password) {
+        showErrorToast('Dados de login não encontrados. Faça login novamente.');
+        router.push('/');
+        return;
+      }
+      
+      // Autenticar com o perfil selecionado
+      await authService.autenticarPerfil({
+        email,
+        senha: password,
+        idPerfil: selectedProfile.idPerfil
+      });
+      
+      // Limpar dados temporários
+      localStorage.removeItem('tempEmail');
+      localStorage.removeItem('tempPassword');
+      
+      showSuccessToast(`Perfil ${selectedProfile.dscPerfil} selecionado com sucesso!`);
       
       // Redirecionar baseado no perfil
-      if (profile === 'admin') {
+      if (selectedProfile.dscPerfil === 'Admin') {
         router.push('/dashboard');
       } else {
         router.push('/home');
       }
-    } catch (error) {
-      showErrorToast('Erro ao selecionar perfil. Tente novamente.');
+    } catch (error: any) {
+      if (error.response?.data?.mensagem) {
+        showErrorToast(error.response.data.mensagem);
+      } else {
+        showErrorToast('Erro ao selecionar perfil. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -63,47 +85,41 @@ export default function ProfileSelectionPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 max-w-2xl mx-auto">
-          {/* Perfil Administrador */}
-          <div className="group cursor-pointer" onClick={() => handleProfileSelection('admin')}>
-            <div className="relative">
-              <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-transparent group-hover:border-white transition-all duration-300 transform group-hover:scale-105">
-                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
-                  <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
+          {profiles.map((profile) => (
+            <div 
+              key={profile.idPerfil} 
+              className="group cursor-pointer" 
+              onClick={() => handleProfileSelection(profile)}
+            >
+              <div className="relative">
+                <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-transparent group-hover:border-white transition-all duration-300 transform group-hover:scale-105">
+                  <div className={`w-full h-full ${
+                    profile.dscPerfil === 'Admin' 
+                      ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
+                      : 'bg-gradient-to-br from-green-600 to-green-800'
+                  } flex items-center justify-center`}>
+                    {profile.dscPerfil === 'Admin' ? (
+                      <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xl font-medium text-white group-hover:text-gray-300 transition-colors">
+                    {profile.dscPerfil === 'Admin' ? t('profile.admin') : t('profile.user')}
+                  </h3>
+                  <p className="text-sm text-gray-400 mt-2">
+                    {profile.dscPerfil === 'Admin' ? t('profile.admin-desc') : t('profile.user-desc')}
+                  </p>
                 </div>
               </div>
-              <div className="text-center">
-                <h3 className="text-xl font-medium text-white group-hover:text-gray-300 transition-colors">
-                  {t('profile.admin')}
-                </h3>
-                <p className="text-sm text-gray-400 mt-2">
-                  {t('profile.admin-desc')}
-                </p>
-              </div>
             </div>
-          </div>
-
-          {/* Perfil Usuário */}
-          <div className="group cursor-pointer" onClick={() => handleProfileSelection('user')}>
-            <div className="relative">
-              <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-transparent group-hover:border-white transition-all duration-300 transform group-hover:scale-105">
-                <div className="w-full h-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center">
-                  <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-medium text-white group-hover:text-gray-300 transition-colors">
-                  {t('profile.user')}
-                </h3>
-                <p className="text-sm text-gray-400 mt-2">
-                  {t('profile.user-desc')}
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {isLoading && (

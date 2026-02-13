@@ -2,6 +2,7 @@ const TOKEN_KEY = '@App:token';
 const ID_KEY = '@App:id';
 const PROFILES_KEY = '@App:profiles';
 const SELECTED_PROFILE_KEY = '@App:selectedProfile';
+const USER_ROLE_KEY = '@App:userRole';
 
 export const tokenUtils = {
     getToken(): string | null {
@@ -57,9 +58,27 @@ export const tokenUtils = {
         return null;
     },
 
+    setUserRole(role: string): void {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(USER_ROLE_KEY, role);
+        }
+    },
+
+    getUserRole(): string | null {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem(USER_ROLE_KEY);
+        }
+        return null;
+    },
+
+    isAdmin(): boolean {
+        const role = this.getUserRole();
+        return role === 'Admin';
+    },
+
     hasAdminProfile(): boolean {
         const profiles = this.getProfiles();
-        return profiles ? profiles.some(profile => profile.dscPerfil === 'ADMIN') : false;
+        return profiles ? profiles.some(profile => profile.dscPerfil === 'Admin') : false;
     },
 
     removeToken(): void {
@@ -68,6 +87,7 @@ export const tokenUtils = {
             localStorage.removeItem(ID_KEY);
             localStorage.removeItem(PROFILES_KEY);
             localStorage.removeItem(SELECTED_PROFILE_KEY);
+            localStorage.removeItem(USER_ROLE_KEY);
         }
     },
 

@@ -42,20 +42,43 @@ export default function Form({
         try {
             setIsLoading(true);
             
-            await authService.realizarLogin({
+            // Primeira etapa: buscar perfis disponíveis
+            const loginResponse = await authService.realizarLogin({
                 email: formData.email,
                 senha: formData.password
             });
             
-            showSuccessToast("Login realizado com sucesso");
-            
-            // Verificar se o usuário tem perfil ADMIN
-            if (tokenUtils.hasAdminProfile()) {
-                // Se tem perfil ADMIN, vai para página de seleção
-                router.push('/profile-selection');
-            } else {
-                // Se não tem perfil ADMIN, vai direto para home
-                router.push('/home');
+            if (loginResponse.sucesso) {
+                // Salvar credenciais temporariamente para usar na seleção de perfil
+                localStorage.setItem('tempEmail', formData.email);
+                localStorage.setItem('tempPassword', formData.password);
+                
+                showSuccessToast("Login realizado com sucesso");
+                
+                // Verificar quantos perfis o usuário tem
+                if (loginResponse.perfisUsuario.length === 1) {
+                    // Se tem apenas um perfil, autenticar automaticamente
+                    const profile = loginResponse.perfisUsuario[0];
+                    await authService.autenticarPerfil({
+                        email: formData.email,
+                        senha: formData.password,
+                        idPerfil: profile.idPerfil
+                    });
+                    
+                    // Limpar dados temporários
+                    localStorage.removeItem('tempEmail');
+                    localStorage.removeItem('tempPassword');
+                    
+                    // Redirecionar baseado no perfil
+                    if (profile.dscPerfil === 'Admin') {
+                        router.push('/dashboard');
+                    } else {
+                        router.push('/home');
+                    }
+                } else {
+                    // Se tem múltiplos perfis, ir para página de seleção
+                    router.push('/profile-selection');
+                }
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError && error.response?.data?.mensagem) {
