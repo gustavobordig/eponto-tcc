@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
 import Link from 'next/link';
-import { Toaster } from 'react-hot-toast';
 
 export default function AdminLayout({
   children,
@@ -49,7 +48,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Toaster />
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

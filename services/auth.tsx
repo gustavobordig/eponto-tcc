@@ -2,7 +2,6 @@ import api from './api';
 import { AxiosError } from 'axios';
 import { tokenUtils } from '@/utils/token';
 
-import { showSuccessToast } from '@/utils/toast';
 interface LoginPayload {
   email: string;
   senha: string;
@@ -53,7 +52,6 @@ export const authService = {
   async alterarSenha(payload: AlterarSenhaPayload): Promise<void> {
     try {
       await api.post(`api/login/AlteraSenhaLogin`, payload);
-      showSuccessToast('Senha alterada com sucesso');
     } catch (error) {
       if (error instanceof AxiosError) {
         throw error;
@@ -65,7 +63,6 @@ export const authService = {
   async validarCodigoRecuperacao(payload: ValidarCodigoPayload): Promise<void> {
     try {
       await api.post(`api/login/ValidaCodigoRecuperacao`, payload);
-      showSuccessToast('Código validado com sucesso');
     } catch (error) {
       if (error instanceof AxiosError) {
         throw error;
@@ -77,7 +74,6 @@ export const authService = {
   async recuperarSenha(payload: RecuperarSenhaPayload): Promise<void> {
     try {
       await api.post(`api/login/RecuperarSenha`, payload);
-      showSuccessToast('Email de recuperação de senha enviado com sucesso');
     } catch (error) {
       if (error instanceof AxiosError) {
         throw error;

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 export default function ForgotPassword() {
     const router = useRouter();
@@ -20,10 +20,10 @@ export default function ForgotPassword() {
         try {
             setLoading(true);
             await authService.recuperarSenha({ email });
-            toast.success('Código de recuperação enviado para seu email');
+            showSuccessToast('Código de recuperação enviado para seu email');
             setStep(2);
         } catch {
-            toast.error('Erro ao solicitar recuperação de senha');
+            showErrorToast('Erro ao solicitar recuperação de senha');
         } finally {
             setLoading(false);
         }
@@ -33,10 +33,10 @@ export default function ForgotPassword() {
         try {
             setLoading(true);
             await authService.validarCodigoRecuperacao({ email, codigo });
-            toast.success('Código validado com sucesso');
+            showSuccessToast('Código validado com sucesso');
             setStep(3);
         } catch {
-            toast.error('Código inválido');
+            showErrorToast('Código inválido');
         } finally {
             setLoading(false);
         }
@@ -46,10 +46,10 @@ export default function ForgotPassword() {
         try {
             setLoading(true);
             await authService.alterarSenha({ email, senha: novaSenha });
-            toast.success('Senha alterada com sucesso');
+            showSuccessToast('Senha alterada com sucesso');
             router.push('/');
         } catch {
-            toast.error('Erro ao alterar senha');
+            showErrorToast('Erro ao alterar senha');
         } finally {
             setLoading(false);
         }
