@@ -2,29 +2,19 @@
 
 import { userService } from '@/services/user';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { listCargos } from '@/services/cargo';
-import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+import { Cargo, cargoService } from '@/services/cargo';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { userValidations, ValidationResult } from '@/utils/validations/userValidations';
 import ValidationMessage from '@/app/components/atoms/ValidationMessage';
 
-interface Cargo {
-  idCargo: number;
-  nomeCargo: string;
-}
-
-interface Jornada {
-  idJornada: number;
-  nomeJornada: string;
-}
-
 export default function AdicionarUsuario() {
 
   const router = useRouter();
   const [cargos, setCargos] = useState<Cargo[]>([]);
-  const [jornadas, setJornadas] = useState<Jornada[]>([]);
+  const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
   const [selectedCargo, setSelectedCargo] = useState<string>('');
   const [selectedJornada, setSelectedJornada] = useState<string>('');
   
@@ -37,7 +27,7 @@ export default function AdicionarUsuario() {
     const carregarDados = async () => {
       try {
         const [cargosResponse, jornadasResponse] = await Promise.all([
-          listCargos(),
+          cargoService.listar(),
           jornadaTrabalhoService.listar()
         ]);
         setCargos(cargosResponse.cargos || []);
@@ -340,7 +330,7 @@ export default function AdicionarUsuario() {
                   </SelectTrigger>
                   <SelectContent>
                     {jornadas.map((jornada) => (
-                      <SelectItem key={jornada.idJornada} value={jornada.idJornada.toString()}>
+                      <SelectItem key={jornada.idJornada} value={String(jornada.idJornada)}>
                         {jornada.nomeJornada}
                       </SelectItem>
                     ))}

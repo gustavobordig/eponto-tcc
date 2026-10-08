@@ -1,0 +1,34 @@
+import api from './api';
+import { ApiResponse } from '@/types/api';
+
+export interface JornadaTrabalho {
+  idJornada?: number;
+  nomeJornada: string;
+  qtdHorasDiarias: number;
+  indAtivo?: number;
+  // Campos descritos no api.md; as telas de cadastro usam qtdHorasDiarias
+  horaInicio?: string;
+  horaFim?: string;
+  cargaHoraria?: number;
+}
+
+export type JornadaTrabalhoResponse = ApiResponse<{
+  jornada?: JornadaTrabalho | null;
+  jornadas?: JornadaTrabalho[] | null;
+}>;
+
+export const jornadaTrabalhoService = {
+  inserir: async (jornada: JornadaTrabalho) =>
+    (await api.post<JornadaTrabalhoResponse>('/api/JornadaTrabalho/Inserir', jornada)).data,
+
+  buscarPorId: async (id: number) =>
+    (await api.get<JornadaTrabalhoResponse>(`/api/JornadaTrabalho/${id}`)).data,
+
+  listar: async () => (await api.get<JornadaTrabalhoResponse>('/api/JornadaTrabalho/Listar')).data,
+
+  atualizar: async (id: number, jornada: JornadaTrabalho) =>
+    (await api.put<JornadaTrabalhoResponse>(`/api/JornadaTrabalho/Atualizar/${id}`, jornada)).data,
+
+  deletar: async (id: number) =>
+    (await api.put<JornadaTrabalhoResponse>(`/api/JornadaTrabalho/Deletar/${id}`)).data,
+};

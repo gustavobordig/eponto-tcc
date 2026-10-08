@@ -10,7 +10,7 @@ import EditModal from '@/app/components/atoms/EditModal';
 import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 
 //Services
-import { listCargos, deleteCargo, updateCargo } from '@/services/cargo';
+import { Cargo, cargoService } from '@/services/cargo';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
@@ -19,21 +19,6 @@ import { cargoValidations } from '@/utils/validations/cargoValidations';
 //Types
 import { Column } from '@/types';
 
-
-interface Cargo {
-  idCargo: number;
-  nomeCargo: string;
-  salario: string;
-  formacaoMinima: string;
-  indAtivo: number;
-}
-
-interface ApiResponse {
-  sucesso: boolean;
-  mensagem: string | null;
-  cargo: Cargo | null;
-  cargos: Cargo[];
-}
 
 export default function CargosPage() {
   
@@ -66,7 +51,7 @@ export default function CargosPage() {
 
   const fetchCargos = async () => {
     try {
-      const response = await listCargos() as ApiResponse;
+      const response = await cargoService.listar();
       setCargos(response.cargos || []);
     } catch (error) {
       showErrorToast('Erro ao carregar cargos');
@@ -112,7 +97,7 @@ export default function CargosPage() {
         indAtivo: editedStatus
       };
 
-      await updateCargo(updatedCargo);
+      await cargoService.atualizar(updatedCargo);
       showSuccessToast('Cargo atualizado com sucesso!');
       fetchCargos();
       handleEditClose();
@@ -139,7 +124,7 @@ export default function CargosPage() {
     
     setDeleteLoading(true);
     try {
-      await deleteCargo(cargoToDelete);
+      await cargoService.deletar(cargoToDelete);
       showSuccessToast('Cargo excluído com sucesso!');
       fetchCargos();
     } catch (error) {

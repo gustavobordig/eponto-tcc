@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
-import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 //Components
@@ -13,20 +13,6 @@ import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 //Types
 import { Column } from '@/types';
 
-
-interface JornadaTrabalho {
-  idJornada?: number;
-  nomeJornada: string;
-  qtdHorasDiarias: number;
-  indAtivo?: number;
-}
-
-interface ApiResponse {
-  sucesso: boolean;
-  mensagem: string | null;
-  jornada: JornadaTrabalho | null;
-  jornadas: JornadaTrabalho[];
-}
 
 export default function JornadaTrabalhoPage() {
   const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
@@ -63,7 +49,7 @@ export default function JornadaTrabalhoPage() {
 
   const fetchJornadas = async () => {
     try {
-      const response = await jornadaTrabalhoService.listar() as ApiResponse;
+      const response = await jornadaTrabalhoService.listar();
       setJornadas(response.jornadas || []);
     } catch (error) {
       showErrorToast('Erro ao carregar jornadas');

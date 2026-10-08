@@ -1,41 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { userService } from '@/services/user';
-import { listCargos } from '@/services/cargo';
-import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+import { UserData, userService } from '@/services/user';
+import { Cargo, cargoService } from '@/services/cargo';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { tokenUtils } from '@/utils/token';
 import { showErrorToast } from '@/utils/toast';
-
-interface UserData {
-  idUsuario: number;
-  nome: string;
-  dataNascimento: string;
-  dataAdmissao?: string; // Data de admissão
-  email: string;
-  telefone: number;
-  idCargo: number;
-  idJornada: number;
-  indAtivo: number;
-  fotoPerfil?: string;
-}
-
-interface Cargo {
-  idCargo: number;
-  nomeCargo: string;
-  salario: string;
-  formacaoMinima: string;
-  indAtivo: number;
-}
-
-interface JornadaTrabalho {
-  idJornada: number;
-  nomeJornada: string;
-  horaInicio: string;
-  horaFim: string;
-  cargaHoraria: number;
-  indAtivo: number;
-}
 
 interface ContractualInfoProps {
   userId?: number;
@@ -68,7 +38,7 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           setUserData(usuario);
           
           // Carregar dados do cargo
-          const cargoResponse = await listCargos();
+          const cargoResponse = await cargoService.listar();
           const userCargo = cargoResponse.cargos?.find((c: Cargo) => c.idCargo === usuario.idCargo);
           setCargo(userCargo || null);
           

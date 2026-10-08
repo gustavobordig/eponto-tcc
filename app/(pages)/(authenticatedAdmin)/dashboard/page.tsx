@@ -11,27 +11,14 @@ import EditModal from '@/app/components/atoms/EditModal';
 
 //Services
 import { UserData, userService } from '@/services/user';
-import { listCargos } from '@/services/cargo';
-import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+import { Cargo, cargoService } from '@/services/cargo';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 //Types
 import { Column } from '@/types';
-
-interface Cargo {
-  idCargo: number;
-  nomeCargo: string;
-  salario: string;
-  indAtivo: number;
-}
-
-interface JornadaTrabalho {
-  idJornada: number;
-  nomeJornada: string;
-  qtdHorasDiarias: number;
-}
 
 interface UserWithDetails extends UserData {
   cargo?: string;
@@ -68,7 +55,7 @@ export default function CargosPage() {
 
     const fetchCargos = async () => {
       try {
-        const response = await listCargos();
+        const response = await cargoService.listar();
         setCargos(response.cargos || []);
       } catch (error) {
         console.error('Erro ao carregar cargos:', error);

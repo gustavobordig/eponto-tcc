@@ -1,7 +1,7 @@
 'use client';
 
 import Container from '@/app/components/atoms/container';
-import { insertCargo } from '@/services/cargo';
+import { cargoService } from '@/services/cargo';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -69,7 +69,7 @@ export default function AdicionarCargo() {
         indAtivo: 1
       };
 
-      await insertCargo(cargoPayload);
+      await cargoService.inserir(cargoPayload);
       showSuccessToast('Cargo cadastrado com sucesso!');
       router.push('/dashboard/cargos');
     } catch (error) {
