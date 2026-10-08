@@ -91,10 +91,11 @@ export default function FeriasPage() {
                 : setFeriasParaExcluir(item.idFerias)
             }
             addItemHref="/adicionar-ferias"
+            addItemLabel="Cadastrar férias"
           />
           <Table
             data={solicitacoes}
-            title="Solicitações de Férias"
+            title="Solicitações de férias"
             columns={colunasSolicitacoes}
             renderActions={(item) =>
               isPendente(item.indSituacao) ? (

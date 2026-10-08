@@ -8,7 +8,7 @@ export type TableRow = Record<string, any>;
 export interface Column<T = TableRow> {
   key: string;
   label: string;
-  type?: 'text' | 'select' | 'status' | 'currency' | 'date' | 'datetime' | 'custom' | 'actions';
+  type?: 'text' | 'select' | 'status' | 'currency' | 'date' | 'datetime' | 'phone' | 'custom' | 'actions';
   // Método (e não propriedade) para aceitar colunas tipadas com a linha de cada tabela
   render?(item: T): ReactNode;
   readOnly?: boolean;

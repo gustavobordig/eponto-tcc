@@ -136,7 +136,7 @@ export default function AjustesPontoPage() {
         data={solicitacoes}
         columns={columns}
         isAjustePonto={true}
-        title="Solicitações de Ajuste de Ponto"
+        title="Ajustes de ponto"
         handleEdit={handleEdit}
       />
 

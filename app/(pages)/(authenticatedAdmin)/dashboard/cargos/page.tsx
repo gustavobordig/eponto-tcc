@@ -157,6 +157,7 @@ export default function CargosPage() {
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-cargo"
+        addItemLabel="Novo cargo"
       />
 
       {/* Modal de edição */}

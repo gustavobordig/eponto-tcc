@@ -260,7 +260,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Limpar o campo nome
-      cy.get('input').first().clear().blur();
+      cy.get('.fixed.inset-0 input').first().clear().blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O nome do cargo é obrigatório.').should('be.visible');
@@ -272,7 +272,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Digitar nome com menos de 3 caracteres
-      cy.get('input').first().clear().type('Ab').blur();
+      cy.get('.fixed.inset-0 input').first().clear().type('Ab').blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O nome deve ter no mínimo 3 caracteres.').should('be.visible');
@@ -284,7 +284,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       const nomeLongo = 'A'.repeat(101);
-      cy.get('input').first().clear().type(nomeLongo).blur();
+      cy.get('.fixed.inset-0 input').first().clear().type(nomeLongo).blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O nome deve ter no máximo 100 caracteres.').should('be.visible');
@@ -295,7 +295,7 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      cy.get('input').first().clear().type('   ').blur();
+      cy.get('.fixed.inset-0 input').first().clear().type('   ').blur();
       
       cy.contains('O nome do cargo é obrigatório.').should('be.visible');
     });
@@ -306,7 +306,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Limpar o campo salário (segundo input)
-      cy.get('input[type="number"]').clear().blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O salário é obrigatório.').should('be.visible');
@@ -317,7 +317,7 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      cy.get('input[type="number"]').clear().type('-1000').blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().type('-1000').blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O salário deve ser um número positivo.').should('be.visible');
@@ -328,7 +328,7 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      cy.get('input[type="number"]').clear().type('0').blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().type('0').blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O salário deve ser um número positivo.').should('be.visible');
@@ -339,7 +339,7 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      cy.get('input[type="number"]').clear().type('500').blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().type('500').blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('O salário deve ser no mínimo R$ 1.000,00.').should('be.visible');
@@ -351,7 +351,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Limpar o campo formação mínima (terceiro input)
-      cy.get('input').eq(2).clear().blur();
+      cy.get('.fixed.inset-0 input').eq(2).clear().blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('A formação mínima é obrigatória.').should('be.visible');
@@ -362,7 +362,7 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      cy.get('input').eq(2).clear().type('Ab').blur();
+      cy.get('.fixed.inset-0 input').eq(2).clear().type('Ab').blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('A formação mínima deve ter no mínimo 3 caracteres.').should('be.visible');
@@ -374,7 +374,7 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       const formacaoLonga = 'A'.repeat(101);
-      cy.get('input').eq(2).clear().type(formacaoLonga).blur();
+      cy.get('.fixed.inset-0 input').eq(2).clear().type(formacaoLonga).blur();
       
       // Verificar se a mensagem de erro aparece
       cy.contains('A formação mínima deve ter no máximo 100 caracteres.').should('be.visible');
@@ -386,9 +386,9 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Preencher todos os campos com valores válidos
-      cy.get('input').first().clear().type('Desenvolvedor Senior').blur();
-      cy.get('input[type="number"]').clear().type('5000').blur();
-      cy.get('input').eq(2).clear().type('Ensino Superior Completo').blur();
+      cy.get('.fixed.inset-0 input').first().clear().type('Desenvolvedor Senior').blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().type('5000').blur();
+      cy.get('.fixed.inset-0 input').eq(2).clear().type('Ensino Superior Completo').blur();
       
       // Não deve mostrar mensagens de erro
       cy.contains('O nome do cargo é obrigatório.').should('not.exist');
@@ -396,9 +396,9 @@ describe('CRUD de Cargos', () => {
       cy.contains('A formação mínima é obrigatória.').should('not.exist');
       
       // Campos não devem ter borda vermelha
-      cy.get('input').first().should('not.have.class', 'border-red-500');
-      cy.get('input[type="number"]').should('not.have.class', 'border-red-500');
-      cy.get('input').eq(2).should('not.have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').first().should('not.have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input[type="number"]').should('not.have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').eq(2).should('not.have.class', 'border-red-500');
       
       // Botão salvar deve estar habilitado
       cy.get('button').contains('Salvar').should('not.be.disabled');
@@ -434,9 +434,9 @@ describe('CRUD de Cargos', () => {
       cy.get('.fixed.inset-0').should('be.visible');
       
       // Preencher todos os campos com valores inválidos
-      cy.get('input').first().clear().type('Ab').blur();
-      cy.get('input[type="number"]').clear().type('-100').blur();
-      cy.get('input').eq(2).clear().type('Ab').blur();
+      cy.get('.fixed.inset-0 input').first().clear().type('Ab').blur();
+      cy.get('.fixed.inset-0 input[type="number"]').clear().type('-100').blur();
+      cy.get('.fixed.inset-0 input').eq(2).clear().type('Ab').blur();
       
       // Verificar se todas as mensagens de erro aparecem
       cy.contains('O nome deve ter no mínimo 3 caracteres.').should('be.visible');
@@ -444,9 +444,9 @@ describe('CRUD de Cargos', () => {
       cy.contains('A formação mínima deve ter no mínimo 3 caracteres.').should('be.visible');
       
       // Verificar se todos os campos ficaram com borda vermelha
-      cy.get('input').first().should('have.class', 'border-red-500');
-      cy.get('input[type="number"]').should('have.class', 'border-red-500');
-      cy.get('input').eq(2).should('have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').first().should('have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input[type="number"]').should('have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').eq(2).should('have.class', 'border-red-500');
     });
   });
 
@@ -480,7 +480,7 @@ describe('CRUD de Cargos', () => {
       cy.get('table tbody tr').contains('Gerente').parents('tr').within(() => {
         cy.contains('Editar').click();
       });
-      cy.get('input').first().clear().type('Gerente de Projetos').blur();
+      cy.get('.fixed.inset-0 input').first().clear().type('Gerente de Projetos').blur();
       cy.contains('button', 'Salvar').click();
 
       cy.wait('@atualizar').then(({ request }) => {

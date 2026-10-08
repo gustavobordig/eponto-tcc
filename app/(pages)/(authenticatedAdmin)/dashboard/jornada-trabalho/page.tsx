@@ -158,10 +158,11 @@ export default function JornadaTrabalhoPage() {
       <Table
         data={jornadas}
         columns={columns}   
-        title="Jornadas de Trabalho"
+        title="Jornadas de trabalho"
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-jornada"
+        addItemLabel="Nova jornada"
       />
 
       {/* Modal de edição */}

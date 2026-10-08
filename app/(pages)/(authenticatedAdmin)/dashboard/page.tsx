@@ -13,7 +13,7 @@ import { Column } from '@/shared/types/ui';
 const colunas: Column<UsuarioComDetalhes>[] = [
   { key: 'nome', label: 'Nome' },
   { key: 'email', label: 'Email' },
-  { key: 'telefone', label: 'Telefone' },
+  { key: 'telefone', label: 'Telefone', type: 'phone' },
   { key: 'cargo', label: 'Cargo' },
   { key: 'jornada', label: 'Jornada' },
   { key: 'indAtivo', label: 'Status', type: 'status' },
@@ -91,6 +91,7 @@ export default function UsuariosPage() {
         handleEdit={abrirEdicao}
         handleDeleteClick={(user) => setUsuarioParaExcluir(user.idUsuario)}
         addItemHref="/adicionar-usuario"
+        addItemLabel="Novo usuário"
       />
 
       {edicao && (

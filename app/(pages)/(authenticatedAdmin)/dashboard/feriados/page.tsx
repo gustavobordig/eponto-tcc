@@ -151,6 +151,7 @@ export default function FeriadosPage() {
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-feriado"
+        addItemLabel="Novo feriado"
       />
 
       {/* Modal de edição */}
