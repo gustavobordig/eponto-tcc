@@ -18,6 +18,7 @@ export const SESSION_COOKIES = {
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
 const ROLE_CLAIMS = [
+  // A API do ePonto usa ClaimTypes.Role (a última da lista), com Admin ou User
   'perfil',
   'role',
   'roles',
@@ -73,18 +74,6 @@ export function normalizePerfil(value: unknown): Perfil | undefined {
   const v = value.toLowerCase();
   if (v === 'admin' || v === 'administrador') return 'admin';
   return v ? 'funcionario' : undefined;
-}
-
-/**
- * Temporário, até a API devolver o perfil: e-mails em NEXT_PUBLIC_ADMIN_EMAILS
- * (separados por vírgula) entram como admin.
- */
-export function isAdminEmail(email: string): boolean {
-  const lista = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  return lista.includes(email.trim().toLowerCase());
 }
 
 // Rotas: os grupos (authenticated)/(authenticatedAdmin) não aparecem na URL

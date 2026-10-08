@@ -1,4 +1,7 @@
-// Login com a API simulada: confere a sessão gravada em cookie e o redirecionamento
+import { jwtDeTeste } from '../support/jwt';
+
+// Login em duas etapas, como na API: RealizarLogin devolve os perfis e
+// AutenticarPerfil devolve o token (com a role Admin ou User no JWT)
 describe('Login', () => {
   const preencher = (email: string, senha: string) => {
     cy.get('input[placeholder="Digite seu email"]').type(email);
@@ -6,31 +9,41 @@ describe('Login', () => {
     cy.contains('button', 'Entrar').click();
   };
 
+  const perfis = (lista: { idPerfil: number; dscPerfil: string }[]) =>
+    cy.intercept('POST', '**/api/login/RealizarLogin', {
+      body: { sucesso: true, mensagem: 'Login realizado com sucesso.', perfisUsuario: lista },
+    }).as('login');
+
+  const autenticar = (idUsuario: number, role: 'Admin' | 'User') =>
+    cy.intercept('POST', '**/api/login/AutenticarPerfil', {
+      body: { sucesso: true, mensagem: null, idUsuario, token: jwtDeTeste(idUsuario, role) },
+    }).as('autenticar');
+
   beforeEach(() => {
     cy.clearCookies();
     cy.mockApi();
     cy.visit('/');
   });
 
-  it('entra, grava a sessão e vai para a home', () => {
-    cy.intercept('POST', '**/api/login/realizarLogin', {
-      body: { sucesso: true, mensagem: null, idUsuario: 7, token: 'token-e2e' },
-    }).as('login');
+  it('com um perfil, entra direto e grava a sessão', () => {
+    perfis([{ idPerfil: 2, dscPerfil: 'Funcionário' }]);
+    autenticar(7, 'User');
 
     preencher('ana@exemplo.com', 'senha-teste');
 
     cy.wait('@login').its('request.body').should('deep.equal', { email: 'ana@exemplo.com', senha: 'senha-teste' });
+    cy.wait('@autenticar')
+      .its('request.body')
+      .should('deep.equal', { email: 'ana@exemplo.com', senha: 'senha-teste', idPerfil: 2 });
     cy.location('pathname').should('eq', '/home');
-    cy.getCookie('eponto_token').its('value').should('eq', 'token-e2e');
     cy.getCookie('eponto_id').its('value').should('eq', '7');
     cy.getCookie('eponto_perfil').its('value').should('eq', 'funcionario');
     cy.get('a[href="/dashboard"]').should('not.exist');
   });
 
-  it('com perfil admin vindo da API, mostra o link do painel', () => {
-    cy.intercept('POST', '**/api/login/realizarLogin', {
-      body: { sucesso: true, mensagem: null, idUsuario: 1, token: 'token-admin', perfil: 'admin' },
-    });
+  it('com role Admin no token, mostra o link do painel', () => {
+    perfis([{ idPerfil: 1, dscPerfil: 'Administrador' }]);
+    autenticar(1, 'Admin');
 
     preencher('rh@exemplo.com', 'senha-teste');
 
@@ -39,15 +52,38 @@ describe('Login', () => {
     cy.get('a[href="/dashboard"]').should('exist');
   });
 
-  it('mostra a mensagem da API quando o login falha e não sai da tela', () => {
-    cy.intercept('POST', '**/api/login/realizarLogin', {
+  it('com mais de um perfil, pede para escolher', () => {
+    perfis([
+      { idPerfil: 1, dscPerfil: 'Administrador' },
+      { idPerfil: 2, dscPerfil: 'Funcionário' },
+    ]);
+    autenticar(1, 'Admin');
+
+    preencher('rh@exemplo.com', 'senha-teste');
+
+    cy.contains('Escolha o perfil').should('be.visible');
+    cy.contains('button', 'Administrador').click();
+    cy.wait('@autenticar').its('request.body.idPerfil').should('eq', 1);
+    cy.location('pathname').should('eq', '/home');
+  });
+
+  it('sem perfil, avisa e não entra', () => {
+    perfis([]);
+    preencher('ana@exemplo.com', 'senha-teste');
+    cy.contains('não tem perfil de acesso').should('be.visible');
+    cy.location('pathname').should('eq', '/');
+    cy.getCookie('eponto_token').should('be.null');
+  });
+
+  it('mostra a mensagem da API quando a senha está errada', () => {
+    cy.intercept('POST', '**/api/login/RealizarLogin', {
       statusCode: 401,
-      body: { sucesso: false, mensagem: 'Usuário ou senha inválidos' },
+      body: { sucesso: false, mensagem: 'Senha incorreta.' },
     });
 
     preencher('ana@exemplo.com', 'errada');
 
-    cy.contains('Usuário ou senha inválidos').should('be.visible');
+    cy.contains('Senha incorreta.').should('be.visible');
     cy.location('pathname').should('eq', '/');
     cy.getCookie('eponto_token').should('be.null');
   });
