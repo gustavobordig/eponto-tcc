@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Cores da marca. No Tailwind 4 o tema fica aqui (o tailwind.config.js do
+ * formato antigo não era lido). Use bg-primary, text-primary, border-primary…
+ */
+@theme {
+  --color-primary: #002085;
+  --color-primary-dark: #001a6e;
+  --color-primary-soft: #e8ecf7;
+  --color-background: #f3f4f6;
+  --color-foreground: #111827;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/*
+ * Antes: o fundo usava a cor do texto, a fonte Arial sobrescrevia a Geist e o
+ * modo escuro do sistema clareava o texto sobre os cards brancos.
+ */
 body {
-  background: var(--foreground);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Foco visível para quem navega pelo teclado */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
