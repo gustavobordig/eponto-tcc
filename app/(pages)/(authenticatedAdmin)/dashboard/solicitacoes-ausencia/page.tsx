@@ -1,153 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/features/ausencias/api";
+import { useState } from "react";
+import { solicitacaoAusenciaService } from "@/features/ausencias/api";
+import { SolicitacaoComUsuario, useSolicitacoesAusencia } from "@/features/ausencias/hooks/useSolicitacoesAusencia";
+import { getStatusColor, getStatusText } from "@/features/ausencias/status";
 import { showSuccessToast, showErrorToast } from "@/shared/lib/toast";
 import Button from "@/shared/ui/Button";
 import LoadingText from "@/shared/ui/LoadingText";
 import ConfirmationModal from "@/shared/ui/ConfirmationModal";
 
-interface SolicitacaoComUsuario extends SolicitacaoAusencia {
-  nomeUsuario?: string;
-}
-
 export default function SolicitacoesAusenciaPage() {
-  const [loading, setLoading] = useState(true);
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoComUsuario[]>([]);
+  const { solicitacoes, loading, recarregar } = useSolicitacoesAusencia();
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoComUsuario | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  const getStatusText = (status: number) => {
-    switch (status) {
-      case 1: return "Pendente";
-      case 2: return "Aprovada";
-      case 3: return "Reprovada";
-      default: return "Desconhecido";
-    }
-  };
-
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 1: return "bg-yellow-100 text-yellow-800";
-      case 2: return "bg-green-100 text-green-800";
-      case 3: return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
-
-  const loadSolicitacoes = async () => {
-    try {
-      // DADOS MOCKADOS PARA TESTE - REMOVER QUANDO A API ESTIVER FUNCIONANDO
-      const mockSolicitacoes: SolicitacaoComUsuario[] = [
-        {
-          idSolicitacaoAusencia: 1,
-          idUsuario: 1,
-          mensagemSolicitacao: "Preciso me ausentar por motivos médicos. Tenho consulta marcada e exames para realizar.",
-          dataInicioAusencia: "2024-01-15T00:00:00",
-          dataFimAusencia: "2024-01-15T00:00:00",
-          linkArquivo: "/docs/atestado-medico-1.pdf",
-          statusSolicitacao: 1, // Pendente
-          dataSolicitacao: "2024-01-10T00:00:00",
-          nomeUsuario: "João Silva"
-        },
-        {
-          idSolicitacaoAusencia: 2,
-          idUsuario: 2,
-          mensagemSolicitacao: "Ausência por motivo familiar. Falecimento de parente próximo.",
-          dataInicioAusencia: "2024-01-20T00:00:00",
-          dataFimAusencia: "2024-01-22T00:00:00",
-          linkArquivo: "/docs/atestado-medico-2.pdf",
-          statusSolicitacao: 2, // Aprovada
-          dataSolicitacao: "2024-01-18T00:00:00",
-          nomeUsuario: "Maria Santos"
-        },
-        {
-          idSolicitacaoAusencia: 3,
-          idUsuario: 3,
-          mensagemSolicitacao: "Cirurgia de emergência. Preciso me ausentar para procedimento médico.",
-          dataInicioAusencia: "2024-01-25T00:00:00",
-          dataFimAusencia: "2024-01-30T00:00:00",
-          linkArquivo: "/docs/atestado-medico-3.pdf",
-          statusSolicitacao: 1, // Pendente
-          dataSolicitacao: "2024-01-22T00:00:00",
-          nomeUsuario: "Pedro Oliveira"
-        },
-        {
-          idSolicitacaoAusencia: 4,
-          idUsuario: 4,
-          mensagemSolicitacao: "Tratamento médico contínuo. Sessões de fisioterapia.",
-          dataInicioAusencia: "2024-02-01T00:00:00",
-          dataFimAusencia: "2024-02-05T00:00:00",
-          linkArquivo: "/docs/atestado-medico-4.pdf",
-          statusSolicitacao: 3, // Reprovada
-          dataSolicitacao: "2024-01-28T00:00:00",
-          nomeUsuario: "Ana Costa"
-        },
-        {
-          idSolicitacaoAusencia: 5,
-          idUsuario: 5,
-          mensagemSolicitacao: "Exames médicos de rotina. Check-up anual completo.",
-          dataInicioAusencia: "2024-02-10T00:00:00",
-          dataFimAusencia: "2024-02-10T00:00:00",
-          linkArquivo: "/docs/atestado-medico-5.pdf",
-          statusSolicitacao: 1, // Pendente
-          dataSolicitacao: "2024-02-05T00:00:00",
-          nomeUsuario: "Carlos Ferreira"
-        }
-      ];
-
-      // Simular delay da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSolicitacoes(mockSolicitacoes);
-
-      // CÓDIGO ORIGINAL COMENTADO - DESCOMENTAR QUANDO A API ESTIVER FUNCIONANDO
-      /*
-      const response = await solicitacaoAusenciaService.listarSolicitacoes();
-      
-      if (response.sucesso && response.solicitacoes) {
-        // Buscar nomes dos usuários
-        const solicitacoesComUsuarios = await Promise.all(
-          response.solicitacoes.map(async (solicitacao) => {
-            try {
-              const userResponse = await userService.getById(solicitacao.idUsuario);
-              return {
-                ...solicitacao,
-                nomeUsuario: userResponse.usuario?.nome || 'Usuário não encontrado'
-              };
-            } catch (error) {
-              console.error(`Erro ao buscar usuário ${solicitacao.idUsuario}:`, error);
-              return {
-                ...solicitacao,
-                nomeUsuario: 'Usuário não encontrado'
-              };
-            }
-          })
-        );
-        
-        setSolicitacoes(solicitacoesComUsuarios);
-      } else {
-        showErrorToast(response.mensagem || "Erro ao carregar solicitações");
-      }
-      */
-    } catch (error) {
-      console.error("Erro ao carregar solicitações:", error);
-      showErrorToast("Erro ao carregar solicitações. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadSolicitacoes();
-  }, []);
 
   const handleViewDetails = (solicitacao: SolicitacaoComUsuario) => {
     setSelectedSolicitacao(solicitacao);
@@ -183,7 +55,7 @@ export default function SolicitacoesAusenciaPage() {
         showSuccessToast(
           `Solicitação ${aprovar ? 'aprovada' : 'reprovada'} com sucesso!`
         );
-        await loadSolicitacoes(); // Recarregar a lista
+        await recarregar();
       } else {
         showErrorToast(response.mensagem || "Erro ao processar solicitação");
       }
