@@ -61,6 +61,39 @@ describe('Área do funcionário', () => {
     cy.get('tbody tr').eq(2).should('contain', 'Reprovada');
   });
 
+  it('vê a resposta do feedback pela rota dos próprios feedbacks', () => {
+    cy.intercept('GET', '**/api/Feedback/ListarSolicitacoesUsuario/1', {
+      body: {
+        sucesso: true,
+        mensagem: null,
+        solicitacoesFeedback: [
+          {
+            idSolicitacaoFeedback: 7, idUsuarioSolicitacao: 1, nomeUsuarioSolicitacao: 'Ana Souza', idResponsavelFeedback: 4,
+            nomeResponsavelFeedback: 'Bruno Lima', status: 1, dataSolicitacao: '2026-09-30T10:00:00', mensagemSolicitacao: 'Quero um retorno do trimestre.',
+          },
+        ],
+      },
+    });
+    cy.intercept('GET', '**/api/Feedback/ListarFeedbacksUsuario/1', {
+      body: {
+        sucesso: true,
+        mensagem: null,
+        feedbacks: [
+          { idFeedback: 3, idUsuarioFeedback: 1, idAutorFeedback: 4, idSolicitacaoFeedback: 7, dataRealizacao: '2026-10-01T14:00:00', mensagemFeedback: 'Ótimo trimestre.', avaliacao: 3 },
+        ],
+      },
+    }).as('meusFeedbacks');
+    // A listagem geral é só para admin
+    cy.intercept('GET', '**/api/Feedback/ListarFeedback', { statusCode: 403, body: { sucesso: false } }).as('todos');
+    cy.visit('/feedback');
+
+    cy.contains('Quero um retorno do trimestre.').click();
+    cy.wait('@meusFeedbacks');
+    cy.contains('Ótimo trimestre.').should('be.visible');
+    cy.contains('(4)').should('be.visible'); // avaliação 3 na API = 4 estrelas
+    cy.get('@todos.all').should('have.length', 0);
+  });
+
   it('manda o pedido de feedback para o chefe do usuário', () => {
     cy.intercept('GET', '**/api/Feedback/ListarSolicitacoesUsuario/1', { body: { sucesso: true, mensagem: null, solicitacoesFeedback: [] } });
     cy.intercept('POST', '**/api/Feedback/InserirSolicitacao', { body: { sucesso: true, mensagem: null } }).as('inserir');

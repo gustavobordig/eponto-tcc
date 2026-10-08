@@ -46,8 +46,13 @@ export const feedbackService = {
   createFeedback: async (feedback: NovoFeedback) =>
     (await api.post<FeedbackResponse>('/api/Feedback/InserirFeedback', feedback)).data,
 
+  // Todos os feedbacks: só admin
   getAllFeedbacks: async () =>
     (await api.get<FeedbackResponse>('/api/Feedback/ListarFeedback')).data,
+
+  // Feedbacks recebidos pelo usuário
+  getFeedbacksByUsuario: async (idUsuario: number) =>
+    (await api.get<FeedbackResponse>(`/api/Feedback/ListarFeedbacksUsuario/${idUsuario}`)).data,
 
   // Solicitações de feedback
   createSolicitacao: async (

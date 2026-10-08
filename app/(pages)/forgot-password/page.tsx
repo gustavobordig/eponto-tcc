@@ -36,7 +36,7 @@ export default function ForgotPassword() {
             showSuccessToast('Código validado com sucesso');
             setStep(3);
         } catch {
-            showErrorToast('Código inválido');
+            showErrorToast('Código inválido ou expirado. Depois de 5 tentativas erradas, peça um novo código.');
         } finally {
             setLoading(false);
         }
@@ -45,7 +45,11 @@ export default function ForgotPassword() {
     const handleAlterarSenha = async () => {
         try {
             setLoading(true);
-            await authService.alterarSenha({ email, senha: novaSenha });
+            if (novaSenha.length < 6) {
+                showErrorToast('A senha precisa ter pelo menos 6 caracteres');
+                return;
+            }
+            await authService.alterarSenha({ email, senha: novaSenha, codigo: Number(codigo) });
             showSuccessToast('Senha alterada com sucesso');
             router.push('/');
         } catch {
@@ -127,7 +131,7 @@ export default function ForgotPassword() {
                     <Button 
                         variant="link" 
                         className="w-full mt-4 text-black" 
-                        onClick={() => router.push('/login')}
+                        onClick={() => router.push('/')}
                     >
                         Voltar para o login
                     </Button>

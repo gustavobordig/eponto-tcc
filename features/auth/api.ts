@@ -46,7 +46,8 @@ export const authService = {
     return data;
   },
 
-  async alterarSenha(payload: Credenciais) {
+  /** A API só troca a senha com o código recebido por e-mail (válido por 15 minutos, uso único). */
+  async alterarSenha(payload: Credenciais & { codigo: number }) {
     await api.post<ApiResponse>('api/login/AlteraSenhaLogin', payload);
   },
 

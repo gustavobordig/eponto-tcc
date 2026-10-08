@@ -164,26 +164,19 @@ Testes: `login.cy.ts` cobre as duas etapas e a escolha de perfil. O novo `funcio
 
 ### Pendências na API .NET
 
-Encontradas lendo o código da API em out/2026. Ficam com quem mantém a API.
+Encontradas lendo o código da API em out/2026. A branch `revisao/seguranca-e-arquitetura` do repositório da API corrige a parte de segurança; o detalhe está no `docs/arquitetura.md` de lá.
 
-**Urgente (segurança)**
+**Resolvido na branch da API**
 
-1. **Troca de senha sem código.** `POST /api/login/AlteraSenhaLogin` é pública e atualiza a senha de qualquer e-mail sem conferir o código de recuperação. Qualquer pessoa pode tomar qualquer conta, inclusive de admin. A rota precisa exigir o código válido (e ele precisa expirar e ter limite de tentativas).
-2. **Credenciais no repositório público.** O `appsettings.json` versionado tem a senha dos dois bancos, a chave do JWT e o segredo do Cloudinary, e o `LoginService.cs` tem a senha de app do Gmail. Como o repositório é público, todas precisam ser **trocadas** (não basta apagar do código, o histórico do git continua com elas) e passar a vir de variáveis de ambiente.
+1. ~~Troca de senha sem código.~~ `AlteraSenhaLogin` agora exige o código, que vale 15 minutos, é de uso único e é anulado depois de 5 tentativas erradas. O front manda o código junto com a nova senha.
+2. ~~Credenciais no código.~~ Saíram do `appsettings.json` e do `LoginService` e vêm de variáveis de ambiente.
+3. ~~Ações de admin abertas~~ (aprovar ajuste, listagens gerais, relatório, exclusões): exigem `Roles = "Admin"`. A tela de feedback do funcionário passou a usar `ListarFeedbacksUsuario/{id}`, porque `ListarFeedback` virou só de admin.
+4. ~~Dados de outra pessoa trocando o id na URL.~~ Quem não é admin só acessa os próprios dados.
 
-**Autorização**
+**Ainda pendente**
 
-3. Rotas com `[Authorize]` sem `Roles = "Admin"` que fazem ação de admin:
-   - `RegistroPonto/ValidarSolicitacao` (qualquer funcionário aprova o próprio ajuste);
-   - `Usuario/Atualizar/{id}` (qualquer um edita qualquer usuário);
-   - `BancoHoras/Processar`;
-   - `SolicitacaoAusencia/Deletar` e `Feedback/Deletar`.
-4. Listagens gerais abertas a qualquer usuário logado: `RegistroPonto/Listar`, `ListarSolicitacoesAlteracao`, `SolicitacaoAusencia/ListarSolicitacaoAusencia`, `Feedback/ListarSolicitacao` e `ListarFeedback`, `Relatorio/RelatorioHorasExtras`.
-5. Rotas com `{idUsuario}` na URL (banco de horas, registros, férias, ausências, feedbacks, `Usuario/{id}` e `Contrato/{id}`) não conferem se é o próprio usuário. Basta trocar o número para ver os dados de outra pessoa. O id deveria vir da claim `sub` do token, ou a rota deveria exigir admin quando o id for de outra pessoa.
-
-**Contrato**
-
+5. **Trocar as credenciais que ficaram no histórico do git** (bancos, chave do JWT, Cloudinary, Gmail) e configurar as variáveis no Railway antes de publicar a branch da API.
 6. O enum `StatusFeedback` tem os nomes trocados (`Finalizado = 0`, `Pendente = 1`), mas o banco usa 0 para pendente e 1 para respondida.
-7. Atualizar usuário não grava `SENHA` nem `IND_ATIVO`, embora o service calcule o hash da senha.
-8. Feriado não tem rota de atualização; férias usa `DatIncioFerias` (com erro de digitação) em cadastro e listagem.
-
+7. Atualizar usuário não grava `SENHA` nem `IND_ATIVO`.
+8. Feriado não tem rota de atualização; férias usa `DatIncioFerias` (com erro de digitação).
+9. Feedbacks gravados antes da fase 6 têm o admin como destinatário (`idUsuarioFeedback`), então não aparecem para o funcionário na rota dos próprios feedbacks.

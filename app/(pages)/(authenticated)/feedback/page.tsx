@@ -58,8 +58,8 @@ export default function FeedbackPage() {
     setIsResponseModalOpen(true);
 
     try {
-      // Buscar o feedback relacionado a esta solicitação
-      const response = await feedbackService.getAllFeedbacks();
+      // Feedbacks recebidos pelo usuário; a listagem geral é só para admin
+      const response = await feedbackService.getFeedbacksByUsuario(solicitacao.idUsuarioSolicitacao);
       
       if (response.sucesso && response.feedbacks) {
         const feedback = response.feedbacks.find(f => f.idSolicitacaoFeedback === solicitacao.idSolicitacaoFeedback);
