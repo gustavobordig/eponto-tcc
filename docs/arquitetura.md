@@ -32,8 +32,8 @@ Fluxo de dados: as páginas são `"use client"` e pegam os dados de um hook da f
 
 | # | Problema | Onde |
 |---|----------|------|
-| S1 | ~~Senha `123` fixa no front para o painel admin.~~ Removida na fase 3: o painel abre pelo perfil da sessão. Falta a API devolver esse perfil e bloquear as rotas de admin (ver abaixo). | API |
-| S2 | ~~O token nunca era enviado.~~ Desde a fase 2 vai no header `Authorization`. Falta a API validar o token e usar o usuário dele, e não o `idUsuario` da URL: hoje, trocando o número, dá para ver os dados de outra pessoa. | API |
+| S1 | ~~Senha `123` fixa no front para o painel admin.~~ Removida na fase 3. Desde a fase 6, o perfil vem da role do JWT, e a API bloqueia as rotas de cadastro com `Roles = "Admin"`. Algumas ações de admin ainda estão abertas na API (ver [pendências](#pendências-na-api-net)). | API |
+| S2 | ~~O token nunca era enviado.~~ Desde a fase 2 vai no header `Authorization`, e a API o valida. Falta ela usar o usuário do token, e não o `idUsuario` da URL: hoje, trocando o número, dá para ver os dados de outra pessoa (ver [pendências](#pendências-na-api-net)). | API |
 | S3 | ~~As rotas não checavam a sessão.~~ Resolvido na fase 3 com o `middleware.ts`. | — |
 | S4 | ~~A home baixava os registros de todos os usuários e filtrava no navegador.~~ Resolvido na fase 2: usa `ObterRegistrosUsuario`. | — |
 
@@ -87,28 +87,13 @@ Para conferir com a API ligada:
   - sem perfil admin, `/dashboard/*` e `/adicionar-*` voltam para `/home`;
   - quem já está logado e abre o login vai para `/home`.
 - A senha `123` e o `AdminAuthForm` saíram. Quem tem perfil admin vê "Painel admin" na barra e entra no painel sem segunda senha.
-- O perfil é decidido no login, nesta ordem:
-  1. campo `perfil` da resposta do login;
-  2. claim de role do JWT (`role`, `roles`, `perfil` ou a claim de role padrão do .NET);
-  3. temporariamente, os e-mails em `NEXT_PUBLIC_ADMIN_EMAILS` (`.env.example`).
+- O perfil passou a vir da role do JWT. Na fase 3, sem o código da API, também havia uma lista temporária de e-mails em `NEXT_PUBLIC_ADMIN_EMAILS`; ela saiu na fase 6, porque a API já manda a role no token.
 - Se a API falhar ao carregar o usuário, o layout mostra um aviso em vez de mandar para o login, porque isso criaria um loop com o middleware. Sessão inválida (401) continua encerrada pelo interceptor.
 - Cypress: `cy.loginAs(perfil)` grava a sessão por cookie, e `admin-auth.cy.ts` passou a testar as regras do middleware, sem depender da API.
 
 **Limite:** os cookies podem ser editados no navegador. O front só decide a navegação; quem protege os dados é a API.
 
-#### O que a API .NET precisa fazer
-
-1. **Devolver o perfil no login.** O caminho mais simples é um campo na resposta de `POST /api/login/RealizarLogin`:
-   ```json
-   { "sucesso": true, "mensagem": null, "idUsuario": 1, "token": "…", "perfil": "admin" }
-   ```
-   Valores: `"admin"` ou `"funcionario"`. Também funciona colocar no JWT uma claim `ClaimTypes.Role` com `Admin`; o front lê as duas.
-2. **Validar o JWT em todas as rotas**, menos login e recuperação de senha (`[Authorize]` + `AddAuthentication().AddJwtBearer(...)`), com `exp` no token.
-3. **Usar o usuário do token**, e não o `idUsuario` da URL ou do corpo, nas rotas do próprio funcionário (registros de ponto, banco de horas, férias, solicitações, perfil).
-4. **Restringir as rotas de admin** (`[Authorize(Roles = "Admin")]`): cadastro de usuários, cargos, jornadas, feriados, férias, aprovação de ajustes e de ausências, listagens gerais.
-5. **CORS** aceitando o header `Authorization` (`AllowAnyHeader()` ou `.WithHeaders("Authorization", "Content-Type")`).
-
-Quando o item 1 estiver no ar, apague `NEXT_PUBLIC_ADMIN_EMAILS` e o trecho correspondente em `lib/session.ts` e `services/auth.ts`.
+A lista do que a API precisava fazer foi revista com o código dela na fase 6: veja [Pendências na API .NET](#pendências-na-api-net).
 
 ### Fase 4 — organização por feature ✅ (branch `refactor/arquitetura-fase-4`)
 
@@ -146,3 +131,59 @@ Para a próxima rodada: dividir as páginas que ainda passam de 300 linhas (list
   - a coluna "Tipo" dos feriados está certa.
 - `login.cy.ts` testa os cookies da sessão, o perfil admin vindo da API e a mensagem de erro.
 - O CI ganhou o job `e2e` (`cypress-io/github-action`): faz o build, sobe o app, roda o Cypress e guarda os screenshots quando um teste falha.
+
+### Fase 6 — alinhar o front com a API real ✅ (branch `refactor/arquitetura-fase-6`)
+
+Com o código da API (`KaduScorsoni/EPonto`) em mãos, o contrato foi conferido rota por rota. A API já tinha bem mais do que o `api.md` dizia:
+- JWT validado em quase todas as rotas;
+- `Roles = "Admin"` nas de cadastro;
+- CORS aceitando `Authorization`;
+- perfis de usuário.
+
+O front estava desalinhado em vários pontos, e alguns quebravam fluxos inteiros:
+
+- **Login em duas etapas.** O `RealizarLogin` passou a devolver só os perfis, e o token vem do `AutenticarPerfil`. O front esperava o token na primeira resposta, então gravava uma sessão sem token. Agora:
+  - com um perfil, o front entra direto;
+  - com mais de um, pede para escolher;
+  - o perfil da sessão vem da role do JWT (`Admin` ou `User`).
+- **Ausências.** A API usa `0 pendente, 1 aprovada, 2 reprovada`, e o front usava 1, 2 e 3. O admin só via Aprovar/Reprovar nas já aprovadas, que a API recusa; nunca dava para aprovar uma pendente.
+- **Feedback.** Três problemas, todos corrigidos:
+  - o front gravava o admin como destinatário e não mandava o autor. Agora vai `idUsuarioFeedback` = solicitante e `idAutorFeedback` = admin;
+  - a avaliação na API é de 0 a 4 (`FeedbackAvaliacao`), e o front mandava de 1 a 5. Na tela continua de 1 a 5 estrelas;
+  - saiu a chamada extra a `AtualizarSolicitacao`, porque a API já marca a solicitação como respondida ao gravar o feedback. Essa chamada era recusada e, se passasse, apagaria a mensagem e o responsável da solicitação.
+- **Pedido de feedback.** Ia sempre para o usuário de id 29, fixo no código. Agora vai para o chefe do usuário (`idChefe`); o 29 ficou só como último recurso.
+- **Férias.** O cadastro ia para `/api/feriado/CadastrarFerias`, que não existe; o certo é `/api/Ferias/CadastrarFerias`. A coluna de início lia `datInicioFerias`, mas a API manda `datIncioFerias`.
+- **Feriados.** Dois problemas:
+  - a listagem devolve o tipo como texto (`dscTipoFeriado`). A coluna Tipo e o select da edição liam `indTipoFeriado`, que não vem;
+  - a API não tem rota de atualização, e a edição chamava o cadastro, criando um feriado duplicado. Agora cadastra o novo e exclui o antigo. A data também passou a chegar no formato do campo (`yyyy-MM-dd`).
+- **Contrato no perfil.** O card buscava a lista inteira de cargos e de jornadas, que são rotas só de admin (funcionário recebia 403). Agora usa `/api/Usuario/Contrato/{id}`.
+- **Perfil e usuários.** A API não grava `SENHA` nem `IND_ATIVO` na atualização de usuário. O campo de nova senha do perfil (que nem aceitava digitação) virou um link para o fluxo com código por e-mail, e o select de status saiu da edição de usuário (inativar é pelo Excluir).
+- Tipos alinhados com os modelos da API: `idUsuario` no registro de ponto, jornada sem os campos que só existiam no `api.md`, e o calendário recebendo `ano`.
+
+Testes: `login.cy.ts` cobre as duas etapas e a escolha de perfil. O novo `funcionario.cy.ts` e o `painel-admin.cy.ts` cobrem os pontos acima.
+
+### Pendências na API .NET
+
+Encontradas lendo o código da API em out/2026. Ficam com quem mantém a API.
+
+**Urgente (segurança)**
+
+1. **Troca de senha sem código.** `POST /api/login/AlteraSenhaLogin` é pública e atualiza a senha de qualquer e-mail sem conferir o código de recuperação. Qualquer pessoa pode tomar qualquer conta, inclusive de admin. A rota precisa exigir o código válido (e ele precisa expirar e ter limite de tentativas).
+2. **Credenciais no repositório público.** O `appsettings.json` versionado tem a senha dos dois bancos, a chave do JWT e o segredo do Cloudinary, e o `LoginService.cs` tem a senha de app do Gmail. Como o repositório é público, todas precisam ser **trocadas** (não basta apagar do código, o histórico do git continua com elas) e passar a vir de variáveis de ambiente.
+
+**Autorização**
+
+3. Rotas com `[Authorize]` sem `Roles = "Admin"` que fazem ação de admin:
+   - `RegistroPonto/ValidarSolicitacao` (qualquer funcionário aprova o próprio ajuste);
+   - `Usuario/Atualizar/{id}` (qualquer um edita qualquer usuário);
+   - `BancoHoras/Processar`;
+   - `SolicitacaoAusencia/Deletar` e `Feedback/Deletar`.
+4. Listagens gerais abertas a qualquer usuário logado: `RegistroPonto/Listar`, `ListarSolicitacoesAlteracao`, `SolicitacaoAusencia/ListarSolicitacaoAusencia`, `Feedback/ListarSolicitacao` e `ListarFeedback`, `Relatorio/RelatorioHorasExtras`.
+5. Rotas com `{idUsuario}` na URL (banco de horas, registros, férias, ausências, feedbacks, `Usuario/{id}` e `Contrato/{id}`) não conferem se é o próprio usuário. Basta trocar o número para ver os dados de outra pessoa. O id deveria vir da claim `sub` do token, ou a rota deveria exigir admin quando o id for de outra pessoa.
+
+**Contrato**
+
+6. O enum `StatusFeedback` tem os nomes trocados (`Finalizado = 0`, `Pendente = 1`), mas o banco usa 0 para pendente e 1 para respondida.
+7. Atualizar usuário não grava `SENHA` nem `IND_ATIVO`, embora o service calcule o hash da senha.
+8. Feriado não tem rota de atualização; férias usa `DatIncioFerias` (com erro de digitação) em cadastro e listagem.
+

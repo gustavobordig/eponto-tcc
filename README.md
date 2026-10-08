@@ -22,10 +22,9 @@ npm run dev                   # http://localhost:3000
 | Variável | Para quê |
 |----------|----------|
 | `NEXT_PUBLIC_API_URL` | Endereço da API .NET. Sem ela, o front usa `https://localhost:7283`. |
-| `NEXT_PUBLIC_ADMIN_EMAILS` | **Temporária.** E-mails, separados por vírgula, que entram como admin enquanto a API não devolve o perfil no login (veja [Sessão e acesso](#sessão-e-acesso)). |
 
-As duas são `NEXT_PUBLIC_`, então vão para o código que roda no navegador. Não
-coloque nada secreto nelas.
+Variáveis `NEXT_PUBLIC_` vão para o código que roda no navegador. Não coloque
+nada secreto nelas.
 
 ## Verificações (as mesmas do CI)
 
@@ -55,9 +54,10 @@ npm run test:e2e             # em outro (ou test:e2e:open para o modo interativo
 | Spec | O que cobre |
 |------|-------------|
 | `admin-auth.cy.ts` | Proteção das rotas pelo middleware (sem sessão, funcionário, admin) |
-| `login.cy.ts` | Login, cookies da sessão, perfil admin, erro da API |
+| `login.cy.ts` | Login em duas etapas, escolha de perfil, cookies da sessão, erro da API |
 | `cargos.cy.ts` | Validações do cadastro e da edição, e as chamadas de criar, editar e excluir |
-| `painel-admin.cy.ts` | Edição de usuário, aprovação e calendário de férias, tipos de feriado |
+| `painel-admin.cy.ts` | Usuários, férias, feriados, resposta de feedback e aprovação de ausências |
+| `funcionario.cy.ts` | Contrato no perfil, status das ausências, pedido de feedback ao chefe |
 
 A sessão nos testes vem de `cy.loginAs('admin' | 'funcionario')`, que grava os
 mesmos cookies do login.
@@ -94,16 +94,15 @@ ou em 8h. O `middleware.ts` usa esses cookies para:
 O cliente HTTP envia `Authorization: Bearer <token>` em toda chamada. Se a API
 responder 401, a sessão é encerrada.
 
-O perfil é decidido no login, nesta ordem:
-
-1. campo `perfil` da resposta (`"admin"` ou `"funcionario"`);
-2. claim de role do JWT;
-3. e-mail em `NEXT_PUBLIC_ADMIN_EMAILS`, até a API mandar o perfil.
+O login tem duas etapas, como a API: `RealizarLogin` confere e-mail e senha e
+devolve os perfis do usuário; com um perfil só, o front entra direto, e com mais
+de um, pede para escolher. `AutenticarPerfil` devolve o token, e o perfil da
+sessão (`admin` ou `funcionario`) vem da role do JWT (`Admin` ou `User`).
 
 Os cookies podem ser editados no navegador. O front só decide a navegação, e
-quem protege os dados é a API. O que falta do lado dela (validar o token, usar
-o usuário do token e restringir as rotas de admin) está em
-[docs/arquitetura.md](docs/arquitetura.md#o-que-a-api-net-precisa-fazer).
+quem protege os dados é a API, que valida o token e a role. O que ainda falta
+do lado dela está em
+[docs/arquitetura.md](docs/arquitetura.md#pendências-na-api-net).
 
 ## Dados de exemplo
 

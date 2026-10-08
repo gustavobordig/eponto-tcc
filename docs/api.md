@@ -2,6 +2,8 @@
 
 Este documento contém todas as rotas, métodos HTTP e payloads esperados da API do sistema EPonto.
 
+> **Atenção:** parte deste documento está desatualizada em relação à API (nomes de campos de feriado, férias e jornada, por exemplo). O contrato que o front usa, conferido com o código da API em out/2026, está nos tipos de `features/*/api.ts`.
+
 ## Base URL
 ```
 /api
@@ -434,6 +436,29 @@ Este documento contém todas as rotas, métodos HTTP e payloads esperados da API
 }
 ```
 
+O login tem duas etapas. Esta confere e-mail e senha e devolve os perfis do usuário, **sem token**.
+
+**Resposta:**
+```json
+{
+  "sucesso": true,
+  "mensagem": "string",
+  "perfisUsuario": [{ "idPerfil": 1, "dscPerfil": "Administrador" }]
+}
+```
+
+### 9.1.1 Autenticar Perfil
+**POST** `/api/login/AutenticarPerfil`
+
+**Payload:**
+```json
+{
+  "email": "string",
+  "senha": "string",
+  "idPerfil": 1
+}
+```
+
 **Resposta:**
 ```json
 {
@@ -443,6 +468,8 @@ Este documento contém todas as rotas, métodos HTTP e payloads esperados da API
   "token": "string"
 }
 ```
+
+O JWT expira em 60 minutos e traz a role na claim `http://schemas.microsoft.com/ws/2008/06/identity/claims/role`: `Admin` para perfil com acesso de administrador, `User` para os demais.
 
 ### 9.2 Recuperar Senha
 **POST** `/api/login/RecuperarSenha`
