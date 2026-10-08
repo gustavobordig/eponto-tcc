@@ -1,6 +1,6 @@
 # Revisão de arquitetura — ePonto (front)
 
-Front em Next.js 15 (App Router) que consome a API .NET descrita em [`api.md`](../api.md). Este documento registra o diagnóstico e o plano em fases.
+Front em Next.js 15 (App Router) que consome a API .NET descrita em [`api.md`](api.md). Este documento registra o diagnóstico e o plano em fases.
 
 ## Como está hoje
 
@@ -52,7 +52,7 @@ Fluxo de dados: as páginas são `"use client"` e pegam os dados de um hook da f
 - ~~Componentes em três lugares e páginas gigantes.~~ Organizado por feature na fase 4. Ainda passam de 300 linhas: `adicionar-usuario` (410), `feedback` do funcionário (369), `perfil` (364), `home` (350) e `solicitacoes-ausencia` (348).
 - ~~Mocks em "Minhas solicitações" e "Solicitações de ausência".~~ Agora usam a API. Continuam com dados de exemplo, marcados na tela com o selo "Dados de exemplo": a página de **Estatísticas** e o gráfico de **Pontualidade** da home. A API tem `BancoHoras/HorasTrabalhadasMes/{id}` e `BancoHoras/HorasExtrasMes/{id}`, mas o formato da resposta não está documentado.
 - ~~Barra de navegação cortada.~~ Resolvido na fase 4.
-- O README ainda é o padrão do `create-next-app`.
+- ~~O README ainda era o padrão do `create-next-app`.~~ Resolvido na fase 5.
 
 ## Plano
 
@@ -133,6 +133,16 @@ Bugs encontrados testando no navegador com respostas da API simuladas:
 
 Para a próxima rodada: dividir as páginas que ainda passam de 300 linhas (lista acima) e ligar Estatísticas e Pontualidade à API quando o formato das rotas de banco de horas for confirmado.
 
-### Fase 5 — documentação e testes
+### Fase 5 — documentação e testes ✅ (branch `refactor/arquitetura-fase-5`)
 
-README de verdade (setup, variáveis, scripts, arquitetura) e Cypress no CI com a API mockada por `cy.intercept`.
+- O README deixou de ser o padrão do `create-next-app`. Agora explica como rodar, as variáveis de ambiente, as verificações do CI, os testes, a organização, a sessão e o acesso, e os dados de exemplo. `api.md` e `VALIDACOES_USUARIO.md` foram para `docs/`.
+- Os testes e2e não dependem mais da API:
+  - `cy.mockApi()` responde `{ sucesso: true }` para `/api/**`, e cada teste registra as respostas que importam, com fixtures em `cypress/fixtures/`;
+  - os testes que criavam e excluíam cargos de verdade passaram a conferir o que é enviado à API.
+- Novo `painel-admin.cy.ts` cobre os bugs corrigidos nas fases 2 e 4, para não voltarem:
+  - a edição de usuário mantém a data de nascimento e o "Salvar" fica habilitado;
+  - o modal não abre sozinho;
+  - o calendário de férias mostra os eventos;
+  - a coluna "Tipo" dos feriados está certa.
+- `login.cy.ts` testa os cookies da sessão, o perfil admin vindo da API e a mensagem de erro.
+- O CI ganhou o job `e2e` (`cypress-io/github-action`): faz o build, sobe o app, roda o Cypress e guarda os screenshots quando um teste falha.

@@ -73,21 +73,18 @@ Este documento descreve as validações implementadas no formulário de adiciona
 - Desabilitado até que todos os campos obrigatórios estejam válidos
 - Habilita automaticamente quando todas as validações passam
 
-## Arquivos Criados/Modificados
+## Arquivos
 
-### Novos Arquivos
-- `utils/userValidations.ts` - Lógica de validação centralizada
-- `app/components/atoms/ValidationMessage/index.tsx` - Componente de mensagem de validação
-
-### Arquivos Modificados
+- `features/usuarios/validations.ts` - Lógica de validação centralizada
+- `shared/ui/ValidationMessage.tsx` - Componente de mensagem de validação
 - `app/(pages)/(authenticatedAdmin)/adicionar-usuario/page.tsx` - Formulário com validações
-- `utils/regexPatterns.ts` - Padrões regex atualizados
 
 ## Como Usar
 
 1. **Importar validações**:
 ```typescript
-import { userValidations, ValidationResult } from '@/utils/userValidations';
+import { userValidations } from '@/features/usuarios/validations';
+import { ValidationResult } from '@/shared/types/ui';
 ```
 
 2. **Validar campo específico**:
