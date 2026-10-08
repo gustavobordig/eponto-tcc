@@ -1,150 +1,177 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { ReactNode, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ArrowLeft, LogOut, Menu, X } from 'lucide-react';
+import logo from '@/public/images/Logo.png';
+import ConfirmationModal from '@/shared/ui/ConfirmationModal';
 import { tokenUtils } from '@/shared/lib/token';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+interface Item {
+  href: string;
+  label: string;
+  /** Telas de cadastro que pertencem a esta seção */
+  tambem?: string[];
+}
 
-  const navigationItems = [
-    {href: '/dashboard', label: 'Usuários' },
-    {href:"/dashboard/cargos", label:"Cargos"},
-    {href:"/dashboard/jornada-trabalho", label:"Jornada de Trabalho"},
-    {href:"/dashboard/ajustes-ponto", label:"Ajustes de Ponto"},
-    {href:"/dashboard/feriados", label:"Feriados"},
-    {href:"/dashboard/ferias", label:"Férias"},
-    {href:"/dashboard/feedback", label:"Feedback"},
-    {href:"/dashboard/solicitacoes-ausencia", label:"Solicitações de Ausência"},
-    {href:"/dashboard/calendario", label:"Calendário"},
-    {href:"/dashboard/analytics", label:"Estatísticas"},
-  ];
+// Antes eram 10 abas numa linha só
+const GRUPOS: { titulo: string; itens: Item[] }[] = [
+  {
+    titulo: 'Pessoas',
+    itens: [
+      { href: '/dashboard', label: 'Usuários', tambem: ['/adicionar-usuario'] },
+      { href: '/dashboard/cargos', label: 'Cargos', tambem: ['/adicionar-cargo'] },
+      { href: '/dashboard/jornada-trabalho', label: 'Jornadas de trabalho', tambem: ['/adicionar-jornada'] },
+    ],
+  },
+  {
+    titulo: 'Ponto',
+    itens: [
+      { href: '/dashboard/ajustes-ponto', label: 'Ajustes de ponto' },
+      { href: '/dashboard/feriados', label: 'Feriados', tambem: ['/adicionar-feriado'] },
+      { href: '/dashboard/calendario', label: 'Calendário' },
+    ],
+  },
+  {
+    titulo: 'Solicitações',
+    itens: [
+      { href: '/dashboard/ferias', label: 'Férias', tambem: ['/adicionar-ferias'] },
+      { href: '/dashboard/solicitacoes-ausencia', label: 'Ausências' },
+      { href: '/dashboard/feedback', label: 'Feedback' },
+    ],
+  },
+  {
+    titulo: 'Relatórios',
+    itens: [{ href: '/dashboard/analytics', label: 'Estatísticas' }],
+  },
+];
 
-  // O acesso é liberado pelo middleware, a partir do perfil da sessão
-  const handleLogout = () => {
-    tokenUtils.logout();
-  };
+// /dashboard só é a lista de usuários quando é exatamente /dashboard
+const estaAtivo = (pathname: string, item: Item) =>
+  pathname === item.href ||
+  (item.href !== '/dashboard' && pathname.startsWith(item.href)) ||
+  (item.tambem ?? []).some((r) => pathname.startsWith(r));
 
+function Navegacao({ pathname, onSair }: { pathname: string; onSair: () => void }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center flex-1 min-w-0">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-xl font-bold text-primary">Admin</span>
-              </div>
-              <div className="hidden lg:ml-6 lg:flex lg:overflow-x-auto lg:flex-1 lg:min-w-0">
-                <div className="flex space-x-1 min-w-max">
-                  {navigationItems.map((item) => (
+    <div className="flex h-full flex-col">
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Painel admin">
+        {GRUPOS.map((grupo) => (
+          <div key={grupo.titulo}>
+            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{grupo.titulo}</p>
+            <ul className="mt-2 space-y-1">
+              {grupo.itens.map((item) => {
+                const ativo = estaAtivo(pathname, item);
+                return (
+                  <li key={item.href}>
                     <Link
-                      key={item.href}
                       href={item.href}
-                      className={`${
-                        pathname === item.href
-                          ? 'border-primary text-gray-900 bg-primary-soft'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50'
-                      } inline-flex items-center px-3 py-2 border-b-2 text-sm font-medium whitespace-nowrap transition-colors duration-200 flex-shrink-0`}
+                      aria-current={ativo ? 'page' : undefined}
+                      className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                        ativo ? 'bg-primary-soft text-primary' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      }`}
                     >
                       {item.label}
                     </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="hidden lg:flex items-center flex-shrink-0 ml-4">
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
-              >
-                Sair
-              </button>
-            </div>
-            <div className="flex items-center lg:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                type="button"
-                className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                aria-controls="mobile-menu"
-                aria-expanded="false"
-              >
-                <span className="sr-only">Abrir menu principal</span>
-                <svg
-                  className={`${isMobileMenuOpen ? 'hidden' : 'block'} h-6 w-6`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-                <svg
-                  className={`${isMobileMenuOpen ? 'block' : 'hidden'} h-6 w-6`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        </div>
-
-        {/* Menu mobile */}
-        <div
-          className={`${isMobileMenuOpen ? 'block' : 'hidden'} lg:hidden`}
-          id="mobile-menu"
-        >
-          <div className="pt-2 pb-3 space-y-1 max-h-96 overflow-y-auto">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${
-                  pathname === item.href
-                    ? 'bg-primary-soft border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
-                } block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4">
-              <button
-                onClick={handleLogout}
-                className="w-full justify-center inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
+        ))}
       </nav>
 
-      <main className="pt-4">{children}</main>
+      <div className="space-y-1 border-t border-gray-200 p-3">
+        <Link
+          href="/home"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao meu ponto
+        </Link>
+        <button
+          type="button"
+          onClick={onSair}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair
+        </button>
+      </div>
     </div>
   );
-} 
+}
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  // O acesso é liberado pelo middleware, a partir do perfil da sessão
+  const pathname = usePathname();
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [confirmarSaida, setConfirmarSaida] = useState(false);
+
+  useEffect(() => setMenuAberto(false), [pathname]);
+
+  const cabecalho = (
+    <Link href="/dashboard" className="flex items-center gap-2" aria-label="Painel admin">
+      <Image src={logo} alt="ePonto" width={88} height={28} priority />
+      <span className="rounded bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">Admin</span>
+    </Link>
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Menu lateral no desktop */}
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+        <div className="flex h-16 items-center border-b border-gray-200 px-6">{cabecalho}</div>
+        <Navegacao pathname={pathname} onSair={() => setConfirmarSaida(true)} />
+      </aside>
+
+      {/* Barra e gaveta no celular e tablet */}
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
+        {cabecalho}
+        <button
+          type="button"
+          onClick={() => setMenuAberto(true)}
+          aria-label="Abrir menu"
+          aria-expanded={menuAberto}
+          className="rounded-lg p-2 text-primary hover:bg-gray-100"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      </header>
+
+      {menuAberto && (
+        <div className="lg:hidden" role="dialog" aria-modal="true" aria-label="Menu do painel admin">
+          <div className="fixed inset-0 z-40 bg-gray-900/40" onClick={() => setMenuAberto(false)} />
+          <aside className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+            <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+              {cabecalho}
+              <button
+                type="button"
+                onClick={() => setMenuAberto(false)}
+                aria-label="Fechar menu"
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <Navegacao pathname={pathname} onSair={() => setConfirmarSaida(true)} />
+          </aside>
+        </div>
+      )}
+
+      <main className="px-4 py-6 lg:ml-64 lg:px-8 lg:py-8">{children}</main>
+
+      <ConfirmationModal
+        isOpen={confirmarSaida}
+        onConfirm={() => tokenUtils.logout()}
+        onCancel={() => setConfirmarSaida(false)}
+        title="Sair do ePonto"
+        message="Tem certeza que deseja sair?"
+        confirmText="Sair"
+        cancelText="Cancelar"
+      />
+    </div>
+  );
+}
