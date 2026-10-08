@@ -14,6 +14,8 @@ const eslintConfig = [
   {
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      // Permite separar campos com rest: const { a, ...resto } = obj
+      "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
     },
   },
 ];

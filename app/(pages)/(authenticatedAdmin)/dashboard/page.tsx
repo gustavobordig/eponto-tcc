@@ -1,279 +1,145 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-
-//Components
-import Table from '@/shared/ui/Table';
-import LoadingText from '@/shared/ui/LoadingText';
+import { useState } from 'react';
+import { UserData } from '@/features/usuarios/api';
+import { UsuarioComDetalhes, useUsuariosAdmin } from '@/features/usuarios/hooks/useUsuariosAdmin';
 import Container from '@/shared/ui/Container';
-import ExcludeModal from '@/shared/ui/ExcludeModal';
 import EditModal from '@/shared/ui/EditModal';
-
-//Services
-import { UserData, userService } from '@/features/usuarios/api';
-import { Cargo, cargoService } from '@/features/cargos/api';
-import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
-
-//Utils
-import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
-
-//Types
+import ExcludeModal from '@/shared/ui/ExcludeModal';
+import LoadingText from '@/shared/ui/LoadingText';
+import Table from '@/shared/ui/Table';
 import { Column } from '@/shared/types/ui';
 
-interface UserWithDetails extends UserData {
-  cargo?: string;
-  jornada?: string;
+const colunas: Column<UsuarioComDetalhes>[] = [
+  { key: 'nome', label: 'Nome' },
+  { key: 'email', label: 'Email' },
+  { key: 'telefone', label: 'Telefone' },
+  { key: 'cargo', label: 'Cargo' },
+  { key: 'jornada', label: 'Jornada' },
+  { key: 'indAtivo', label: 'Status', type: 'status' },
+];
+
+interface Edicao {
+  usuario: UserData;
+  nome: string;
+  email: string;
+  telefone: string;
+  idCargo: string;
+  idJornada: string;
+  indAtivo: string;
 }
 
-export default function CargosPage() {
-  
-    const [users, setUsers] = useState<UserWithDetails[]>([]);
-    const [cargos, setCargos] = useState<Cargo[]>([]);
-    const [jornadas, setJornadas] = useState<JornadaTrabalho[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState<number | null>(null);
-    const [userToEdit, setUserToEdit] = useState<UserData | null>(null);
-    const [editedNome, setEditedNome] = useState('');
-    const [editedEmail, setEditedEmail] = useState('');
-    const [editedTelefone, setEditedTelefone] = useState('');
-    const [editedCargo, setEditedCargo] = useState('');
-    const [editedJornada, setEditedJornada] = useState('');
-    const [editedStatus, setEditedStatus] = useState(1);
-    const [deleteLoading, setDeleteLoading] = useState(false);
-    const [editLoading, setEditLoading] = useState(false);
-  
-    const columns: Column[] = [
-      { key: 'nome', label: 'Nome' },
-      { key: 'email', label: 'Email' },
-      { key: 'telefone', label: 'Telefone' },
-      { key: 'cargo', label: 'Cargo' },
-      { key: 'jornada', label: 'Jornada' },
-      { key: 'indAtivo', label: 'Status', type: 'status' }
-    ];
+export default function UsuariosPage() {
+  const { usuarios, cargos, jornadas, loading, atualizar, excluir } = useUsuariosAdmin();
+  const [edicao, setEdicao] = useState<Edicao | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [usuarioParaExcluir, setUsuarioParaExcluir] = useState<number | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
 
-    const fetchCargos = async () => {
-      try {
-        const response = await cargoService.listar();
-        setCargos(response.cargos || []);
-      } catch (error) {
-        console.error('Erro ao carregar cargos:', error);
-        setCargos([]);
-      }
-    };
+  // cargo e jornada são só os nomes para a tabela; não vão para a API
+  const abrirEdicao = ({ cargo, jornada, ...usuario }: UsuarioComDetalhes) => {
+    setEdicao({
+      usuario,
+      nome: usuario.nome,
+      email: usuario.email,
+      telefone: String(usuario.telefone ?? ''),
+      idCargo: String(usuario.idCargo),
+      idJornada: String(usuario.idJornada),
+      indAtivo: String(usuario.indAtivo),
+    });
+  };
 
-    const fetchJornadas = async () => {
-      try {
-        const response = await jornadaTrabalhoService.listar();
-        setJornadas(response.jornadas || []);
-      } catch (error) {
-        console.error('Erro ao carregar jornadas:', error);
-        setJornadas([]);
-      }
-    };
-  
-    const fetchUsers = async () => {
-      try {
-        const response = await userService.getAll();
-        const usersData = response.usuarios || [];
-        
-        // Mapear cargos e jornadas para os usuários
-        const usersWithDetails = usersData.map((user: UserData) => {
-          const cargo = cargos.find(c => c.idCargo === user.idCargo);
-          const jornada = jornadas.find(j => j.idJornada === user.idJornada);
-          
-          return {
-            ...user,
-            cargo: cargo?.nomeCargo || `Cargo ${user.idCargo}`,
-            jornada: jornada?.nomeJornada || `Jornada ${user.idJornada}`
-          };
-        });
-        
-        setUsers(usersWithDetails);
-      } catch (error) {
-        showErrorToast('Erro ao carregar usuários');
-        console.error('Erro ao carregar usuários:', error);
-        setUsers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    useEffect(() => {
-        const loadData = async () => {
-          setLoading(true);
-          await Promise.all([fetchCargos(), fetchJornadas()]);
-          // O loading será definido como false no fetchUsers
-        };
-        
-        loadData();
-    }, []);
+  const alterar = (campo: keyof Omit<Edicao, 'usuario'>) => (e: { target: { value: string } }) =>
+    setEdicao((atual) => (atual ? { ...atual, [campo]: e.target.value } : atual));
 
-    // Recarregar usuários quando cargos ou jornadas mudarem
-    useEffect(() => {
-        if (cargos.length > 0 && jornadas.length > 0) {
-          fetchUsers();
-        } else if (cargos.length === 0 && jornadas.length === 0) {
-          // Se não há cargos nem jornadas, ainda carregar usuários para mostrar os IDs
-          fetchUsers();
-        }
-    }, [cargos, jornadas]);
-  
-    const handleEdit = (user: UserData) => {
-      setUserToEdit(user);
-      setEditedNome(user.nome);
-      setEditedEmail(user.email);
-      setEditedTelefone(user.telefone.toString());
-      setEditedCargo(user.idCargo.toString());
-      setEditedJornada(user.idJornada.toString());
-      setEditedStatus(user.indAtivo);
-      setIsEditModalOpen(true);
-    };
-  
-    const handleEditClose = () => {
-      setIsEditModalOpen(false);
-      setUserToEdit(null);
-      setEditedNome('');
-      setEditedEmail('');
-      setEditedTelefone('');
-      setEditedCargo('');
-      setEditedJornada('');
-      setEditedStatus(1);
-    };
-  
-    const handleEditConfirm = async () => {
-      if (!userToEdit) return;
-  
-      setEditLoading(true);
-      try {
-        const updatedUser: UserData = {
-          idUsuario: userToEdit.idUsuario,
-          nome: editedNome,
-          email: editedEmail,   
-          telefone: Number(editedTelefone),
-          idCargo: Number(editedCargo),
-          idJornada: Number(editedJornada),
-          indAtivo: editedStatus,
-          dataNascimento: new Date().toISOString(),
-          senha: ''
-        };
-  
-        await userService.update(updatedUser);
-        showSuccessToast('Usuário atualizado com sucesso!');
-        fetchUsers();
-        handleEditClose();
-      } catch (error) {
-        showErrorToast('Erro ao atualizar cargo. Tente novamente.');
-        console.error('Erro ao atualizar cargo:', error);
-      } finally {
-        setEditLoading(false);
-      }
-    };
-  
-    const handleDeleteClick = (user: UserData) => {
-      setUserToDelete(user.idUsuario);
-      setIsDeleteModalOpen(true);
-    };
-  
-    const handleDeleteConfirm = async () => {
-      if (!userToDelete) {
-        showErrorToast('ID do usuário não encontrado');
-        setIsDeleteModalOpen(false);
-        setUserToDelete(null);
-        return;
-      }
-      
-      setDeleteLoading(true);
-      try {
-        await userService.delete(userToDelete);
-        showSuccessToast('Usuário excluído com sucesso!');
-        fetchUsers();
-      } catch (error) {
-        showErrorToast('Erro ao excluir cargo. Tente novamente.');
-        console.error('Erro ao excluir cargo:', error);
-      } finally {
-        setDeleteLoading(false);
-        setIsDeleteModalOpen(false);
-        setUserToDelete(null);
-      }
-    };
-  
-    const handleCancelDelete = () => {
-      setIsDeleteModalOpen(false);
-      setUserToDelete(null);
-    };
-  
-    if (loading) {
-      return <LoadingText title="usuários" />
-    }
-  
-    return (
-      <Container className="py-8">
-  
-        {/* Tabela de Cargos */}
-        <Table
-          data={users}
-          title="Usuários"
-          columns={columns}
-          handleEdit={handleEdit}
-          handleDeleteClick={handleDeleteClick}
-          addItemHref="/adicionar-usuario"
+  const salvar = async () => {
+    if (!edicao) return;
+    setSalvando(true);
+    // Mantém os demais dados do usuário; antes a data de nascimento era trocada por hoje
+    const ok = await atualizar({
+      ...edicao.usuario,
+      nome: edicao.nome,
+      email: edicao.email,
+      telefone: Number(edicao.telefone),
+      idCargo: Number(edicao.idCargo),
+      idJornada: Number(edicao.idJornada),
+      indAtivo: Number(edicao.indAtivo),
+      senha: '',
+    });
+    setSalvando(false);
+    if (ok) setEdicao(null);
+  };
+
+  const confirmarExclusao = async () => {
+    if (usuarioParaExcluir === null) return;
+    setExcluindo(true);
+    await excluir(usuarioParaExcluir);
+    setExcluindo(false);
+    setUsuarioParaExcluir(null);
+  };
+
+  if (loading) {
+    return <LoadingText title="usuários" />;
+  }
+
+  return (
+    <Container className="py-8">
+      <Table
+        data={usuarios}
+        title="Usuários"
+        columns={colunas}
+        handleEdit={abrirEdicao}
+        handleDeleteClick={(user) => setUsuarioParaExcluir(user.idUsuario)}
+        addItemHref="/adicionar-usuario"
+      />
+
+      {edicao && (
+        <EditModal
+          title="Editar Usuário"
+          fields={[
+            { label: 'Nome', value: edicao.nome, onChange: alterar('nome') },
+            { label: 'Email', value: edicao.email, onChange: alterar('email') },
+            { label: 'Telefone', value: edicao.telefone, onChange: alterar('telefone') },
+            {
+              label: 'Cargo',
+              value: edicao.idCargo,
+              onChange: alterar('idCargo'),
+              type: 'select',
+              options: cargos.map((c) => ({ value: String(c.idCargo), label: c.nomeCargo })),
+            },
+            {
+              label: 'Jornada',
+              value: edicao.idJornada,
+              onChange: alterar('idJornada'),
+              type: 'select',
+              options: jornadas.map((j) => ({ value: String(j.idJornada), label: j.nomeJornada })),
+            },
+            {
+              label: 'Status',
+              value: edicao.indAtivo,
+              onChange: alterar('indAtivo'),
+              type: 'select',
+              options: [
+                { value: '1', label: 'Ativo' },
+                { value: '0', label: 'Inativo' },
+              ],
+            },
+          ]}
+          onClose={() => setEdicao(null)}
+          onConfirm={salvar}
+          loading={salvando}
         />
-  
-        {/* Modal de edição */}
-        {isEditModalOpen && userToEdit && (
-          <EditModal
-            title="Editar Usuário"
-            fields={[
-              {
-                label: "Nome",
-                value: editedNome,
-                onChange: (e) => setEditedNome(e.target.value)
-              },
-              {
-                label: "Email",
-                value: editedEmail,
-                onChange: (e) => setEditedEmail(e.target.value)
-              },
-              {
-                label: "Telefone",
-                value: editedTelefone,
-                onChange: (e) => setEditedTelefone(e.target.value)
-              },
-              {
-                label: "Cargo",
-                value: editedCargo,
-                onChange: (e) => setEditedCargo(e.target.value)
-              },
-              {
-                label: "Jornada",
-                value: editedJornada,
-                onChange: (e) => setEditedJornada(e.target.value)
-              },
-              {
-                label: "Status",
-                value: editedStatus.toString(),
-                onChange: (e) => setEditedStatus(Number(e.target.value))
+      )}
 
-              }
-            ]}
-            onClose={handleEditClose}
-            onConfirm={handleEditConfirm}
-            loading={editLoading}   
-          />
-        )}
-  
-        {/* Modal de confirmação de exclusão */}
-        {isDeleteModalOpen && (
-          <ExcludeModal
-            title="Confirmar exclusão"
-            message="Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
-            onCancel={handleCancelDelete}
-            onConfirm={handleDeleteConfirm}
-            loading={deleteLoading}
-          />
-        )}
-      </Container>
-    );
-  } 
+      {usuarioParaExcluir !== null && (
+        <ExcludeModal
+          title="Confirmar exclusão"
+          message="Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+          onCancel={() => setUsuarioParaExcluir(null)}
+          onConfirm={confirmarExclusao}
+          loading={excluindo}
+        />
+      )}
+    </Container>
+  );
+}
