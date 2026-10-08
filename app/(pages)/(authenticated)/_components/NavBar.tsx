@@ -78,13 +78,13 @@ export default function NavBar({
  
     return (
         <>
-            {/* Mobile Nav */}
-            <div className="md:hidden">
+            {/* Menu mobile até xl: com 7-8 links a barra completa só cabe a partir de ~1280px */}
+            <div className="xl:hidden">
                 <MobileNav itens={itens} navItemNames={navItemNames} />
             </div>
 
             {/* Desktop Nav */}
-            <div className="hidden md:block border-b-2 border-[#002085] fixed top-0 left-0 right-0 z-50 bg-white">
+            <div className="hidden xl:block border-b-2 border-[#002085] fixed top-0 left-0 right-0 z-50 bg-white">
                 <Container>
                     <div className="flex justify-between items-center py-4">
                         <div

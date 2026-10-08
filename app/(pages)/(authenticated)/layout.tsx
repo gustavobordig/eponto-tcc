@@ -17,8 +17,8 @@ function AuthenticatedLayoutContent({
     const [userName, setUserName] = useState<string>('');
     const [isAdmin, setIsAdmin] = useState(false);
 
+    // A home fica no logo
     const navItems = [
-        "/home",
         "/perfil",
         "/history",
         "/calendar",
