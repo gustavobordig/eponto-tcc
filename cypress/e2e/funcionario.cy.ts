@@ -19,6 +19,35 @@ describe('Área do funcionário', () => {
     cy.loginAs('funcionario');
   });
 
+  it('bate o ponto gravando a próxima marcação do dia (antes tudo era Entrada)', () => {
+    const hoje = new Date();
+    const dia = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    cy.intercept('GET', '**/api/RegistroPonto/ObterRegistrosUsuario*', {
+      body: {
+        sucesso: true,
+        mensagem: null,
+        registros: [{ idRegistro: 1, idUsuario: 1, dataRegistro: `${dia}T00:00:00`, horaRegistro: `${dia}T08:05:00`, idTipoRegistroPonto: 1 }],
+      },
+    });
+    cy.intercept('POST', '**/api/RegistroPonto/Inserir', { body: { sucesso: true, mensagem: null } }).as('inserir');
+    cy.visit('/home');
+
+    // A home mostra a próxima marcação e o mesmo modal da barra
+    cy.contains('button', 'Registrar início do almoço').click();
+    cy.get('[role="dialog"]').contains('button', 'Registrar início do almoço').click();
+
+    cy.wait('@inserir').its('request.body').should('deep.include', { idUsuario: 1, idTipoRegistroPonto: 2 });
+  });
+
+  it('mostra o saldo do banco de horas lido como TimeSpan', () => {
+    cy.intercept('GET', '**/api/BancoHoras/Atual/1', {
+      body: { sucesso: true, mensagem: null, saldosDiarios: null, bancoHoras: [{ idBancoHoras: 1, idUsuario: 1, horasTrabalhadas: '6.08:30:00', saldo: '03:45:00' }] },
+    });
+    cy.visit('/home');
+    cy.contains('+3h 45min').should('be.visible'); // antes aparecia "45h"
+    cy.contains('152h 30min').should('be.visible');
+  });
+
   it('mostra o contrato pela rota do próprio usuário, sem chamar rotas de admin', () => {
     cy.intercept('GET', '**/api/Usuario/Contrato/1', {
       body: {
