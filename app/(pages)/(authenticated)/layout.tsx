@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
 import { useRouter } from "next/navigation";
-import { showErrorToast } from "@/utils/toast";
 import FeedbackModal from "@/app/components/molecules/FeedbackModal";
 import { FeedbackProvider, useFeedback } from "@/app/contexts/FeedbackContext";
     
@@ -15,8 +14,7 @@ function AuthenticatedLayoutContent({
     children: React.ReactNode;
 }) {
     const router = useRouter();
-    const { isFeedbackModalOpen, closeFeedbackModal } = useFeedback();
-    const [refreshCallback, setRefreshCallback] = useState<(() => void) | null>(null);
+    const { isFeedbackModalOpen, closeFeedbackModal, refreshSolicitacoes } = useFeedback();
     const [userName, setUserName] = useState<string>('');
     
     const navItems = [
@@ -34,13 +32,7 @@ function AuthenticatedLayoutContent({
             
             const userId = tokenUtils.getId();
             
-            console.log("userId: ", userId);
             
-            if (false) {
-                showErrorToast("Usuário não encontrado");
-                router.push('/');
-                return;
-            }
 
             try {
                 const response = await userService.getById(Number(userId));
@@ -65,19 +57,6 @@ function AuthenticatedLayoutContent({
         checkUser();
     }, [router]);
 
-    // Função para registrar o callback de refresh da página atual
-    const registerRefreshCallback = (callback: () => void) => {
-        setRefreshCallback(() => callback);
-    };
-
-    // Expor a função para as páginas filhas
-    useEffect(() => {
-        (window as any).registerFeedbackRefresh = registerRefreshCallback;
-        return () => {
-            delete (window as any).registerFeedbackRefresh;
-        };
-    }, []);
-
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="fixed top-0 left-0 right-0 z-50">
@@ -90,7 +69,7 @@ function AuthenticatedLayoutContent({
             <FeedbackModal 
                 isOpen={isFeedbackModalOpen}
                 onClose={closeFeedbackModal}
-                onSolicitacaoCreated={refreshCallback || undefined}
+                onSolicitacaoCreated={refreshSolicitacoes}
             />
         </div>
     );

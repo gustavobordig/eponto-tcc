@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useRef } from 'react';
 import { SolicitacaoData } from '@/services/feedback';
 
 interface FeedbackContextType {
@@ -10,6 +10,7 @@ interface FeedbackContextType {
   solicitacoes: SolicitacaoData[];
   setSolicitacoes: (solicitacoes: SolicitacaoData[]) => void;
   refreshSolicitacoes: () => void;
+  registerRefresh: (callback: (() => void) | null) => void;
 }
 
 const FeedbackContext = createContext<FeedbackContextType | undefined>(undefined);
@@ -21,10 +22,15 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
   const openFeedbackModal = () => setIsFeedbackModalOpen(true);
   const closeFeedbackModal = () => setIsFeedbackModalOpen(false);
   
+  const refreshCallback = useRef<(() => void) | null>(null);
+
+  // A página de feedback registra aqui como recarregar a lista
+  const registerRefresh = useCallback((callback: (() => void) | null) => {
+    refreshCallback.current = callback;
+  }, []);
+
   const refreshSolicitacoes = useCallback(() => {
-    // Esta função será implementada na página que usa o contexto
-    // Por enquanto, apenas um placeholder
-    console.log('Refresh solicitado - implementar na página');
+    refreshCallback.current?.();
   }, []);
 
   return (
@@ -34,7 +40,8 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
       closeFeedbackModal,
       solicitacoes,
       setSolicitacoes,
-      refreshSolicitacoes
+      refreshSolicitacoes,
+      registerRefresh
     }}>
       {children}
     </FeedbackContext.Provider>

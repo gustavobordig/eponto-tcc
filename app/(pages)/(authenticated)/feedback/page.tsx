@@ -2,14 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Button from '@/app/components/atoms/Button';
-import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle, X, Star } from 'lucide-react';
+import { MessageSquare, Plus, CheckCircle, AlertCircle, X, Star } from 'lucide-react';
 import { useFeedback } from '@/app/contexts/FeedbackContext';
 import { feedbackService, SolicitacaoData, FeedbackData } from '@/services/feedback';
 import { tokenUtils } from '@/utils/token';
 import { showErrorToast } from '@/utils/toast';
 
 export default function FeedbackPage() {
-  const { openFeedbackModal, solicitacoes, setSolicitacoes } = useFeedback();
+  const { openFeedbackModal, solicitacoes, setSolicitacoes, registerRefresh } = useFeedback();
   const [loading, setLoading] = useState(true);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoData | null>(null);
@@ -45,13 +45,11 @@ export default function FeedbackPage() {
     fetchSolicitacoes();
   }, [fetchSolicitacoes]);
 
-  // Atualizar o contexto com a função de refresh
+  // Recarrega a lista quando o modal do layout cria uma solicitação
   useEffect(() => {
-    // Registrar o callback de refresh no layout
-    if (typeof window !== 'undefined' && (window as any).registerFeedbackRefresh) {
-      (window as any).registerFeedbackRefresh(fetchSolicitacoes);
-    }
-  }, [fetchSolicitacoes]);
+    registerRefresh(fetchSolicitacoes);
+    return () => registerRefresh(null);
+  }, [registerRefresh, fetchSolicitacoes]);
 
   const handleViewResponse = async (solicitacao: SolicitacaoData) => {
     setSelectedSolicitacao(solicitacao);
