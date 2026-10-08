@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendar, CalendarProps, dateFnsLocalizer } from 'react-big-calendar';
-import { format, getDay, parse, startOfWeek } from 'date-fns';
+import { addDays, format, getDay, parse, startOfDay, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import '@/app/styles/calendar.scss';
 
@@ -35,7 +35,18 @@ export interface EventoCalendario {
   end: Date;
   /** Vira a classe CSS do evento (feriado, ferias, minhas-ferias…) */
   desc: string;
+  allDay?: boolean;
 }
+
+/**
+ * Período de dias inteiros, com o último dia incluído. O calendário trata o
+ * fim como exclusivo: sem isso, férias de 20 a 24 apareciam até o dia 23.
+ */
+export const diaInteiro = (inicio: Date, fim: Date = inicio) => ({
+  start: startOfDay(inicio),
+  end: addDays(startOfDay(fim), 1),
+  allDay: true,
+});
 
 type Props = Omit<CalendarProps<EventoCalendario>, 'localizer' | 'messages' | 'culture'> & {
   mensagemVazio?: string;

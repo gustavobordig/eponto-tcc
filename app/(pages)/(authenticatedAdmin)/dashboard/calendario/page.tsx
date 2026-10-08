@@ -3,6 +3,7 @@
 import { useEventosCalendario } from '@/features/calendario/hooks/useEventosCalendario';
 import CalendarioNavegavel from '@/features/calendario/components/CalendarioNavegavel';
 import LoadModal from '@/shared/ui/LoadModal';
+import LegendaCalendario from '@/features/calendario/components/LegendaCalendario';
 
 export default function CalendarioAdminPage() {
   const { eventos, loading } = useEventosCalendario();
@@ -12,8 +13,10 @@ export default function CalendarioAdminPage() {
   }
 
   return (
-    <div className="h-screen p-4">
-      <div className="bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-2rem)]">
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold text-gray-900">Calendário</h1>
+      <LegendaCalendario semMinhasFerias />
+      <div className="h-[calc(100vh-14rem)] min-h-[32rem] rounded-2xl bg-white p-4 shadow-sm">
         <CalendarioNavegavel eventos={eventos} />
       </div>
     </div>

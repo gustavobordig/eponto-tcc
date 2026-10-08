@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { calendarioService } from '@/features/calendario/api';
 import { feriasService } from '@/features/ferias/api';
 import { tokenUtils } from '@/shared/lib/token';
-import { EventoCalendario } from '@/shared/ui/Calendario';
+import { diaInteiro, EventoCalendario } from '@/shared/ui/Calendario';
 
 /**
  * Feriados e férias gerais do calendário. Com `incluirMinhasFerias`, junta as
@@ -19,8 +19,7 @@ export function useEventosCalendario({ incluirMinhasFerias = false } = {}) {
       const eventosCalendario: EventoCalendario[] = dados.dias.map((item, index) => ({
         id: index,
         title: item.dscEvento,
-        start: new Date(item.datEvento),
-        end: new Date(item.datEvento),
+        ...diaInteiro(new Date(item.datEvento)),
         desc: item.tipoEvento === 1 ? 'feriado' : 'ferias',
       }));
 
@@ -37,8 +36,7 @@ export function useEventosCalendario({ incluirMinhasFerias = false } = {}) {
           ...minhasFerias.map((ferias, index) => ({
             id: `ferias-usuario-${index}`,
             title: `Minhas Férias - ${ferias.dscFerias}`,
-            start: new Date(ferias.datIncioFerias ?? ferias.datInicioFerias ?? ''),
-            end: new Date(ferias.datFimFerias),
+            ...diaInteiro(new Date(ferias.datIncioFerias ?? ferias.datInicioFerias ?? ''), new Date(ferias.datFimFerias)),
             desc: 'minhas-ferias',
           })),
         ]);

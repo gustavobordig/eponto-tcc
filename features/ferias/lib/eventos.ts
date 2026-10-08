@@ -1,5 +1,5 @@
 import { Ferias } from '@/features/ferias/api';
-import { EventoCalendario } from '@/shared/ui/Calendario';
+import { diaInteiro, EventoCalendario } from '@/shared/ui/Calendario';
 
 /** Cada período de férias vira início, último dia e a faixa entre eles. */
 export function feriasParaEventos(lista: Ferias[]): EventoCalendario[] {
@@ -16,11 +16,11 @@ export function feriasParaEventos(lista: Ferias[]): EventoCalendario[] {
     const inicio = ordenadas[0];
     const fim = ordenadas[ordenadas.length - 1];
     const eventos: EventoCalendario[] = [
-      { id: `${descricao}-inicio`, title: `Início - ${descricao}`, start: inicio, end: inicio, desc: 'ferias' },
-      { id: `${descricao}-fim`, title: `Último dia - ${descricao}`, start: fim, end: fim, desc: 'ferias' },
+      { id: `${descricao}-inicio`, title: `Início - ${descricao}`, ...diaInteiro(inicio), desc: 'ferias' },
+      { id: `${descricao}-fim`, title: `Último dia - ${descricao}`, ...diaInteiro(fim), desc: 'ferias' },
     ];
     if (inicio.getTime() !== fim.getTime()) {
-      eventos.push({ id: `${descricao}-periodo`, title: '', start: inicio, end: fim, desc: 'ferias' });
+      eventos.push({ id: `${descricao}-periodo`, title: '', ...diaInteiro(inicio, fim), desc: 'ferias' });
     }
     return eventos;
   });

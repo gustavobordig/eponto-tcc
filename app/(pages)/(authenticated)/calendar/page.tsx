@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useEventosCalendario } from '@/features/calendario/hooks/useEventosCalendario';
 import CalendarioNavegavel from '@/features/calendario/components/CalendarioNavegavel';
 import { FeriasModal } from '@/features/ferias/components/SolicitarFeriasModal';
-import Button from '@/shared/ui/Button';
 import LoadModal from '@/shared/ui/LoadModal';
+import LegendaCalendario from '@/features/calendario/components/LegendaCalendario';
 
 export default function CalendarioPage() {
   const { eventos, loading, recarregar } = useEventosCalendario({ incluirMinhasFerias: true });
@@ -16,13 +16,19 @@ export default function CalendarioPage() {
   }
 
   return (
-    <div className="h-screen p-4">
-      <div className="bg-white rounded-lg shadow-lg p-4 h-[calc(100vh-2rem)]">
-        <div className="flex justify-start my-4">
-          <div className="w-[200px]">
-            <Button text="Solicitar férias" onClick={() => setIsFeriasModalOpen(true)} />
-          </div>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Calendário</h1>
+        <button
+          type="button"
+          onClick={() => setIsFeriasModalOpen(true)}
+          className="rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:bg-primary-dark"
+        >
+          Solicitar férias
+        </button>
+      </div>
+      <LegendaCalendario />
+      <div className="h-[calc(100vh-14rem)] min-h-[32rem] rounded-2xl bg-white p-4 shadow-sm">
         <CalendarioNavegavel eventos={eventos} />
       </div>
 
