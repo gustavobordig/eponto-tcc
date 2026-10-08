@@ -12,21 +12,23 @@ app/
   contexts/FeedbackContext.tsx
 components/{ui,dashboard}/        shadcn + gráficos do analytics
 services/*.ts                     um objeto por recurso da API, com os tipos do contrato
-utils/                            toast, sessão, datas, validações
+lib/session.ts                    sessão (cookies, JWT, perfil) e mapa de rotas, usado pelo app e pelo middleware
+middleware.ts                     protege as rotas no servidor
+utils/                            toast, sessão no navegador, datas, validações
 types/                            ApiResponse<T> e tipos de UI (Column, validação)
 ```
 
-Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chamando `services/*` e guarda o resultado em `useState`. A sessão é o par `@App:token` / `@App:id` no `localStorage`. O cliente axios (`services/api.ts`) envia `Authorization: Bearer <token>` e, se a API responder 401 fora do login, limpa a sessão e volta para o login.
+Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chamando `services/*` e guarda o resultado em `useState`. A sessão fica nos cookies `eponto_token`, `eponto_id` e `eponto_perfil`, que o `middleware.ts` lê para proteger as rotas. O cliente axios (`services/api.ts`) envia `Authorization: Bearer <token>` e, se a API responder 401 fora do login, limpa a sessão e volta para o login.
 
 ## Diagnóstico
 
-### Segurança e acesso (pendente)
+### Segurança e acesso
 
 | # | Problema | Onde |
 |---|----------|------|
-| S1 | A senha do painel admin (`123`) está fixa no código do cliente, e o acesso fica liberado por `localStorage.adminAuthenticated = 'true'`. Qualquer pessoa entra no painel. | `app/components/atoms/AdminAuthForm`, `(authenticatedAdmin)/layout.tsx` |
+| S1 | ~~Senha `123` fixa no front para o painel admin.~~ Removida na fase 3: o painel abre pelo perfil da sessão. Falta a API devolver esse perfil e bloquear as rotas de admin (ver abaixo). | API |
 | S2 | ~~O token nunca era enviado.~~ Desde a fase 2 vai no header `Authorization`. Falta a API validar o token e usar o usuário dele, e não o `idUsuario` da URL: hoje, trocando o número, dá para ver os dados de outra pessoa. | API |
-| S3 | As rotas autenticadas não checam se existe sessão. Sem id, o layout chama `/api/Usuario/0`. | `(authenticated)/layout.tsx` |
+| S3 | ~~As rotas não checavam a sessão.~~ Resolvido na fase 3 com o `middleware.ts`. | — |
 | S4 | ~~A home baixava os registros de todos os usuários e filtrava no navegador.~~ Resolvido na fase 2: usa `ObterRegistrosUsuario`. | — |
 
 ### Build e higiene (resolvido na fase 1)
@@ -43,7 +45,8 @@ Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chama
 
 - **Componentes em três lugares** (`app/components`, `components/ui`, `components/dashboard`). O atomic design não está sendo seguido: modais de 250 linhas aparecem como "atoms".
 - **Páginas gigantes** misturam fetch, estado, regra de negócio e UI. Por exemplo, `dashboard/feedback` tem 733 linhas e `solicitacoes-ausencia` tem 475.
-- **Mocks em produção**: o analytics usa `lib/mockData.ts`, e a home usa `mockMonthlyData`.
+- **Mocks em produção**: o analytics usa `lib/mockData.ts`, e a home usa `mockMonthlyData`. "Minhas solicitações" e "Solicitações de ausência" (admin) mostram sempre a mesma lista fictícia, com a chamada real comentada.
+- **Barra de navegação**: com 7 itens (8 com "Painel admin"), os últimos ficam cortados em telas estreitas (no teste, com 800px de largura).
 - O README ainda é o padrão do `create-next-app`.
 
 ## Plano
@@ -71,11 +74,36 @@ Para conferir com a API ligada:
 - O CORS da API precisa aceitar o header `Authorization`. Sem isso, as chamadas falham no preflight.
 - O `api.md` não bate com o que as telas usam, por exemplo em feriado (`nomeFeriado` contra `dscFeriado`) e jornada (`cargaHoraria`/`horaInicio` contra `qtdHorasDiarias`). Os tipos seguem as telas; o card de jornada do perfil lê `cargaHoraria`, `horaInicio` e `horaFim`.
 
-### Fase 3 — autenticação e acesso (depende da API)
+### Fase 3 — autenticação e acesso ✅ no front (branch `refactor/arquitetura-fase-3`)
 
-1. Guardar a sessão em cookie e proteger `/home`, `/perfil` etc. e `/dashboard/*` com `middleware.ts`.
-2. Liberar o acesso admin pelo perfil do usuário que vem da API, não por senha no front (S1).
-3. A API precisa validar o JWT e usar o usuário do token, não o `idUsuario` da URL (S2). Isso é no back.
+- A sessão saiu do `localStorage` e foi para cookies (`lib/session.ts` + `utils/token.ts`). Eles expiram junto com o token quando ele é um JWT com `exp`, ou em 8h. As chaves antigas do `localStorage` são limpas no login e no logout.
+- O `middleware.ts` protege as rotas:
+  - sem sessão (ou com o token vencido), as rotas do funcionário e do admin voltam para o login;
+  - sem perfil admin, `/dashboard/*` e `/adicionar-*` voltam para `/home`;
+  - quem já está logado e abre o login vai para `/home`.
+- A senha `123` e o `AdminAuthForm` saíram. Quem tem perfil admin vê "Painel admin" na barra e entra no painel sem segunda senha.
+- O perfil é decidido no login, nesta ordem:
+  1. campo `perfil` da resposta do login;
+  2. claim de role do JWT (`role`, `roles`, `perfil` ou a claim de role padrão do .NET);
+  3. temporariamente, os e-mails em `NEXT_PUBLIC_ADMIN_EMAILS` (`.env.example`).
+- Se a API falhar ao carregar o usuário, o layout mostra um aviso em vez de mandar para o login, porque isso criaria um loop com o middleware. Sessão inválida (401) continua encerrada pelo interceptor.
+- Cypress: `cy.loginAs(perfil)` grava a sessão por cookie, e `admin-auth.cy.ts` passou a testar as regras do middleware, sem depender da API.
+
+**Limite:** os cookies podem ser editados no navegador. O front só decide a navegação; quem protege os dados é a API.
+
+#### O que a API .NET precisa fazer
+
+1. **Devolver o perfil no login.** O caminho mais simples é um campo na resposta de `POST /api/login/RealizarLogin`:
+   ```json
+   { "sucesso": true, "mensagem": null, "idUsuario": 1, "token": "…", "perfil": "admin" }
+   ```
+   Valores: `"admin"` ou `"funcionario"`. Também funciona colocar no JWT uma claim `ClaimTypes.Role` com `Admin`; o front lê as duas.
+2. **Validar o JWT em todas as rotas**, menos login e recuperação de senha (`[Authorize]` + `AddAuthentication().AddJwtBearer(...)`), com `exp` no token.
+3. **Usar o usuário do token**, e não o `idUsuario` da URL ou do corpo, nas rotas do próprio funcionário (registros de ponto, banco de horas, férias, solicitações, perfil).
+4. **Restringir as rotas de admin** (`[Authorize(Roles = "Admin")]`): cadastro de usuários, cargos, jornadas, feriados, férias, aprovação de ajustes e de ausências, listagens gerais.
+5. **CORS** aceitando o header `Authorization` (`AllowAnyHeader()` ou `.WithHeaders("Authorization", "Content-Type")`).
+
+Quando o item 1 estiver no ar, apague `NEXT_PUBLIC_ADMIN_EMAILS` e o trecho correspondente em `lib/session.ts` e `services/auth.ts`.
 
 ### Fase 4 — organização por feature
 
