@@ -179,7 +179,7 @@ export default function PerfilPage() {
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r bg-primary px-6 py-8 text-white">
-            <h1 className="text-3xl font-bold">Bem vindo, {userData.nome}</h1>
+            <h1 className="text-3xl font-bold">Meu perfil</h1>
             <p className="text-indigo-100 mt-2">Gerencie suas informações pessoais</p>
           </div>
 

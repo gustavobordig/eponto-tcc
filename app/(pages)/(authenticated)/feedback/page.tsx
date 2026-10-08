@@ -210,10 +210,22 @@ export default function FeedbackPage() {
               {solicitacoes.map((solicitacao) => (
                 <div 
                   key={solicitacao.idSolicitacaoFeedback} 
-                  className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow ${
-                    solicitacao.status === 1 ? 'cursor-pointer' : ''
+                  className={`border border-gray-200 rounded-lg p-4 transition-shadow ${
+                    solicitacao.status === 1 ? 'cursor-pointer hover:shadow-md' : ''
                   }`}
-                  onClick={() => solicitacao.status === 1 && handleViewResponse(solicitacao)}
+                  // Respondidas abrem a resposta; também pelo teclado (antes só com o mouse)
+                  {...(solicitacao.status === 1 && {
+                    role: 'button',
+                    tabIndex: 0,
+                    'aria-label': `Ver a resposta de ${solicitacao.nomeResponsavelFeedback || 'quem respondeu'}`,
+                    onClick: () => handleViewResponse(solicitacao),
+                    onKeyDown: (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleViewResponse(solicitacao);
+                      }
+                    },
+                  })}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
