@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { AnimatedContainer } from "@/shared/ui/animations/AnimatedContainer";
 import { AnimatedTableRow } from "@/shared/ui/animations/AnimatedTableRow";
-import { AnimatedButton } from "@/shared/ui/animations/AnimatedButton";
+import { Pencil } from "lucide-react";
 import { TimeAdjustmentModal } from "@/features/ponto/components/AjustePontoModal";
 import { useState, useEffect } from "react";
 import { registroPontoService, RegistroPonto as ApiRegistroPonto } from "@/features/ponto/api";
@@ -84,7 +84,8 @@ export default function HistoricoContainer() {
               minute: '2-digit'
             }) : '--:--';
 
-            const entradaSaida = regs.length === 1 ? `${entrada} - xx` : `${entrada} - ${saida}`;
+            // Só com a entrada, a saída ainda está em aberto
+            const entradaSaida = regs.length === 1 ? `${entrada} – …` : `${entrada} – ${saida}`;
 
             const saldo = saldoPorData.get(data);
             const negativo = saldo?.startsWith('-') ?? false;
@@ -130,9 +131,7 @@ export default function HistoricoContainer() {
   return (
     <AnimatedContainer className="flex flex-col items-center justify-start min-h-screen">
       <motion.div 
-        className="w-full border-2 border-[#002085] rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
-        whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
+        className="w-full overflow-hidden rounded-2xl bg-white shadow-sm"
       >
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
@@ -169,13 +168,16 @@ export default function HistoricoContainer() {
                     <td className="p-4 text-green-500 text-center">{registro.horasExtras}</td>
                     <td className="p-4 text-red-500 text-center">{registro.faltantes}</td>
                     <td className="p-4 text-center">
-                      <AnimatedButton 
-                        className="text-gray-500 hover:text-gray-700 p-2
-                        hover:bg-gray-200 cursor-pointer hover:rounded-full"
+                      <button
+                        type="button"
                         onClick={() => handleEditClick(registro)}
+                        aria-label={`Pedir ajuste do ponto de ${registro.data}`}
+                        title="Pedir ajuste"
+                        className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft"
                       >
-                        ✏️
-                      </AnimatedButton>
+                        <Pencil className="h-4 w-4" aria-hidden />
+                        <span className="hidden sm:inline">Ajustar</span>
+                      </button>
                     </td>
                   </AnimatedTableRow>
                 ))
