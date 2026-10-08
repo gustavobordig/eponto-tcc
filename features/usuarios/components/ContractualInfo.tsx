@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserData, userService } from '@/features/usuarios/api';
-import { Cargo, cargoService } from '@/features/cargos/api';
-import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
+import { ContratoUsuario, userService } from '@/features/usuarios/api';
 import { tokenUtils } from '@/shared/lib/token';
 import { showErrorToast } from '@/shared/lib/toast';
 
@@ -12,9 +10,7 @@ interface ContractualInfoProps {
 }
 
 export default function ContractualInfo({ userId }: ContractualInfoProps) {
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [cargo, setCargo] = useState<Cargo | null>(null);
-  const [jornada, setJornada] = useState<JornadaTrabalho | null>(null);
+  const [userData, setUserData] = useState<ContratoUsuario | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,22 +26,12 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           return;
         }
 
-        // Carregar dados do usuário
-        const userResponse = await userService.getById(Number(targetUserId));
-        
-        if (userResponse.sucesso && userResponse.usuario) {
-          const usuario = userResponse.usuario;
-          setUserData(usuario);
-          
-          // Carregar dados do cargo
-          const cargoResponse = await cargoService.listar();
-          const userCargo = cargoResponse.cargos?.find((c: Cargo) => c.idCargo === usuario.idCargo);
-          setCargo(userCargo || null);
-          
-          // Carregar dados da jornada
-          const jornadaResponse = await jornadaTrabalhoService.listar();
-          const userJornada = jornadaResponse.jornadas?.find((j: JornadaTrabalho) => j.idJornada === usuario.idJornada);
-          setJornada(userJornada || null);
+        // Uma rota só para o contrato. Antes buscava a lista inteira de cargos e de
+        // jornadas, que a API só libera para admin (funcionário recebia 403).
+        const response = await userService.getContrato(Number(targetUserId));
+
+        if (response.sucesso && response.contrato) {
+          setUserData(response.contrato);
         } else {
           showErrorToast("Erro ao carregar dados do usuário");
         }
@@ -83,18 +69,13 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
     );
   }
 
-  const formatCurrency = (value: string) => {
-    const numericValue = parseFloat(value);
+  const formatCurrency = (value: string | number) => {
+    const numericValue = Number(value);
     if (isNaN(numericValue)) return value;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(numericValue);
-  };
-
-  const formatTime = (time: string | undefined | null) => {
-    if (!time) return '--:--';
-    return time.substring(0, 5); // Remove os segundos
   };
 
   return (
@@ -125,13 +106,8 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           <label className="text-sm font-medium text-gray-600">Cargo</label>
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-gray-800 font-medium">
-              {cargo?.nomeCargo || `Cargo ID: ${userData.idCargo}`}
+              {userData.nomeCargo || 'Não informado'}
             </p>
-            {cargo?.formacaoMinima && (
-              <p className="text-sm text-gray-600 mt-1">
-                Formação mínima: {cargo.formacaoMinima}
-              </p>
-            )}
           </div>
         </div>
 
@@ -140,7 +116,7 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           <label className="text-sm font-medium text-gray-600">Salário</label>
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-gray-800 font-medium">
-              {cargo?.salario ? formatCurrency(cargo.salario) : 'Não informado'}
+              {userData.salario ? formatCurrency(userData.salario) : 'Não informado'}
             </p>
           </div>
         </div>
@@ -150,7 +126,7 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           <label className="text-sm font-medium text-gray-600">Carga Horária Diária</label>
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-gray-800 font-medium">
-              {jornada && jornada.cargaHoraria ? `${jornada.cargaHoraria}h/dia` : 'Não informado'}
+              {userData.qtdHorasDiarias ? `${userData.qtdHorasDiarias}h/dia` : 'Não informado'}
             </p>
           </div>
         </div>
@@ -160,26 +136,8 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           <label className="text-sm font-medium text-gray-600">Carga Horária Semanal</label>
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-gray-800 font-medium">
-              {jornada && jornada.cargaHoraria ? `${jornada.cargaHoraria * 5}h/semana` : 'Não informado'}
+              {userData.qtdHorasDiarias ? `${userData.qtdHorasDiarias * 5}h/semana` : 'Não informado'}
             </p>
-          </div>
-        </div>
-
-        {/* Jornada de Trabalho */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-600">Horário de Trabalho</label>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-gray-800 font-medium">
-              {jornada && jornada.horaInicio && jornada.horaFim 
-                ? `${formatTime(jornada.horaInicio)} - ${formatTime(jornada.horaFim)}` 
-                : 'Não informado'
-              }
-            </p>
-            {jornada && jornada.nomeJornada && (
-              <p className="text-sm text-gray-600 mt-1">
-                {jornada.nomeJornada}
-              </p>
-            )}
           </div>
         </div>
 
@@ -188,8 +146,8 @@ export default function ContractualInfo({ userId }: ContractualInfoProps) {
           <label className="text-sm font-medium text-gray-600">Data de Admissão</label>
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-gray-800 font-medium">
-              {userData.dataAdmissao 
-                ? new Date(userData.dataAdmissao).toLocaleDateString('pt-BR')
+              {userData.dataCadastro
+                ? new Date(userData.dataCadastro).toLocaleDateString('pt-BR')
                 : 'Não informado'
               }
             </p>

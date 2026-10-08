@@ -114,16 +114,7 @@ export default function UsuariosPage() {
               type: 'select',
               options: jornadas.map((j) => ({ value: String(j.idJornada), label: j.nomeJornada })),
             },
-            {
-              label: 'Status',
-              value: edicao.indAtivo,
-              onChange: alterar('indAtivo'),
-              type: 'select',
-              options: [
-                { value: '1', label: 'Ativo' },
-                { value: '0', label: 'Inativo' },
-              ],
-            },
+            // Sem Status: a API não grava IND_ATIVO na atualização; inativar é pelo Excluir
           ]}
           onClose={() => setEdicao(null)}
           onConfirm={salvar}

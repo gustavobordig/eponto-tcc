@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect, useRef } from 'react';
 import { userService } from '@/features/usuarios/api';
 import { tokenUtils } from '@/shared/lib/token';
@@ -300,22 +302,16 @@ export default function PerfilPage() {
                 </div>
               </div>
 
-              {/* Senha */}
+              {/* Senha: a API não altera a senha pelo cadastro; a troca é pelo fluxo com código */}
               <div className="space-y-2">
-                <label htmlFor="senha" className="block text-sm font-semibold text-gray-700">
-                  Nova Senha
-                </label>
-                <input
-                  type="password"
-                  name="senha"
-                  id="senha"
-                  value=""
-                  placeholder="Deixe em branco para manter a senha atual"
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent 
-                  transition-all duration-200 bg-white placeholder-gray-400 text-gray-700"
-                />
-                <p className="text-xs text-gray-500">Digite uma nova senha apenas se desejar alterá-la</p>
+                <p className="block text-sm font-semibold text-gray-700">Senha</p>
+                <p className="text-sm text-gray-600">
+                  Para trocar a senha,{' '}
+                  <Link href="/forgot-password" className="text-indigo-600 hover:underline">
+                    receba um código no seu e-mail
+                  </Link>
+                  .
+                </p>
               </div>
 
               {/* Botões */}
