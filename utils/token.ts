@@ -1,41 +1,36 @@
 const TOKEN_KEY = '@App:token';
 const ID_KEY = '@App:id';
+const USER_KEY = 'user';
+
+const isBrowser = () => typeof window !== 'undefined';
 
 export const tokenUtils = {
     getToken(): string | null {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem(TOKEN_KEY);
-        }
-        return null;
-    },
-
-    setId(id: string): void {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(ID_KEY, id);
-        }
-    },
-
-    getId(): string | null {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem(ID_KEY);
-        }
-        return null;
+        return isBrowser() ? localStorage.getItem(TOKEN_KEY) : null;
     },
 
     setToken(token: string): void {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(TOKEN_KEY, token);
-        }
+        if (isBrowser()) localStorage.setItem(TOKEN_KEY, token);
     },
 
-    removeToken(): void {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(TOKEN_KEY);
-        }
+    getId(): string | null {
+        return isBrowser() ? localStorage.getItem(ID_KEY) : null;
+    },
+
+    setId(id: string): void {
+        if (isBrowser()) localStorage.setItem(ID_KEY, id);
+    },
+
+    // Limpa a sessão inteira; antes o id e os dados do usuário ficavam para trás
+    clear(): void {
+        if (!isBrowser()) return;
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(ID_KEY);
+        localStorage.removeItem(USER_KEY);
     },
 
     logout(): void {
-        this.removeToken();
+        this.clear();
         window.location.href = '/';
     }
-}; 
+};
