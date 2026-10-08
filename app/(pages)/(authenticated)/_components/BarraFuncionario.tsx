@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Clock, LogOut, Menu, X } from 'lucide-react';
 import logo from '@/public/images/Logo.png';
+import Avatar from '@/shared/ui/Avatar';
 import ConfirmationModal from '@/shared/ui/ConfirmationModal';
 import { tokenUtils } from '@/shared/lib/token';
 import { useAreaFuncionario } from './AreaFuncionario';
@@ -31,11 +32,12 @@ const ITEM_ADMIN: Item = { href: '/dashboard', label: 'Painel admin' };
 
 export default function BarraFuncionario() {
   const pathname = usePathname();
-  const { abrirRegistro } = useAreaFuncionario();
+  const { abrirRegistro, nomeUsuario } = useAreaFuncionario();
   const [menuAberto, setMenuAberto] = useState(false);
   const [confirmarSaida, setConfirmarSaida] = useState(false);
   const [itens, setItens] = useState(ITENS);
-  const [foto, setFoto] = useState('/images/User.png');
+  // Foto escolhida no perfil; sem ela, as iniciais (antes era a mesma foto genérica para todos)
+  const [foto, setFoto] = useState<string | null>(null);
 
   // Cookies e localStorage só existem no navegador
   useEffect(() => {
@@ -86,11 +88,9 @@ export default function BarraFuncionario() {
           </button>
 
           <div className="hidden items-center gap-2 xl:flex">
-            <span
-              className="h-9 w-9 rounded-full border-2 border-primary bg-cover bg-center"
-              style={{ backgroundImage: `url(${foto})` }}
-              aria-hidden
-            />
+            <Link href="/perfil" aria-label="Meu perfil" title={nomeUsuario}>
+              <Avatar nome={nomeUsuario} foto={foto} />
+            </Link>
             <button
               type="button"
               onClick={() => setConfirmarSaida(true)}

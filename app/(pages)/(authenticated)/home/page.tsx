@@ -42,7 +42,7 @@ export default function Home() {
                 {saudacao(agora.getHours())}
                 {primeiroNome && `, ${primeiroNome}`}
               </h1>
-              <p className="text-sm capitalize text-gray-500">{format(agora, "EEEE, d 'de' MMMM", { locale: ptBR })}</p>
+              <p className="text-sm text-gray-500 first-letter:uppercase">{format(agora, "EEEE, d 'de' MMMM", { locale: ptBR })}</p>
               <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="max-w-[16rem] truncate sm:max-w-sm">{localizacao}</span>

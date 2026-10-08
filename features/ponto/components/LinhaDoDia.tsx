@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
 import { ETAPAS_DO_DIA, EtapaDoDia, minutosDeAtraso } from '@/features/ponto/etapas';
 import { PontoMarcado } from '@/features/ponto/hooks/usePontosDoDia';
+import { formatarMinutos } from '@/shared/lib/format';
 
 interface Props {
   marcados: PontoMarcado[];
@@ -46,7 +47,7 @@ export default function LinhaDoDia({ marcados, proxima, compacta = false }: Prop
                 {etapa.referencia}
               </span>
             )}
-            {atraso > 0 && <span className="text-xs text-amber-700">+{atraso} min</span>}
+            {atraso > 0 && <span className="text-xs text-amber-700">+{formatarMinutos(atraso)}</span>}
           </li>
         );
       })}
