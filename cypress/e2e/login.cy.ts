@@ -1,8 +1,8 @@
 // Login com a API simulada: confere a sessão gravada em cookie e o redirecionamento
 describe('Login', () => {
   const preencher = (email: string, senha: string) => {
-    cy.get('input[type="text"], input[type="email"]').first().type(email);
-    cy.get('input[type="password"]').first().type(senha);
+    cy.get('input[placeholder="Digite seu email"]').type(email);
+    cy.get('input[placeholder="Digite sua senha"]').type(senha);
     cy.contains('button', 'Entrar').click();
   };
 
@@ -54,7 +54,7 @@ describe('Login', () => {
 
   it('não envia o formulário com os campos vazios', () => {
     cy.contains('button', 'Entrar').should('be.disabled');
-    cy.get('input[type="text"], input[type="email"]').first().type('ana@exemplo.com');
+    cy.get('input[placeholder="Digite seu email"]').type('ana@exemplo.com');
     cy.contains('button', 'Entrar').should('be.disabled');
     cy.location('pathname').should('eq', '/');
   });
