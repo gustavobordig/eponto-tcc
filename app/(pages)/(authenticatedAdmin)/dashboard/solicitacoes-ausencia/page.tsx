@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { solicitacaoAusenciaService } from "@/features/ausencias/api";
 import { SolicitacaoComUsuario, useSolicitacoesAusencia } from "@/features/ausencias/hooks/useSolicitacoesAusencia";
-import { getStatusColor, getStatusText } from "@/features/ausencias/status";
+import { getStatusColor, getStatusText, isPendente } from "@/features/ausencias/status";
 import { showSuccessToast, showErrorToast } from "@/shared/lib/toast";
 import Button from "@/shared/ui/Button";
 import LoadingText from "@/shared/ui/LoadingText";
@@ -171,7 +171,7 @@ export default function SolicitacoesAusenciaPage() {
                           onClick={() => handleViewDetails(solicitacao)}
                           fullWidth={false}
                         />
-                        {solicitacao.statusSolicitacao === 1 && (
+                        {isPendente(solicitacao.statusSolicitacao) && (
                           <>
                             <Button
                               text="Aprovar"
@@ -290,7 +290,7 @@ export default function SolicitacoesAusenciaPage() {
                 </div>
               )}
 
-              {selectedSolicitacao.statusSolicitacao === 1 && (
+              {isPendente(selectedSolicitacao.statusSolicitacao) && (
                 <div className="flex gap-4 pt-4">
                   <Button
                     text="Aprovar"
