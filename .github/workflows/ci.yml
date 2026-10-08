@@ -21,3 +21,25 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: 1
       - run: npm run typecheck
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      # A API é simulada com cy.intercept (cy.mockApi), então o job não depende dela
+      - uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npm start
+          wait-on: http://localhost:3000
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
