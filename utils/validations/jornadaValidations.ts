@@ -1,4 +1,4 @@
-import { ValidationResult } from "./validations/userValidations";
+import { ValidationResult } from "./userValidations";
 
 export const jornadaValidations = {
   // Validação de nome da jornada
