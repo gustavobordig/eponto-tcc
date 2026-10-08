@@ -97,10 +97,9 @@ const EditModal: React.FC<EditModalProps> = ({
     }
   };
 
-  const isFormValid = () => {
-    return Object.values(validations).every(v => v.isValid) &&
-           Object.keys(validationConfigs).length > 0;
-  };
+  // Sem regras de validação o formulário é válido. Antes exigia ao menos uma
+  // regra, e Salvar ficava sempre desabilitado em usuários, jornadas e ajustes.
+  const isFormValid = () => Object.values(validations).every(v => v.isValid);
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
