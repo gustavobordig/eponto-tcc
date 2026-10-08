@@ -11,12 +11,12 @@ app/
   components/{atoms,molecules,organisms}/
   contexts/FeedbackContext.tsx
 components/{ui,dashboard}/        shadcn + gráficos do analytics
-services/*.tsx                    um arquivo por recurso da API (axios)
-utils/                            toast, token, datas, validações
-types/ e app/types/               tipos compartilhados (duplicados)
+services/*.ts                     um objeto por recurso da API, com os tipos do contrato
+utils/                            toast, sessão, datas, validações
+types/                            ApiResponse<T> e tipos de UI (Column, validação)
 ```
 
-Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chamando `services/*` e guarda o resultado em `useState`. A sessão é o par `@App:token` / `@App:id` no `localStorage`.
+Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chamando `services/*` e guarda o resultado em `useState`. A sessão é o par `@App:token` / `@App:id` no `localStorage`. O cliente axios (`services/api.ts`) envia `Authorization: Bearer <token>` e, se a API responder 401 fora do login, limpa a sessão e volta para o login.
 
 ## Diagnóstico
 
@@ -25,9 +25,9 @@ Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chama
 | # | Problema | Onde |
 |---|----------|------|
 | S1 | A senha do painel admin (`123`) está fixa no código do cliente, e o acesso fica liberado por `localStorage.adminAuthenticated = 'true'`. Qualquer pessoa entra no painel. | `app/components/atoms/AdminAuthForm`, `(authenticatedAdmin)/layout.tsx` |
-| S2 | O token do login é salvo, mas nunca é enviado: o axios não tem header `Authorization`. A identidade do usuário é só o `idUsuario` no `localStorage`; trocando o número, você vê os dados de outra pessoa. | `services/api.tsx`, `utils/token.ts` |
+| S2 | ~~O token nunca era enviado.~~ Desde a fase 2 vai no header `Authorization`. Falta a API validar o token e usar o usuário dele, e não o `idUsuario` da URL: hoje, trocando o número, dá para ver os dados de outra pessoa. | API |
 | S3 | As rotas autenticadas não checam se existe sessão. Sem id, o layout chama `/api/Usuario/0`. | `(authenticated)/layout.tsx` |
-| S4 | A home baixa **todos** os registros de ponto de **todos** os usuários (`/RegistroPonto/Listar`) e filtra no navegador. Já existe `ObterRegistrosUsuario`. | `(authenticated)/home/page.tsx` |
+| S4 | ~~A home baixava os registros de todos os usuários e filtrava no navegador.~~ Resolvido na fase 2: usa `ObterRegistrosUsuario`. | — |
 
 ### Build e higiene (resolvido na fase 1)
 
@@ -42,8 +42,6 @@ Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chama
 ### Estrutura (pendente)
 
 - **Componentes em três lugares** (`app/components`, `components/ui`, `components/dashboard`). O atomic design não está sendo seguido: modais de 250 linhas aparecem como "atoms".
-- **Tipos duplicados**: `types/index.ts` e `app/types/index.ts` definem `Column` de formas diferentes. Vários services e páginas redeclaram o envelope `{ sucesso, mensagem, ... }`.
-- **Services sem padrão**: alguns são objetos (`userService`), outros funções soltas (`listCargos`). São `.tsx` sem JSX, e cada um tem um `try/catch` que só repassa o erro. Muitas respostas não têm tipo.
 - **Páginas gigantes** misturam fetch, estado, regra de negócio e UI. Por exemplo, `dashboard/feedback` tem 733 linhas e `solicitacoes-ausencia` tem 475.
 - **Mocks em produção**: o analytics usa `lib/mockData.ts`, e a home usa `mockMonthlyData`.
 - O README ainda é o padrão do `create-next-app`.
@@ -54,12 +52,24 @@ Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chama
 
 Fazer o build passar, zerar os erros de tipo e de lint, corrigir os bugs acima, remover código morto, unificar os toasts e criar o CI (lint, build e typecheck). O comportamento das telas não muda, fora os bugs corrigidos.
 
-### Fase 2 — camada de API
+### Fase 2 — camada de API ✅ (branch `refactor/arquitetura-fase-2`)
 
-1. Criar um interceptor no axios que envie `Authorization: Bearer <token>`. Em resposta 401, ele limpa a sessão e volta para o login.
-2. Criar um tipo `ApiResponse<T>` único em `types/api.ts` e tipar todos os services, que passam de `.tsx` para `.ts`, num formato só (objeto por recurso). Depois disso, `no-explicit-any` volta a ser erro.
-3. Trocar o "lista tudo e filtra no navegador" pelos endpoints por usuário (S4).
-4. Juntar `types/` e `app/types/`.
+- O axios passou a mandar o token, e uma resposta 401 encerra a sessão. O logout agora limpa também o id e os dados do usuário (antes ficavam no navegador).
+- Todos os services são `.ts`, no formato de objeto por recurso, e tipados com `ApiResponse<T>`. As páginas importam os tipos dos services em vez de redeclarar. `timeRecord`, `timeRecordAdjustment` e `ajuste` viraram um único `registroPonto`, e as funções sem uso saíram.
+- `types/` e `app/types/` foram juntados. A `Table` ficou genérica (`Column<T>`).
+- `services/` e `utils/` entraram no lint, e `no-explicit-any` voltou a ser erro, com zero ocorrências.
+
+Bugs corrigidos no caminho:
+
+- A home considerava "hoje" em UTC, então depois das 21h os pontos do dia sumiam.
+- O histórico buscava os saldos diários uma vez por dia da lista (N+1). Agora é uma chamada só.
+- O calendário de férias do admin estava sempre vazio: a função esperava dias do calendário e recebia a lista de férias.
+- A coluna "Tipo" dos feriados mostrava sempre "Meio Período", porque o `render` tratava a linha inteira como número.
+
+Para conferir com a API ligada:
+
+- O CORS da API precisa aceitar o header `Authorization`. Sem isso, as chamadas falham no preflight.
+- O `api.md` não bate com o que as telas usam, por exemplo em feriado (`nomeFeriado` contra `dscFeriado`) e jornada (`cargaHoraria`/`horaInicio` contra `qtdHorasDiarias`). Os tipos seguem as telas; o card de jornada do perfil lê `cargaHoraria`, `horaInicio` e `horaFim`.
 
 ### Fase 3 — autenticação e acesso (depende da API)
 
