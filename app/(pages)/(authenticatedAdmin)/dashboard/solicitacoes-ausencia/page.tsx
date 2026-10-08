@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
-import { userService } from "@/services/user";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import Button from "@/app/components/atoms/Button";
 import LoadingText from "@/app/components/atoms/LoadingText";
@@ -461,7 +460,7 @@ export default function SolicitacoesAusenciaPage() {
       {/* Modal de Confirmação */}
       <ConfirmationModal
         isOpen={showConfirmModal}
-        onClose={handleCloseConfirmModal}
+        onCancel={handleCloseConfirmModal}
         onConfirm={handleConfirmAction}
         title={actionType === 'approve' ? 'Aprovar Solicitação' : 'Reprovar Solicitação'}
         message={
@@ -470,6 +469,8 @@ export default function SolicitacoesAusenciaPage() {
             : 'Tem certeza que deseja reprovar esta solicitação de ausência?'
         }
         confirmText={actionType === 'approve' ? 'Aprovar' : 'Reprovar'}
+        cancelText="Cancelar"
+        loading={processing}
       />
     </div>
   );

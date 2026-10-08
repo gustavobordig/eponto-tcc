@@ -153,7 +153,7 @@ export default function NavBar({
 
             <ConfirmationModal
                 isOpen={isLogoutModalOpen}
-                onClose={handleCloseLogoutModal}
+                onCancel={handleCloseLogoutModal}
                 onConfirm={handleConfirmLogout}
                 title="Confirmar Logout"
                 message="Tem certeza que deseja sair do sistema?"

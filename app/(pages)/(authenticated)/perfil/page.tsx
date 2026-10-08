@@ -113,8 +113,6 @@ export default function PerfilPage() {
   };
 
   const handleImageClick = () => {
-    console.log('Botão de alterar imagem clicado');
-    console.log('Referência do input:', fileInputRef.current);
     fileInputRef.current?.click();
   };
 
@@ -196,6 +194,7 @@ export default function PerfilPage() {
                       <img
                         key={previewImage}
                         src={previewImage}
+                        alt="Foto de perfil"
                         width={128}
                         height={128}
                         className="w-full h-full object-cover absolute z-10 rounded-full
@@ -354,7 +353,7 @@ export default function PerfilPage() {
     
       <ConfirmationModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onCancel={handleCloseModal}
         onConfirm={handleConfirmUpdate}
         title="Confirmar Atualização"
         message="Tem certeza que deseja atualizar seus dados?"
