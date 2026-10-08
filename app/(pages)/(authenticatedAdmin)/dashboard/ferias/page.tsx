@@ -13,13 +13,13 @@ import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 import ConfirmationModal from '@/app/components/atoms/ConfirmationModal';
 
 // Services
-import { feriasService } from '@/services/ferias';
+import { Ferias, feriasService, SolicitacaoFerias } from '@/services/ferias';
 
 // Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 // Types
-import { Column, Ferias } from '@/types';
+import { Column } from '@/types';
 
 // Custom Styles
 import '@/app/styles/calendar.scss';
@@ -47,7 +47,7 @@ interface EventoCalendario {
 
 export default function FeriasPage() {
   const [ferias, setFerias] = useState<Ferias[]>([]);
-  const [solicitacao, setSolicitacoes] = useState<any[]>([]);
+  const [solicitacao, setSolicitacoes] = useState<SolicitacaoFerias[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [feriasToDelete, setFeriasToDelete] = useState<number | null>(null);
@@ -56,18 +56,18 @@ export default function FeriasPage() {
   // Estados para modais de aprovação/reprovação
   const [isAprovarModalOpen, setIsAprovarModalOpen] = useState(false);
   const [isReprovarModalOpen, setIsReprovarModalOpen] = useState(false);
-  const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<any>(null);
+  const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<SolicitacaoFerias | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [view, setView] = useState<'table' | 'calendar'>('table');
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>([]);
 
-  const columns: Column[] = [
+  const columns: Column<Ferias>[] = [
     { key: 'dscFerias', label: 'Descrição' },
     { key: 'datInicioFerias', label: 'Data Início', type: 'date' },
     { key: 'datFimFerias', label: 'Data Fim', type: 'date' },
   ];
 
-  const columnsSolicitacoes: Column[] = [
+  const columnsSolicitacoes: Column<SolicitacaoFerias>[] = [
     { key: 'nomeUsuario', label: 'Nome do usuário' },
     { key: 'dscObservacao', label: 'Descrição da Solicitação' },
     { key: 'datInicioFerias', label: 'Data de Início', type: 'date' },
@@ -77,7 +77,7 @@ export default function FeriasPage() {
       key: 'indSituacao', 
       label: 'Status', 
       type: 'custom',
-      render: (item: any) => {
+      render: (item: SolicitacaoFerias) => {
         const status = item.indSituacao;
         let statusText = '';
         let statusClass = '';
@@ -109,17 +109,15 @@ export default function FeriasPage() {
     }
   ];
 
-  // Função para processar os dados da API
-  const processarDadosCalendario = (dias: any[]): EventoCalendario[] => {
-    // Agrupar dias por descrição do evento
-    const eventosAgrupados = dias.reduce((acc: Record<string, Date[]>, dia) => {
-      if (dia.tipoEvento === 2) { // Apenas eventos de férias
-        const chave = dia.dscEvento;
-        if (!acc[chave]) {
-          acc[chave] = [];
-        }
-        acc[chave].push(new Date(dia.datEvento));
-      }
+  // Cada período de férias vira início, último dia e a faixa entre eles.
+  // Antes a função esperava dias do calendário (tipoEvento) e recebia a lista de férias,
+  // então o calendário ficava sempre vazio.
+  const processarDadosCalendario = (lista: Ferias[]): EventoCalendario[] => {
+    const eventosAgrupados = lista.reduce((acc: Record<string, Date[]>, item) => {
+      const inicio = item.datInicioFerias ?? item.datIncioFerias;
+      if (!inicio || !item.datFimFerias) return acc;
+      const chave = item.dscFerias || item.dscObservacao || `Férias ${item.idFerias ?? ''}`.trim();
+      acc[chave] = [...(acc[chave] ?? []), new Date(inicio), new Date(item.datFimFerias)];
       return acc;
     }, {});
 
@@ -235,12 +233,12 @@ export default function FeriasPage() {
     setFeriasToDelete(null);
   };
 
-  const handleAprovarClick = (solicitacao: any) => {
+  const handleAprovarClick = (solicitacao: SolicitacaoFerias) => {
     setSolicitacaoSelecionada(solicitacao);
     setIsAprovarModalOpen(true);
   };
 
-  const handleReprovarClick = (solicitacao: any) => {
+  const handleReprovarClick = (solicitacao: SolicitacaoFerias) => {
     setSolicitacaoSelecionada(solicitacao);
     setIsReprovarModalOpen(true);
   };
@@ -341,7 +339,7 @@ export default function FeriasPage() {
              data={solicitacao}
              title="Solicitações de Férias"
              columns={columnsSolicitacoes}
-                         handleEdit={(item: any) => {
+                         handleEdit={(item: SolicitacaoFerias) => {
                // Renderização personalizada das ações para solicitações
                const status = item.indSituacao;
                const isPendente = status === 0 || status === undefined;

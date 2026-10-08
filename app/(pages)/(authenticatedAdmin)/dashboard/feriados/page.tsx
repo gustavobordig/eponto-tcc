@@ -10,7 +10,7 @@ import EditModal from '@/app/components/atoms/EditModal';
 import ExcludeModal from '@/app/components/atoms/ExcludeModal';
 
 //Services
-import { feriadoService } from '@/services/feriado';
+import { Feriado, feriadoService } from '@/services/feriado';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
@@ -18,13 +18,6 @@ import { feriadoValidations } from '@/utils/validations/feriadoValidations';
 
 //Types
 import { Column } from '@/types';
-
-interface Feriado {
-  idFeriado?: number;
-  dscFeriado: string;
-  datFeriado: string;
-  indTipoFeriado: number;
-}
 
 export default function FeriadosPage() {
   const [feriados, setFeriados] = useState<Feriado[]>([]);
@@ -39,14 +32,15 @@ export default function FeriadosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
-  const columns: Column[] = [
+  const columns: Column<Feriado>[] = [
     { key: 'dscFeriado', label: 'Descrição' },
     { key: 'datFeriado', label: 'Data', type: 'date' },
     { 
       key: 'indTipoFeriado', 
       label: 'Tipo',
-      render: (value: number) => {
-        return Number(value) === 1 ? 'Integral' : 'Meio Período';
+      // render recebe a linha inteira, não o valor da coluna
+      render: (feriado) => {
+        return Number(feriado.indTipoFeriado) === 1 ? 'Integral' : 'Meio Período';
       }
     }
   ];

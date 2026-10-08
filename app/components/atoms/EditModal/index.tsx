@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { EditModalField, ValidationResult } from '@/app/types';
+import { EditModalField, ValidationResult } from '@/types';
 import { X } from 'lucide-react';
 import ValidationMessage from '../ValidationMessage';
 
@@ -136,7 +136,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   disabled={field.readOnly}
                   required={field.required}
                 >
-                  {field.options?.map((option: any) => (
+                  {field.options?.map((option) => (
                     <option key={option.value} value={option.value} className="text-black">
                       {option.label}
                     </option>

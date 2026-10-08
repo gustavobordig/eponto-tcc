@@ -3,22 +3,22 @@ import { ReactNode } from "react";
 import Button from "@/app/components/atoms/Button";
 
 //Types
-import { Column } from "@/types";
+import { Column, TableRow } from "@/types";
 
 // Utils
 import { formatDate } from "@/utils/timeUtils";
 
-interface TableProps {
-  data: any[];
+interface TableProps<T extends object> {
+  data: T[];
   title: string;
-  columns: Column[];
-  handleEdit?: (item: any) => void | ReactNode;
-  handleDeleteClick?: (item: any) => void;
+  columns: Column<T>[];
+  handleEdit?: (item: T) => void | ReactNode;
+  handleDeleteClick?: (item: T) => void;
   addItemHref?: string;
   isAjustePonto?: boolean;
 }
 
-export default function Table({ 
+export default function Table<T extends object = TableRow>({ 
     data, 
     title,
     columns,
@@ -26,21 +26,21 @@ export default function Table({
     handleDeleteClick,  
     addItemHref,
     isAjustePonto = false
-}: TableProps) {
+}: TableProps<T>) {
   const router = useRouter();
 
   // Garantir que data é sempre um array
   const safeData = Array.isArray(data) ? data : [];
 
 
-  const renderCell = (item: any, column: Column) => {
+  const renderCell = (item: T, column: Column<T>) => {
     if (!item || !column) return null;
 
     if (column.render) {
       return column.render(item);
     }
 
-    const value = item[column.key];
+    const value = (item as TableRow)[column.key];
     if (value === undefined || value === null) return '-';
 
     switch (column.type) {
@@ -117,11 +117,11 @@ export default function Table({
               </tr>
             </thead>
                          <tbody className="bg-white divide-y divide-gray-200">
-               {safeData.map((item: any, index: number) => (
-                <tr key={item.id || `row-${index}`} className="hover:bg-gray-50">
+               {safeData.map((item, index) => (
+                <tr key={(item as TableRow).id || `row-${index}`} className="hover:bg-gray-50">
                   {columns.map((column) => (
                     <td
-                      key={`${item.id || index}-${column.key}`}
+                      key={`${(item as TableRow).id || index}-${column.key}`}
                       className="px-6 py-4 whitespace-nowrap text-sm text-black"
                     >
                       {renderCell(item, column)}

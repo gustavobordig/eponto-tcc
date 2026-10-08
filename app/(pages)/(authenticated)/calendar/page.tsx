@@ -43,19 +43,6 @@ interface Evento {
   desc: string;
 }
 
-interface DiaEvento {
-  datEvento: string;
-  dscEvento: string;
-  saldoHorasDiario: number;
-  tipoEvento: number;
-}
-
-interface RespostaCalendario {
-  sucesso: boolean;
-  mensagem: string | null;
-  dias: DiaEvento[];
-}
-
 export default function Calendario() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [view, setView] = useState<View>('month');
@@ -70,7 +57,7 @@ export default function Calendario() {
         setLoading(true);
         
         // Buscar eventos do calendário (feriados e férias gerais)
-        const dados: RespostaCalendario = await calendarioService.buscarCalendario();
+        const dados = await calendarioService.buscarCalendario();
         
         const eventosFormatados = dados.dias.map((item, index) => ({
           id: index,
@@ -164,7 +151,7 @@ export default function Calendario() {
         setLoading(true);
         
         // Buscar eventos do calendário (feriados e férias gerais)
-        const dados: RespostaCalendario = await calendarioService.buscarCalendario();
+        const dados = await calendarioService.buscarCalendario();
         
         const eventosFormatados = dados.dias.map((item, index) => ({
           id: index,
