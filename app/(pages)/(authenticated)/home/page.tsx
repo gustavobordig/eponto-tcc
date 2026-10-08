@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { getAllTimeRecords } from "@/services/timeRecord";
+import { registroPontoService, RegistroPonto } from "@/services/registroPonto";
 import { tokenUtils } from "@/utils/token";
 import { bancoHorasService } from "@/services/bancoHoras";
 import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
@@ -19,13 +19,6 @@ import { PunctualityChart } from "@/app/components/atoms/PunctualityChart";
 import Button from "@/app/components/atoms/Button";
 import { PageEntrance } from "@/app/Animations/pageEntrance";
 import { DailyStatus, Point, PointType } from "@/app/components/atoms/DailyStatus";
-
-interface ApiRegistroPonto {
-  id_Usuario: number;
-  horaRegistro: string;
-  dataRegistro: string;
-  idTipoRegistroPonto: number;
-}
 
 const mockMonthlyData = {
   hours: [
@@ -99,19 +92,17 @@ export default function Home() {
         const userId = tokenUtils.getId();
         if (!userId) return;
 
-        const response = await getAllTimeRecords();
+        const response = await registroPontoService.listarPorUsuario(Number(userId));
         if (response.sucesso && response.registros) {
-          // Filtra apenas os registros do usuário atual e do dia atual
-          const today = new Date().toISOString().split('T')[0];
+          // Dia local: com toISOString, depois das 21h o "hoje" virava amanhã (UTC)
+          const today = format(new Date(), 'yyyy-MM-dd');
           const userRegistros = response.registros.filter(
-            (reg: ApiRegistroPonto) => 
-              reg.id_Usuario === Number(userId) && 
-              reg.dataRegistro.split('T')[0] === today
+            (reg) => reg.dataRegistro.split('T')[0] === today
           );
 
 
           // Converte os registros da API para o formato de Point
-          const pontosConvertidos = userRegistros.map((reg: ApiRegistroPonto) => {
+          const pontosConvertidos = userRegistros.map((reg: RegistroPonto) => {
             const tipo = getPointTypeFromId(reg.idTipoRegistroPonto);
             return {
               type: tipo,

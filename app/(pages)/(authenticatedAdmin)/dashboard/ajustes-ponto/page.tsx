@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
-import { listAdjustmentRequests, validateAdjustmentRequest } from '@/services/timeRecordAdjustment';
+import { registroPontoService, SolicitacaoAlteracao, ItemRegistro } from '@/services/registroPonto';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 //Components
@@ -11,17 +11,16 @@ import EditModal from '@/app/components/atoms/EditModal';
 
 //Types
 import { Column } from '@/types';
-import { TimeRecordAdjustment, ItemRegistro } from '@/services/timeRecordAdjustment';
 
 export default function AjustesPontoPage() {
-  const [solicitacoes, setSolicitacoes] = useState<TimeRecordAdjustment[]>([]);
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAlteracao[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedSolicitacao, setSelectedSolicitacao] = useState<TimeRecordAdjustment | null>(null);
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAlteracao | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<number>(0);
   const [updateLoading, setUpdateLoading] = useState(false);
 
-  const columns: Column[] = [
+  const columns: Column<SolicitacaoAlteracao>[] = [
     { key: 'dataRegistroAlteracao', label: 'Data Alteração', type: 'date' },
     { key: 'justificativa', label: 'Justificativa' },
     { key: 'statusSolicitacao', label: 'Status', type: 'status' },
@@ -29,7 +28,7 @@ export default function AjustesPontoPage() {
       key: 'itens', 
       label: 'Registros',
       type: 'custom',
-      render: (item: TimeRecordAdjustment) => (
+      render: (item: SolicitacaoAlteracao) => (
         <div>
           {item.itens.map((registro: ItemRegistro, i: number) => (
             <div key={i} className="text-sm">
@@ -44,7 +43,7 @@ export default function AjustesPontoPage() {
   
   const fetchSolicitacoes = async () => {
     try {
-      const response = await listAdjustmentRequests();
+      const response = await registroPontoService.listarSolicitacoesAlteracao();
       if (response.sucesso && response.solicitacoes) {
         setSolicitacoes(response.solicitacoes);
       } else {
@@ -64,7 +63,7 @@ export default function AjustesPontoPage() {
     fetchSolicitacoes();
   }, []);
 
-  const handleEdit = (solicitacao: TimeRecordAdjustment) => {
+  const handleEdit = (solicitacao: SolicitacaoAlteracao) => {
     setSelectedSolicitacao(solicitacao);
     setSelectedStatus(0);
     setIsDetailModalOpen(true);
@@ -83,7 +82,7 @@ export default function AjustesPontoPage() {
 
 
     try {
-      await validateAdjustmentRequest(selectedSolicitacao.idSolicitacao, selectedStatus);
+      await registroPontoService.validarSolicitacao(selectedSolicitacao.idSolicitacao, selectedStatus === 1);
       showSuccessToast(`Solicitação ${selectedStatus === 1 ? 'aprovada' : 'reprovada'} com sucesso!`);
       fetchSolicitacoes();
       handleCloseModal();

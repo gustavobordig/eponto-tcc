@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { motion } from "framer-motion";
 import Button from "@/app/components/atoms/Button";
 import { TimeEntryInput, TimeEntry } from "@/app/components/atoms/TimeEntryInput";
-import { ajusteService } from "@/services/ajuste";
+import { registroPontoService } from "@/services/registroPonto";
 import { toast } from "react-hot-toast";
 import { tokenUtils } from "@/utils/token";
 
@@ -178,7 +178,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         ]
       };
 
-      await ajusteService(payload);
+      await registroPontoService.solicitarAlteracao(payload);
       toast.success('Ajuste de ponto solicitado com sucesso!');
       onClose();
       onSubmit(formData);

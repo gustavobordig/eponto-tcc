@@ -6,7 +6,7 @@ import { AnimatedTableRow } from "@/app/components/atoms/AnimatedTableRow";
 import { AnimatedButton } from "@/app/components/atoms/AnimatedButton";
 import { TimeAdjustmentModal } from "@/app/components/molecules/TimeAdjustmentModal";
 import { useState, useEffect } from "react";
-import { getUserTimeRecords } from "@/services/timeRecord";
+import { registroPontoService, RegistroPonto as ApiRegistroPonto } from "@/services/registroPonto";
 import { bancoHorasService } from "@/services/bancoHoras";
 import { tokenUtils } from "@/utils/token";
 import { getHorariosDoDia } from "@/utils/timeUtils";
@@ -23,14 +23,6 @@ interface RegistroPonto {
   dataOriginal: string;
 }
 
-interface ApiRegistroPonto {
-  id_Usuario: number;
-  horaRegistro: string;
-  dataRegistro: string;
-  idTipoRegistroPonto: number;
-  idRegistro: number;
-}
-
 export default function HistoricoContainer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registros, setRegistros] = useState<RegistroPonto[]>([]);
@@ -45,7 +37,7 @@ export default function HistoricoContainer() {
         const userId = tokenUtils.getId();
         if (!userId) return;
 
-        const response = await getUserTimeRecords(Number(userId));
+        const response = await registroPontoService.listarPorUsuario(Number(userId));
 
         if (response.sucesso && response.registros) {
           setRegistrosApi(response.registros);
@@ -59,16 +51,25 @@ export default function HistoricoContainer() {
             return acc;
           }, {});
 
-          const registrosFormatados = await Promise.all((Object.entries(registrosPorData) as [string, ApiRegistroPonto[]][]).map(async ([data, regs]) => {
+          // Uma chamada só para os saldos; antes era uma por dia, sempre com a lista inteira
+          const saldoPorData = new Map<string, string>();
+          try {
+            const saldos = await bancoHorasService.obterSaldosDiarios(Number(userId));
+            saldos.saldosDiarios?.forEach((saldo) => {
+              saldoPorData.set(saldo.dataReferencia.split('T')[0], saldo.saldoDiario);
+            });
+          } catch (error) {
+            console.error('Erro ao obter saldos diários:', error);
+          }
+
+          const registrosFormatados = Object.entries(registrosPorData).map(([data, regs]) => {
             const [ano, mes, dia] = data.split('-').map(Number);
             const dataObj = new Date(ano, mes - 1, dia);
             const dataFormatada = formatInTimeZone(dataObj, 'America/Sao_Paulo', 'EEE, dd/MM/yyyy', {
               locale: ptBR
             });
 
-            regs.sort((a: ApiRegistroPonto, b: ApiRegistroPonto) => 
-              new Date(a.horaRegistro).getTime() - new Date(b.horaRegistro).getTime()
-            );
+            regs.sort((a, b) => new Date(a.horaRegistro).getTime() - new Date(b.horaRegistro).getTime());
 
             const primeiroRegistro = regs[0];
             const ultimoRegistro = regs[regs.length - 1];
@@ -85,43 +86,17 @@ export default function HistoricoContainer() {
 
             const entradaSaida = regs.length === 1 ? `${entrada} - xx` : `${entrada} - ${saida}`;
 
-            // Obtém os saldos diários do banco de horas
-            try {
-              const response = await bancoHorasService.obterSaldosDiarios(Number(userId));
-              
-              if (response.sucesso && response.saldosDiarios && response.saldosDiarios.length > 0) {
-                // Encontra o saldo correspondente à data atual
-                const saldoDoDia = response.saldosDiarios.find(saldo => 
-                  saldo.dataReferencia.split('T')[0] === data
-                );
-
-                if (saldoDoDia) {
-                  // Converte o saldo para o formato desejado
-                  const saldo = saldoDoDia.saldoDiario;
-                  const horasExtras = saldo.startsWith('-') ? "0h" : formatSaldo(saldo);
-                  const faltantes = saldo.startsWith('-') ? formatSaldo(saldo.substring(1)) : "0h";
-
-                  return {
-                    data: dataFormatada,
-                    dataOriginal: data,
-                    entradaSaida,
-                    horasExtras,
-                    faltantes
-                  };
-                }
-              }
-            } catch (error) {
-              console.error('Erro ao obter saldos diários:', error);
-            }
+            const saldo = saldoPorData.get(data);
+            const negativo = saldo?.startsWith('-') ?? false;
 
             return {
               data: dataFormatada,
               dataOriginal: data,
               entradaSaida,
-              horasExtras: "0h",
-              faltantes: "0h"
+              horasExtras: saldo && !negativo ? formatSaldo(saldo) : "0h",
+              faltantes: saldo && negativo ? formatSaldo(saldo.substring(1)) : "0h"
             };
-          }));
+          });
 
           setRegistros(registrosFormatados);
         }

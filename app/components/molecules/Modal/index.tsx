@@ -6,7 +6,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import UserImage from "@/public/images/User.png";
 import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin } from "lucide-react";
 import { SlideUp } from "@/app/Animations/sliderUp";
-import { insertTimeRecord } from "@/services/timeRecord";
+import { registroPontoService } from "@/services/registroPonto";
 
 // Atoms
 import Button from "@/app/components/atoms/Button";
@@ -156,7 +156,7 @@ export const Modal: React.FC<ModalProps> = ({
         idTipoRegistroPonto: 1,
       };
 
-      await insertTimeRecord(payload);
+      await registroPontoService.inserir(payload);
       showSuccessToast("Ponto registrado com sucesso!");
       onConfirm();
       window.location.reload();
