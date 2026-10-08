@@ -57,7 +57,8 @@ npm run test:e2e             # em outro (ou test:e2e:open para o modo interativo
 | `login.cy.ts` | Login em duas etapas, escolha de perfil, cookies da sessão, erro da API |
 | `cargos.cy.ts` | Validações do cadastro e da edição, e as chamadas de criar, editar e excluir |
 | `painel-admin.cy.ts` | Usuários, férias, feriados, resposta de feedback e aprovação de ausências |
-| `funcionario.cy.ts` | Contrato no perfil, status das ausências, pedido de feedback ao chefe |
+| `funcionario.cy.ts` | Contrato no perfil, status das ausências, feedbacks do próprio usuário, pedido ao chefe |
+| `recuperar-senha.cy.ts` | Recuperação de senha com o código enviado por e-mail |
 
 A sessão nos testes vem de `cy.loginAs('admin' | 'funcionario')`, que grava os
 mesmos cookies do login.
