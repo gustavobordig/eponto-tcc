@@ -4,7 +4,7 @@ import NavBar from "@/app/components/molecules/NavBar";
 import { useEffect, useState } from "react";
 import { tokenUtils } from "@/utils/token";
 import { userService } from "@/services/user";
-import { useRouter } from "next/navigation";
+import { showErrorToast } from "@/utils/toast";
 import FeedbackModal from "@/app/components/molecules/FeedbackModal";
 import { FeedbackProvider, useFeedback } from "@/app/contexts/FeedbackContext";
     
@@ -13,10 +13,10 @@ function AuthenticatedLayoutContent({
 }: {
     children: React.ReactNode;
 }) {
-    const router = useRouter();
     const { isFeedbackModalOpen, closeFeedbackModal, refreshSolicitacoes } = useFeedback();
     const [userName, setUserName] = useState<string>('');
-    
+    const [isAdmin, setIsAdmin] = useState(false);
+
     const navItems = [
         "/home",
         "/perfil",
@@ -24,15 +24,19 @@ function AuthenticatedLayoutContent({
         "/calendar",
         "/feedback",
         "/solicitar-ausencia",
-        "/minhas-solicitacoes"
+        "/minhas-solicitacoes",
+        ...(isAdmin ? ["/dashboard"] : [])
     ];
+
+    // document.cookie só existe no navegador, então lê depois de montar
+    useEffect(() => {
+        setIsAdmin(tokenUtils.isAdmin());
+    }, []);
 
     useEffect(() => {
         const checkUser = async () => {
             
             const userId = tokenUtils.getId();
-            
-            
 
             try {
                 const response = await userService.getById(Number(userId));
@@ -49,13 +53,15 @@ function AuthenticatedLayoutContent({
                     localStorage.setItem('user', JSON.stringify(userData));
                 }
             } catch (error) {
+                // Sessão inválida (401) já é encerrada no interceptor do axios.
+                // Voltar para "/" aqui criava um loop com o middleware.
                 console.error('Erro ao buscar dados do usuário:', error);
-                router.push('/');
+                showErrorToast('Não foi possível carregar seus dados');
             }
         };
 
         checkUser();
-    }, [router]);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-100">

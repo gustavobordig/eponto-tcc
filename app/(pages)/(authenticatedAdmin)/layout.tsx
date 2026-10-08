@@ -1,18 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { AdminAuthForm } from '@/app/components/atoms/AdminAuthForm';
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { tokenUtils } from '@/utils/token';
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
@@ -28,23 +26,10 @@ export default function AdminLayout({
     {href:"/dashboard/analytics", label:"Estatísticas"},
   ];
 
-  useEffect(() => {
-    // Verificar se já está autenticado
-    const authStatus = localStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
+  // O acesso é liberado pelo middleware, a partir do perfil da sessão
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('adminAuthenticated');
-    router.push('/');
+    tokenUtils.logout();
   };
-
-  if (!isAuthenticated) {
-    return <AdminAuthForm onAuthenticate={setIsAuthenticated} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
