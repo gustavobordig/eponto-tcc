@@ -1,351 +1,138 @@
-"use client"; 
+"use client";
 
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { registroPontoService, RegistroPonto } from "@/features/ponto/api";
-import { tokenUtils } from "@/shared/lib/token";
-import { bancoHorasService } from "@/features/bancoHoras/api";
-import { formatHorasTrabalhadas, formatSaldo } from "@/shared/lib/format";
-
-// Assets
-import UserImage from "@/public/images/User.png";
-// Icons
-import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from "lucide-react";
-
-// Components
+import { CheckCircle2, Clock, MapPin } from "lucide-react";
+import { useAreaFuncionario } from "@/app/(pages)/(authenticated)/_components/AreaFuncionario";
+import LinhaDoDia from "@/features/ponto/components/LinhaDoDia";
 import { PunctualityChart } from "@/features/ponto/components/PunctualityChart";
 import { pontualidadeExemplo } from "@/features/ponto/demoData";
+import { useLocalizacao } from "@/features/ponto/hooks/useLocalizacao";
+import { useSaldoAtual } from "@/features/bancoHoras/hooks/useSaldoAtual";
+import { duracaoEmMinutos, formatHorasTrabalhadas, formatSaldo } from "@/shared/lib/format";
+import Avatar from "@/shared/ui/Avatar";
 import DemoBadge from "@/shared/ui/DemoBadge";
-import Button from "@/shared/ui/Button";
-import { PageEntrance } from "@/shared/ui/animations/PageEntrance";
-import { DailyStatus, Point, PointType } from "@/features/ponto/components/DailyStatus";
+
+const saudacao = (hora: number) => (hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite");
 
 export default function Home() {
-  const [location, setLocation] = useState<string>("Carregando localização...");
-  const [locationError, setLocationError] = useState<string>("");
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [points, setPoints] = useState<Point[]>([]);
-  const [userName, setUserName] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [bancoHoras, setBancoHoras] = useState<{
-    horasTrabalhadas: string;
-    saldo: string;
-  } | null>(null);
+  const { nomeUsuario, ponto, abrirRegistro } = useAreaFuncionario();
+  const { saldo, carregando: carregandoSaldo } = useSaldoAtual();
+  const { texto: localizacao } = useLocalizacao();
+  const [agora, setAgora] = useState(new Date());
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const { nome } = JSON.parse(userData);
-      setUserName(nome);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Atualizar horário a cada minuto
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    // Obter localização
-    const getLocation = async () => {
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        });
-
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1&accept-language=pt-BR`
-        );
-        
-        const data = await response.json();
-        setLocation(data.display_name || "Localização não disponível");
-      } catch (error) {
-        console.error('Erro ao obter localização:', error);
-        setLocationError("Não foi possível obter sua localização");
-        setLocation("Localização não disponível");
-      }
-    };
-
-    getLocation();
-
+    const timer = setInterval(() => setAgora(new Date()), 30000);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const fetchPoints = async () => {
-      try {
-        const userId = tokenUtils.getId();
-        if (!userId) return;
-
-        const response = await registroPontoService.listarPorUsuario(Number(userId));
-        if (response.sucesso && response.registros) {
-          // Dia local: com toISOString, depois das 21h o "hoje" virava amanhã (UTC)
-          const today = format(new Date(), 'yyyy-MM-dd');
-          const userRegistros = response.registros.filter(
-            (reg) => reg.dataRegistro.split('T')[0] === today
-          );
-
-
-          // Converte os registros da API para o formato de Point
-          const pontosConvertidos = userRegistros.map((reg: RegistroPonto) => {
-            const tipo = getPointTypeFromId(reg.idTipoRegistroPonto);
-            return {
-              type: tipo,
-              timestamp: reg.horaRegistro
-            };
-          });
-
-
-          setPoints(pontosConvertidos);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar pontos:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPoints();
-  }, []);
-
-  useEffect(() => {
-    const fetchBancoHoras = async () => {
-      try {
-        const userId = tokenUtils.getId();
-        if (!userId) {
-          return;
-        }
-
-        const response = await bancoHorasService.obterSaldoAtual(Number(userId));
-
-        if (response.sucesso && response.bancoHoras && response.bancoHoras.length > 0) {
-          setBancoHoras({
-            horasTrabalhadas: response.bancoHoras[0].horasTrabalhadas,
-            saldo: response.bancoHoras[0].saldo
-          });
-        } else {
-          setBancoHoras(null);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar banco de horas:', error);
-        setBancoHoras(null);
-      }
-    };
-
-    fetchBancoHoras();
-  }, []);
-
-  const getPointTypeFromId = (id: number): PointType => {
-    switch (id) {
-      case 1:
-        return "entrada";
-      case 2:
-        return "inicio_almoco";
-      case 3:
-        return "fim_almoco";
-      case 4:
-        return "saida";
-      default:
-        console.warn('ID de tipo de registro desconhecido:', id);
-        throw new Error(`ID de tipo de registro inválido: ${id}`);
-    }
-  };
-
-  const getGreeting = () => {
-    const hour = currentTime.getHours();
-    if (hour < 12) return "Bom dia";
-    if (hour < 18) return "Boa tarde";
-    return "Boa noite";
-  };
-
-  const getCurrentPoint = (): PointType | null => {
-    const markedTypes = points.map(point => point.type);
-    if (!markedTypes.includes("entrada")) return "entrada";
-    if (!markedTypes.includes("inicio_almoco")) return "inicio_almoco";
-    if (!markedTypes.includes("fim_almoco")) return "fim_almoco";
-    if (!markedTypes.includes("saida")) return "saida";
-    return null;
-  };
-
-  const currentPoint = getCurrentPoint();
-
-  const timeIndicators = [
-    { type: "entrada" as PointType, icon: <LogIn className="w-6 h-6" />, label: "Entrada", time: "08:00" },
-    { type: "inicio_almoco" as PointType, icon: <Coffee className="w-6 h-6" />, label: "Início Almoço", time: "12:00" },
-    { type: "fim_almoco" as PointType, icon: <UtensilsCrossed className="w-6 h-6" />, label: "Fim Almoço", time: "13:00" },
-    { type: "saida" as PointType, icon: <LogOut className="w-6 h-6" />, label: "Saída", time: "17:00" },
-  ];
-
-  const handleMarkPoint = () => {
-    const currentPoint = getCurrentPoint();
-    if (currentPoint) {
-      setPoints([...points, { type: currentPoint, timestamp: new Date().toISOString() }]);
-    }
-  };
-
-  const getSaldoColor = (saldo: string) => {
-    const saldoFormatado = formatSaldo(saldo);
-    if (saldoFormatado.startsWith('-')) return 'text-red-600';
-    if (saldoFormatado.startsWith('+')) return 'text-green-600';
-    return 'text-gray-900';
-  };
+  const primeiroNome = nomeUsuario.split(" ")[0];
+  const minutosSaldo = saldo ? duracaoEmMinutos(saldo.saldo) : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <PageEntrance>
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Header Section */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex flex-col gap-6">
-              {/* First Row: User Info and Time */}
-              <div className="flex flex-col md:flex-row items-center  justify-center md:justify-between">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-[#002085]">
-                    <Image src={UserImage} alt="User" fill className="object-cover" />
-                  </div>
-                  <div className="flex flex-col gap-2 items-center md:items-start">
-                    <h1 className="text-2xl font-bold text-[#002085]">{getGreeting()}, {userName}!</h1>
-                    <p className="text-gray-500 text-sm">Bem-vindo de volta</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-center md:justify-end my-2 md:my-0 gap-2 text-gray-500">
-                  <Clock className="w-5 h-5" />
-                  <span className="text-3xl font-bold text-[#002085]">
-                    {format(currentTime, "HH:mm")}
-                  </span>
-                </div>
-              </div>
-
-              {/* Second Row: Date and Location */}
-              <div className="flex flex-col md:flex-row gap-2 items-center justify-between border-t pt-4">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Calendar className="w-5 h-5" />
-                  <span>
-                    {format(currentTime, "EEEE',' d 'de' MMMM',' yyyy", { locale: ptBR })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <MapPin className="w-5 h-5" />
-                  <span className="truncate max-w-[200px] md:max-w-[300px]">{locationError || location}</span>
-                </div>
-              </div>
+    <div className="space-y-6">
+      {/* Topo: quem, quando e a ação principal (no celular, logo no início da tela) */}
+      <section className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <Avatar nome={nomeUsuario} tamanho="lg" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {saudacao(agora.getHours())}
+                {primeiroNome && `, ${primeiroNome}`}
+              </h1>
+              <p className="text-sm capitalize text-gray-500">{format(agora, "EEEE, d 'de' MMMM", { locale: ptBR })}</p>
+              <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="max-w-[16rem] truncate sm:max-w-sm">{localizacao}</span>
+              </p>
             </div>
           </div>
 
-          {/* Main Info Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Actions Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
-              <h2 className="text-lg font-semibold text-[#002085]">Ações</h2>
-              <div className="flex flex-col gap-3">
-                <Button
-                  text="Bater Ponto"
-                  backgroundColor="bg-[#002085]"
-                  className="w-full"
-                  textColor="text-white"
-                  onClick={handleMarkPoint}
-                />
-                <Button
-                  text="Editar localização"
-                  icon={<MapPin className="w-4 h-4" />}
-                  backgroundColor="bg-transparent"
-                  className="w-full border border-[#002085]"
-                  textColor="text-[#002085]"
-                  onClick={() => {}}
-                />
-              </div>
-            </div>
-
-            {/* Points Status Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Pontos do Dia</h2>
-              <div className="grid grid-cols-4 gap-4">
-                {loading ? (
-                  <div className="col-span-4 text-center text-gray-500">
-                    Carregando pontos...
-                  </div>
-                ) : (
-                  timeIndicators.map((indicator, index) => {
-                    const isCurrentPoint = indicator.type === currentPoint;
-                    const isMarked = points.some(point => point.type === indicator.type);
-                    const point = points.find(point => point.type === indicator.type);
-                    const time = point ? format(new Date(point.timestamp), "HH:mm") : indicator.time;
-                    
-                    return (
-                      <div key={index} className="flex flex-col items-center">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                          isCurrentPoint 
-                            ? "bg-green-100 text-green-600" 
-                            : isMarked 
-                              ? "bg-gray-100 text-[#002085]" 
-                              : "bg-gray-50 text-gray-400"
-                        }`}>
-                          {indicator.icon}
-                        </div>
-                        <span className={`text-xs ${isCurrentPoint ? "text-green-600 font-semibold" : "text-[#002085]"}`}>
-                          {indicator.label}
-                        </span>
-                        <span className={`text-sm font-semibold ${isCurrentPoint ? "text-green-600" : "text-[#002085]"}`}>
-                          {time}
-                        </span>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Punctuality Status Card */}
-            <DailyStatus points={points} />
-          </div>
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Monthly Hours Balance Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm h-fit">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Saldo de Horas</h2>
-              <div className="h-fit flex flex-col justify-start items-start gap-4">
-                {bancoHoras ? (
-                  <>
-                    <div className="text-left">
-                      <p className="text-sm text-gray-600">Horas Trabalhadas</p>
-                      <p className="text-xl font-bold text-[#002085]">{formatHorasTrabalhadas(bancoHoras.horasTrabalhadas)}</p>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm text-gray-600">Saldo</p>
-                      <p className={`text-xl font-bold ${getSaldoColor(bancoHoras.saldo)}`}>
-                        {formatSaldo(bancoHoras.saldo)}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-gray-500">Não foi possível carregar o saldo</p>
-                    <p className="text-sm text-gray-400">Verifique sua conexão e tente novamente</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Punctuality Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[#002085]">Pontualidade</h2>
-                <DemoBadge />
-              </div>
-              <div className="h-64">
-                <PunctualityChart data={pontualidadeExemplo} />
-              </div>
-            </div>
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center md:flex-col md:items-end">
+            <p className="flex items-center gap-2 text-4xl font-bold tabular-nums text-primary">
+              <Clock className="h-6 w-6 text-gray-400" aria-hidden />
+              {format(agora, "HH:mm")}
+            </p>
+            {ponto.carregando ? null : ponto.proxima ? (
+              <button
+                type="button"
+                onClick={abrirRegistro}
+                className="rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
+              >
+                Registrar {ponto.proxima.label.toLowerCase()}
+              </button>
+            ) : (
+              <p className="flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                <CheckCircle2 className="h-5 w-5" />
+                Pontos de hoje completos
+              </p>
+            )}
           </div>
         </div>
-      </PageEntrance>
+      </section>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <section className="rounded-2xl bg-white p-6 shadow-sm md:col-span-2" aria-labelledby="titulo-pontos-hoje">
+          <h2 id="titulo-pontos-hoje" className="mb-5 text-lg font-semibold text-gray-900">
+            Pontos de hoje
+          </h2>
+          {ponto.carregando ? (
+            <p className="text-sm text-gray-500">Carregando pontos…</p>
+          ) : (
+            <LinhaDoDia marcados={ponto.marcados} proxima={ponto.proxima} />
+          )}
+          <p className="mt-5 text-xs text-gray-500">
+            Os horários em cinza são de referência. O atraso aparece em laranja na entrada e na volta do almoço.
+          </p>
+        </section>
+
+        <section className="rounded-2xl bg-white p-6 shadow-sm" aria-labelledby="titulo-banco-horas">
+          <h2 id="titulo-banco-horas" className="mb-5 text-lg font-semibold text-gray-900">
+            Banco de horas
+          </h2>
+          {carregandoSaldo ? (
+            <p className="text-sm text-gray-500">Carregando saldo…</p>
+          ) : saldo ? (
+            <dl className="space-y-4">
+              <div>
+                <dt className="text-sm text-gray-500">Saldo</dt>
+                <dd
+                  className={`text-3xl font-bold tabular-nums ${
+                    minutosSaldo === null || minutosSaldo === 0
+                      ? "text-gray-900"
+                      : minutosSaldo > 0
+                        ? "text-green-700"
+                        : "text-red-700"
+                  }`}
+                >
+                  {minutosSaldo !== null && minutosSaldo > 0 ? "+" : ""}
+                  {formatSaldo(saldo.saldo)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-gray-500">Horas trabalhadas</dt>
+                <dd className="text-lg font-semibold tabular-nums text-gray-900">{formatHorasTrabalhadas(saldo.horasTrabalhadas)}</dd>
+              </div>
+            </dl>
+          ) : (
+            <p className="text-sm text-gray-500">Ainda não há saldo calculado para você.</p>
+          )}
+        </section>
+      </div>
+
+      <section className="rounded-2xl bg-white p-6 shadow-sm" aria-labelledby="titulo-pontualidade">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 id="titulo-pontualidade" className="text-lg font-semibold text-gray-900">
+            Pontualidade
+          </h2>
+          <DemoBadge />
+        </div>
+        <div className="h-64">
+          <PunctualityChart data={pontualidadeExemplo} />
+        </div>
+      </section>
     </div>
   );
-} 
+}

@@ -1,74 +1,20 @@
 "use client";
 
-import NavBar from "@/app/(pages)/(authenticated)/_components/NavBar";
-import { useEffect, useState } from "react";
-import { tokenUtils } from "@/shared/lib/token";
-import { userService } from "@/features/usuarios/api";
-import { showErrorToast } from "@/shared/lib/toast";
+import BarraFuncionario from "@/app/(pages)/(authenticated)/_components/BarraFuncionario";
+import { AreaFuncionarioProvider } from "@/app/(pages)/(authenticated)/_components/AreaFuncionario";
 import FeedbackModal from "@/features/feedback/components/FeedbackModal";
 import { FeedbackProvider, useFeedback } from "@/features/feedback/FeedbackContext";
-    
+
 function AuthenticatedLayoutContent({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const { isFeedbackModalOpen, closeFeedbackModal, refreshSolicitacoes } = useFeedback();
-    const [userName, setUserName] = useState<string>('');
-    const [isAdmin, setIsAdmin] = useState(false);
-
-    // A home fica no logo
-    const navItems = [
-        "/perfil",
-        "/history",
-        "/calendar",
-        "/feedback",
-        "/solicitar-ausencia",
-        "/minhas-solicitacoes",
-        ...(isAdmin ? ["/dashboard"] : [])
-    ];
-
-    // document.cookie só existe no navegador, então lê depois de montar
-    useEffect(() => {
-        setIsAdmin(tokenUtils.isAdmin());
-    }, []);
-
-    useEffect(() => {
-        const checkUser = async () => {
-            
-            const userId = tokenUtils.getId();
-
-            try {
-                const response = await userService.getById(Number(userId));
-                
-                if (response.sucesso && response.usuario) {
-                    const userData = {
-                        nome: response.usuario.nome,
-                        email: response.usuario.email,
-                        dataNascimento: response.usuario.dataNascimento,
-                        telefone: response.usuario.telefone
-                    };
-                    
-                    setUserName(response.usuario.nome);
-                    localStorage.setItem('user', JSON.stringify(userData));
-                }
-            } catch (error) {
-                // Sessão inválida (401) já é encerrada no interceptor do axios.
-                // Voltar para "/" aqui criava um loop com o middleware.
-                console.error('Erro ao buscar dados do usuário:', error);
-                showErrorToast('Não foi possível carregar seus dados');
-            }
-        };
-
-        checkUser();
-    }, []);
-
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="fixed top-0 left-0 right-0 z-50">
-                <NavBar itens={navItems} userName={userName} />
-            </div>
-            <main className="container mx-auto px-4 py-8 pt-24">
+        <div className="min-h-screen bg-background">
+            <BarraFuncionario />
+            <main className="mx-auto max-w-7xl px-4 pb-10 pt-24">
                 {children}
             </main>
 
@@ -88,9 +34,11 @@ export default function AuthenticatedLayout({
 }) {
     return (
         <FeedbackProvider>
-            <AuthenticatedLayoutContent>
-                {children}
-            </AuthenticatedLayoutContent>
+            <AreaFuncionarioProvider>
+                <AuthenticatedLayoutContent>
+                    {children}
+                </AuthenticatedLayoutContent>
+            </AreaFuncionarioProvider>
         </FeedbackProvider>
     );
 }
