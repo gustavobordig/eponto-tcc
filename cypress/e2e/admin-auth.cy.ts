@@ -3,6 +3,7 @@ describe('Acesso às rotas', () => {
   beforeEach(() => {
     cy.clearLocalStorage();
     cy.clearCookies();
+    cy.mockApi();
   });
 
   it('sem sessão, manda as rotas do funcionário para o login', () => {

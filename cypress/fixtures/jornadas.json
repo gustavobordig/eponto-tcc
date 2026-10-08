@@ -1,0 +1,8 @@
+{
+  "sucesso": true,
+  "mensagem": null,
+  "jornadas": [
+    { "idJornada": 1, "nomeJornada": "Integral 8h", "qtdHorasDiarias": 8, "indAtivo": 1 },
+    { "idJornada": 2, "nomeJornada": "Meio período", "qtdHorasDiarias": 4, "indAtivo": 1 }
+  ]
+}

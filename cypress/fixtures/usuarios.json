@@ -1,0 +1,15 @@
+{
+  "sucesso": true,
+  "mensagem": null,
+  "usuario": null,
+  "usuarios": [
+    {
+      "idUsuario": 1, "nome": "Ana Souza", "email": "ana@exemplo.com", "telefone": 11999990000,
+      "idCargo": 1, "idJornada": 2, "indAtivo": 1, "dataNascimento": "1990-05-10T00:00:00", "senha": ""
+    },
+    {
+      "idUsuario": 2, "nome": "Bruno Lima", "email": "bruno@exemplo.com", "telefone": 11988880000,
+      "idCargo": 2, "idJornada": 1, "indAtivo": 0, "dataNascimento": "1985-01-20T00:00:00", "senha": ""
+    }
+  ]
+}

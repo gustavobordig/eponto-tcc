@@ -10,6 +10,8 @@ describe('CRUD de Cargos', () => {
   };
 
   beforeEach(() => {
+    cy.mockApi();
+    cy.intercept('GET', '**/api/Cargo/Listar', { fixture: 'cargos.json' }).as('cargos');
     cy.loginAsAdmin();
     cy.visit('/dashboard/cargos');
   });
@@ -448,40 +450,55 @@ describe('CRUD de Cargos', () => {
     });
   });
 
-  describe('CRUD de Cargos - Integração Criação e Exclusão', () => {
-    // Gera um nome único para o cargo
-    const dataFormatada = (() => {
-      const agora = new Date();
-      const dia = agora.getDate().toString().padStart(2, '0');
-      const mes = (agora.getMonth() + 1).toString().padStart(2, '0');
-      const hora = agora.getHours().toString().padStart(2, '0');
-      const minuto = agora.getMinutes().toString().padStart(2, '0');
-      return `${dia}-${mes} ${hora}:${minuto}`;
-    })();
-    const nomeCargo = `Desenvolvedor Teste ${dataFormatada}`;
-
-    it('deve criar um novo cargo', () => {
-      cy.visit('/adicionar-cargo');
-      cy.get('#nome').type(nomeCargo);
-      cy.get('#formacaoMinima').type('Ensino Superior');
-      cy.get('#salario').type('1500');
-      cy.get('form').submit();
-      cy.url({ timeout: 10000 }).should('include', '/dashboard/cargos');
-      cy.contains(nomeCargo).should('be.visible');
+  describe('CRUD de Cargos - Chamadas à API', () => {
+    it('não abre o modal de edição sozinho ao carregar a lista', () => {
+      cy.wait('@cargos');
+      cy.get('table tbody tr').should('have.length', 2);
+      cy.contains('Editar Cargo').should('not.exist');
     });
 
-    it('deve excluir o cargo criado e marcar como inativo', () => {
-      cy.visit('/dashboard/cargos');
-      cy.get('table tbody tr').contains(nomeCargo).parent().within(() => {
+    it('envia o novo cargo para a API e volta para a lista', () => {
+      cy.intercept('POST', '**/api/Cargo/Inserir', { body: { sucesso: true, mensagem: null } }).as('inserir');
+      cy.visit('/adicionar-cargo');
+      cy.get('#nome').type('Desenvolvedor Pleno');
+      cy.get('#formacaoMinima').type('Ensino Superior');
+      cy.get('#salario').type('6500');
+      cy.get('form').submit();
+
+      cy.wait('@inserir').its('request.body').should('deep.include', {
+        idCargo: 0,
+        nomeCargo: 'Desenvolvedor Pleno',
+        formacaoMinima: 'Ensino Superior',
+        indAtivo: 1,
+      });
+      cy.location('pathname').should('eq', '/dashboard/cargos');
+      cy.contains('Cargo cadastrado com sucesso!').should('be.visible');
+    });
+
+    it('envia a edição para a API', () => {
+      cy.intercept('PUT', '**/api/Cargo/Atualizar/*', { body: { sucesso: true, mensagem: null } }).as('atualizar');
+      cy.get('table tbody tr').contains('Gerente').parents('tr').within(() => {
+        cy.contains('Editar').click();
+      });
+      cy.get('input').first().clear().type('Gerente de Projetos').blur();
+      cy.contains('button', 'Salvar').click();
+
+      cy.wait('@atualizar').then(({ request }) => {
+        expect(request.url).to.match(/Atualizar\/2$/);
+        expect(request.body).to.deep.include({ idCargo: 2, nomeCargo: 'Gerente de Projetos' });
+      });
+      cy.contains('Editar Cargo').should('not.exist');
+    });
+
+    it('exclui pelo id do cargo', () => {
+      cy.intercept('PUT', '**/api/Cargo/Deletar/*', { body: { sucesso: true, mensagem: null } }).as('deletar');
+      cy.get('table tbody tr').contains('Analista').parents('tr').within(() => {
         cy.contains('Excluir').click();
       });
       cy.contains('Confirmar exclusão').should('be.visible');
-      // Clicar no botão "Excluir" dentro do modal (não o da tabela)
       cy.get('.fixed.inset-0 button').contains('Excluir').click();
-      cy.wait(1000);
-      cy.get('table tbody tr').contains(nomeCargo).parent().within(() => {
-        cy.contains('Inativo').should('be.visible');
-      });
+
+      cy.wait('@deletar').its('request.url').should('match', /Deletar\/1$/);
     });
   });
-}); 
+});

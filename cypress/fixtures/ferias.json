@@ -1,0 +1,7 @@
+{
+  "sucesso": true,
+  "mensagem": null,
+  "listaFerias": [
+    { "idFerias": 1, "dscFerias": "Recesso de fim de ano", "datInicioFerias": "2026-12-22T00:00:00", "datFimFerias": "2027-01-02T00:00:00" }
+  ]
+}

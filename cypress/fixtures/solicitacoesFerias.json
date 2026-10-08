@@ -1,0 +1,16 @@
+{
+  "sucesso": true,
+  "mensagem": null,
+  "listarSolicitacoesFerias": [
+    {
+      "idSolicFerias": 4, "idUsuario": 1, "nomeUsuario": "Ana Souza", "dscObservacao": "Viagem",
+      "datInicioFerias": "2026-11-03T00:00:00", "datFimFerias": "2026-11-14T00:00:00",
+      "datSolicitacaoFerias": "2026-10-01T09:00:00", "indSituacao": 0
+    },
+    {
+      "idSolicFerias": 5, "idUsuario": 2, "nomeUsuario": "Bruno Lima", "dscObservacao": "Descanso",
+      "datInicioFerias": "2026-07-01T00:00:00", "datFimFerias": "2026-07-10T00:00:00",
+      "datSolicitacaoFerias": "2026-06-01T09:00:00", "indSituacao": 1
+    }
+  ]
+}

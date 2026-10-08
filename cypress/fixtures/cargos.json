@@ -1,0 +1,8 @@
+{
+  "sucesso": true,
+  "mensagem": null,
+  "cargos": [
+    { "idCargo": 1, "nomeCargo": "Analista", "salario": "5000", "formacaoMinima": "Ensino Superior", "indAtivo": 1 },
+    { "idCargo": 2, "nomeCargo": "Gerente", "salario": "9000", "formacaoMinima": "Ensino Superior", "indAtivo": 1 }
+  ]
+}

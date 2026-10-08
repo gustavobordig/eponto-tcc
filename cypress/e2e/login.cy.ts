@@ -1,44 +1,66 @@
+// Login com a API simulada: confere a sessão gravada em cookie e o redirecionamento
 describe('Login', () => {
+  const preencher = (email: string, senha: string) => {
+    cy.get('input[type="text"], input[type="email"]').first().type(email);
+    cy.get('input[type="password"]').first().type(senha);
+    cy.contains('button', 'Entrar').click();
+  };
+
   beforeEach(() => {
+    cy.clearCookies();
+    cy.mockApi();
     cy.visit('/');
   });
 
-  it('deve fazer login com credenciais válidas', () => {
-    // Usar seletores baseados na estrutura real do formulário
-    cy.get('input[type="text"], input[type="email"]').first().type('admin@exemplo.com');
-    cy.get('input[type="password"]').first().type('senha123');
-    
-    // Clicar no botão de login
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se foi redirecionado para a página home
-    cy.url().should('include', '/home');
+  it('entra, grava a sessão e vai para a home', () => {
+    cy.intercept('POST', '**/api/login/realizarLogin', {
+      body: { sucesso: true, mensagem: null, idUsuario: 7, token: 'token-e2e' },
+    }).as('login');
+
+    preencher('ana@exemplo.com', 'senha-teste');
+
+    cy.wait('@login').its('request.body').should('deep.equal', { email: 'ana@exemplo.com', senha: 'senha-teste' });
+    cy.location('pathname').should('eq', '/home');
+    cy.getCookie('eponto_token').its('value').should('eq', 'token-e2e');
+    cy.getCookie('eponto_id').its('value').should('eq', '7');
+    cy.getCookie('eponto_perfil').its('value').should('eq', 'funcionario');
+    cy.get('a[href="/dashboard"]').should('not.exist');
   });
 
-  it('deve mostrar erro com credenciais inválidas', () => {
-    cy.get('input[type="text"], input[type="email"]').first().type('email@invalido.com');
-    cy.get('input[type="password"]').first().type('senhaerrada');
-    
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se permanece na página de login ou mostra erro
-    cy.url().should('not.include', '/home');
+  it('com perfil admin vindo da API, mostra o link do painel', () => {
+    cy.intercept('POST', '**/api/login/realizarLogin', {
+      body: { sucesso: true, mensagem: null, idUsuario: 1, token: 'token-admin', perfil: 'admin' },
+    });
+
+    preencher('rh@exemplo.com', 'senha-teste');
+
+    cy.location('pathname').should('eq', '/home');
+    cy.getCookie('eponto_perfil').its('value').should('eq', 'admin');
+    cy.get('a[href="/dashboard"]').should('exist');
   });
 
-  it('deve validar campos obrigatórios', () => {
-    // Tentar fazer login sem preencher os campos
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se permanece na página de login
-    cy.url().should('not.include', '/home');
+  it('mostra a mensagem da API quando o login falha e não sai da tela', () => {
+    cy.intercept('POST', '**/api/login/realizarLogin', {
+      statusCode: 401,
+      body: { sucesso: false, mensagem: 'Usuário ou senha inválidos' },
+    });
+
+    preencher('ana@exemplo.com', 'errada');
+
+    cy.contains('Usuário ou senha inválidos').should('be.visible');
+    cy.location('pathname').should('eq', '/');
+    cy.getCookie('eponto_token').should('be.null');
   });
 
-  it('depois do login, voltar para a tela de login leva para a home', () => {
-    cy.get('input[type="text"], input[type="email"]').first().type('admin@exemplo.com');
-    cy.get('input[type="password"]').first().type('senha123');
-    cy.get('button').contains('Entrar').click();
-    cy.url().should('include', '/home');
+  it('não envia o formulário com os campos vazios', () => {
+    cy.contains('button', 'Entrar').should('be.disabled');
+    cy.get('input[type="text"], input[type="email"]').first().type('ana@exemplo.com');
+    cy.contains('button', 'Entrar').should('be.disabled');
+    cy.location('pathname').should('eq', '/');
+  });
 
+  it('com sessão, voltar para a tela de login leva para a home', () => {
+    cy.loginAs('funcionario');
     cy.visit('/');
     cy.location('pathname').should('eq', '/home');
   });

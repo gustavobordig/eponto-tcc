@@ -13,17 +13,11 @@ declare namespace Cypress {
      * @example cy.loginAsAdmin()
      */
     loginAsAdmin(): Chainable<void>
-    
+
     /**
-     * Custom command to create a test cargo
-     * @example cy.createTestCargo('Desenvolvedor', '5000', 'Ensino Superior')
+     * Responde { sucesso: true } para qualquer rota da API; registre depois as respostas específicas
+     * @example cy.mockApi(); cy.intercept('GET', '**' + '/api/Cargo/Listar', { fixture: 'cargos.json' })
      */
-    createTestCargo(nome: string, salario: string, formacaoMinima?: string): Chainable<Element>
-    
-    /**
-     * Custom command to delete a cargo by name
-     * @example cy.deleteCargoByName('Desenvolvedor Teste')
-     */
-    deleteCargoByName(nome: string): Chainable<Element>
+    mockApi(): Chainable<void>
   }
 } 
