@@ -37,14 +37,15 @@ export default function MinhasSolicitacoesPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Minhas Solicitações de Ausência
-          </h1>
+    <div>
+      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Ausências</h1>
+            <p className="text-sm text-gray-500">Seus pedidos de ausência e a situação de cada um</p>
+          </div>
           <Button
-            text="Nova Solicitação"
+            text="Pedir ausência"
             backgroundColor="bg-primary"
             textColor="text-white"
             onClick={() => router.push('/solicitar-ausencia')}
@@ -78,8 +79,11 @@ export default function MinhasSolicitacoesPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
+                    Motivo
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
-                    Data da Solicitação
+                    Pedido em
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
                     Início da Ausência
@@ -98,6 +102,9 @@ export default function MinhasSolicitacoesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {solicitacoes.map((solicitacao, index) => (
                   <tr key={solicitacao.idSolicitacaoAusencia || index} className="hover:bg-gray-50">
+                    <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-900" title={solicitacao.mensagemSolicitacao}>
+                      {solicitacao.mensagemSolicitacao || '—'}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-900 min-w-[140px] whitespace-nowrap">
                       {formatDate(solicitacao.dataSolicitacao)}
                     </td>
@@ -114,7 +121,7 @@ export default function MinhasSolicitacoesPage() {
                     </td>
                     <td className="px-6 py-4 text-sm font-medium min-w-[150px] whitespace-nowrap">
                       <Button
-                        text="Ver Detalhes"
+                        text="Detalhes"
                         backgroundColor="bg-gray-200"
                         textColor="text-gray-700"
                         onClick={() => handleViewDetails(solicitacao)}

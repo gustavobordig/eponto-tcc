@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 import { useState } from "react";
 import { tokenUtils } from "@/shared/lib/token";
 import { solicitacaoAusenciaService, SolicitacaoAusenciaInsert } from "@/features/ausencias/api";
@@ -128,9 +131,13 @@ export default function SolicitarAusenciaPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Solicitar Ausência
+      <Link href="/minhas-solicitacoes" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+        <ArrowLeft className="h-4 w-4" />
+        Voltar para ausências
+      </Link>
+      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+          Pedir ausência
         </h1>
         
         <div className="space-y-6">
