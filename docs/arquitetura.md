@@ -5,20 +5,26 @@ Front em Next.js 15 (App Router) que consome a API .NET descrita em [`api.md`](.
 ## Como está hoje
 
 ```text
-app/
-  (pages)/(authenticated)/        telas do funcionário (home, perfil, histórico, calendário…)
+app/                              rotas (App Router); as páginas só compõem a feature
+  (pages)/(authenticated)/        telas do funcionário + _components/ (NavBar, MobileNav)
   (pages)/(authenticatedAdmin)/   painel admin (dashboard/*, adicionar-*)
-  components/{atoms,molecules,organisms}/
-  contexts/FeedbackContext.tsx
-components/{ui,dashboard}/        shadcn + gráficos do analytics
-services/*.ts                     um objeto por recurso da API, com os tipos do contrato
-lib/session.ts                    sessão (cookies, JWT, perfil) e mapa de rotas, usado pelo app e pelo middleware
+features/<domínio>/               ponto, bancoHoras, ferias, feriados, calendario, feedback,
+                                  ausencias, cargos, jornadas, usuarios, auth, analytics
+  api.ts                          rotas da API e tipos do contrato
+  hooks/                          busca e ações de cada tela (useFeriasAdmin, useFeedbackAdmin…)
+  components/                     UI do domínio (components/admin/ para o painel)
+  lib/, validations.ts, status.ts regras do domínio
+shared/
+  lib/                            api (axios), session, token, toast, format, cn
+  ui/                             Button, Input, Table, modais, Calendario, DemoBadge…
+  ui/primitives/                  componentes shadcn (button, card, input, select)
+  types/                          ApiResponse<T> e tipos de UI (Column, validação)
 middleware.ts                     protege as rotas no servidor
-utils/                            toast, sessão no navegador, datas, validações
-types/                            ApiResponse<T> e tipos de UI (Column, validação)
 ```
 
-Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chamando `services/*` e guarda o resultado em `useState`. A sessão fica nos cookies `eponto_token`, `eponto_id` e `eponto_perfil`, que o `middleware.ts` lê para proteger as rotas. O cliente axios (`services/api.ts`) envia `Authorization: Bearer <token>` e, se a API responder 401 fora do login, limpa a sessão e volta para o login.
+Regra de dependência: `app` importa de `features` e `shared`, e `features` importa de `shared`. Uma feature só importa outra para usar o `api.ts` dela (por exemplo, `ausencias` usa `usuarios/api` para os nomes).
+
+Fluxo de dados: as páginas são `"use client"` e pegam os dados de um hook da feature (`useX`), que chama o `api.ts` e trata erro e toast. A sessão fica nos cookies `eponto_token`, `eponto_id` e `eponto_perfil`, que o `middleware.ts` lê para proteger as rotas. O cliente axios (`shared/lib/api.ts`) envia `Authorization: Bearer <token>` e, se a API responder 401 fora do login, limpa a sessão e volta para o login.
 
 ## Diagnóstico
 
@@ -41,12 +47,11 @@ Fluxo de dados: toda página é `"use client"`, busca dados no `useEffect` chama
 - Havia 37 `console.log` de debug (alguns com payloads da API), 9 arquivos que ninguém importava, uma rota `app/api/users` com "banco em memória" que não era usada e dois `next.config` (o `.js` tinha a opção inválida `swcMinify`).
 - Não havia CI.
 
-### Estrutura (pendente)
+### Estrutura
 
-- **Componentes em três lugares** (`app/components`, `components/ui`, `components/dashboard`). O atomic design não está sendo seguido: modais de 250 linhas aparecem como "atoms".
-- **Páginas gigantes** misturam fetch, estado, regra de negócio e UI. Por exemplo, `dashboard/feedback` tem 733 linhas e `solicitacoes-ausencia` tem 475.
-- **Mocks em produção**: o analytics usa `lib/mockData.ts`, e a home usa `mockMonthlyData`. "Minhas solicitações" e "Solicitações de ausência" (admin) mostram sempre a mesma lista fictícia, com a chamada real comentada.
-- **Barra de navegação**: com 7 itens (8 com "Painel admin"), os últimos ficam cortados em telas estreitas (no teste, com 800px de largura).
+- ~~Componentes em três lugares e páginas gigantes.~~ Organizado por feature na fase 4. Ainda passam de 300 linhas: `adicionar-usuario` (410), `feedback` do funcionário (369), `perfil` (364), `home` (350) e `solicitacoes-ausencia` (348).
+- ~~Mocks em "Minhas solicitações" e "Solicitações de ausência".~~ Agora usam a API. Continuam com dados de exemplo, marcados na tela com o selo "Dados de exemplo": a página de **Estatísticas** e o gráfico de **Pontualidade** da home. A API tem `BancoHoras/HorasTrabalhadasMes/{id}` e `BancoHoras/HorasExtrasMes/{id}`, mas o formato da resposta não está documentado.
+- ~~Barra de navegação cortada.~~ Resolvido na fase 4.
 - O README ainda é o padrão do `create-next-app`.
 
 ## Plano
@@ -105,21 +110,28 @@ Para conferir com a API ligada:
 
 Quando o item 1 estiver no ar, apague `NEXT_PUBLIC_ADMIN_EMAILS` e o trecho correspondente em `lib/session.ts` e `services/auth.ts`.
 
-### Fase 4 — organização por feature
+### Fase 4 — organização por feature ✅ (branch `refactor/arquitetura-fase-4`)
 
-```text
-features/
-  ponto/       components/  hooks/usePontosDoDia.ts  services.ts  types.ts
-  ferias/
-  feedback/
-  ausencias/
-  cadastros/   (cargos, jornadas, feriados, usuários)
-shared/
-  ui/          (Button, Input, Modal, Table — um só lugar)
-  lib/         (api, toast, datas, validações)
-```
+- Tudo foi movido para `features/` e `shared/`, com os imports reescritos por script (que resolve cada import para o arquivo real). Também:
+  - `utils/timeUtils` foi dividido entre `features/ponto/lib/horarios` e `shared/lib/format`;
+  - o `ValidationResult` passou a ter uma definição só;
+  - saíram três arquivos sem uso.
+- Páginas divididas em hook mais componentes:
+  - feedback do admin: 709 → ~50 linhas;
+  - férias do admin: 472 → ~150;
+  - usuários, os dois calendários e as duas telas de ausência.
+- As três telas de calendário passaram a usar o mesmo `shared/ui/Calendario`.
+- "Minhas solicitações" e "Solicitações de ausência" usam a API. Os nomes dos solicitantes vêm de uma chamada só, e não de uma por solicitação.
+- Os gráficos com dados fixos ganharam o selo "Dados de exemplo", e o título "Analitycs" virou "Estatísticas".
+- A barra de navegação completa aparece a partir de 1280px; abaixo disso, o menu mobile. Saiu também o link vazio para `/home`.
 
-As páginas em `app/` ficam finas: só compõem os componentes da feature. Cada página grande vira um hook de dados mais componentes menores. Os mocks saem, ou ficam atrás de um modo demo explícito.
+Bugs encontrados testando no navegador com respostas da API simuladas:
+
+- **O modal de edição abria sozinho e não fechava** em usuários, cargos, jornadas, feriados e ajustes de ponto. A `Table` chamava `handleEdit` durante a renderização. Agora `handleEdit` só roda no clique, e ações próprias da linha usam `renderActions`.
+- **"Salvar" ficava sempre desabilitado** em usuários, jornadas e ajustes de ponto: o `EditModal` exigia ao menos uma regra de validação. Junto com o bug anterior, essas edições não funcionavam desde jul/2025.
+- **Editar usuário trocava a data de nascimento por hoje.** A edição agora parte do usuário carregado. Cargo, jornada e status viraram selects, em vez de digitar o ID.
+
+Para a próxima rodada: dividir as páginas que ainda passam de 300 linhas (lista acima) e ligar Estatísticas e Pontualidade à API quando o formato das rotas de banco de horas for confirmado.
 
 ### Fase 5 — documentação e testes
 
