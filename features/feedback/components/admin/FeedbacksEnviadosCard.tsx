@@ -2,6 +2,7 @@ import { Star } from 'lucide-react';
 import { FeedbackData } from '@/features/feedback/api';
 import { truncateText } from '@/features/feedback/status';
 import RatingStars from '@/features/feedback/components/RatingStars';
+import { estrelasDaAvaliacao } from '@/features/feedback/avaliacao';
 import { formatDate } from '@/shared/lib/format';
 
 interface Props {
@@ -14,9 +15,9 @@ const COLUNAS = ['Data do Feedback', 'Avaliação', 'Mensagem'];
 // Classes completas por cor para o Tailwind encontrar no build
 const STATS = [
   { label: 'Total', filtro: () => true, cores: ['bg-green-50', 'text-green-600', 'text-green-900'] },
-  { label: 'Avaliação 1-2', filtro: (f: FeedbackData) => f.avaliacao <= 2, cores: ['bg-yellow-50', 'text-yellow-600', 'text-yellow-900'] },
-  { label: 'Avaliação 3-4', filtro: (f: FeedbackData) => f.avaliacao >= 3 && f.avaliacao <= 4, cores: ['bg-blue-50', 'text-blue-600', 'text-blue-900'] },
-  { label: 'Avaliação 5', filtro: (f: FeedbackData) => f.avaliacao === 5, cores: ['bg-purple-50', 'text-purple-600', 'text-purple-900'] },
+  { label: 'Avaliação 1-2', filtro: (f: FeedbackData) => estrelasDaAvaliacao(f.avaliacao) <= 2, cores: ['bg-yellow-50', 'text-yellow-600', 'text-yellow-900'] },
+  { label: 'Avaliação 3-4', filtro: (f: FeedbackData) => [3, 4].includes(estrelasDaAvaliacao(f.avaliacao)), cores: ['bg-blue-50', 'text-blue-600', 'text-blue-900'] },
+  { label: 'Avaliação 5', filtro: (f: FeedbackData) => estrelasDaAvaliacao(f.avaliacao) === 5, cores: ['bg-purple-50', 'text-purple-600', 'text-purple-900'] },
 ];
 
 export default function FeedbacksEnviadosCard({ feedbacks, loading }: Props) {
@@ -70,7 +71,7 @@ export default function FeedbacksEnviadosCard({ feedbacks, loading }: Props) {
                     {formatDate(feedback.dataRealizacao, true)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <RatingStars rating={feedback.avaliacao} />
+                    <RatingStars avaliacao={feedback.avaliacao} />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {truncateText(feedback.mensagemFeedback, 60)}

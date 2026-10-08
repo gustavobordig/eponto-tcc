@@ -5,8 +5,13 @@ import { X } from 'lucide-react';
 import TextArea from '@/shared/ui/TextArea';
 import Button from '@/shared/ui/Button';
 import { feedbackService } from '@/features/feedback/api';
+import { userService } from '@/features/usuarios/api';
 import { tokenUtils } from '@/shared/lib/token';
 import { showSuccessToast, showErrorToast } from '@/shared/lib/toast';
+
+// Responsável usado quando o usuário não tem chefe cadastrado. Era o único valor
+// antes (fixo no código); o ideal é a API escolher o responsável.
+const RESPONSAVEL_PADRAO = 29;
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -50,15 +55,14 @@ const FeedbackModal = ({ isOpen, onClose, onSolicitacaoCreated }: FeedbackModalP
         return;
       }
 
-      // Obter dados do usuário do localStorage
-      const userData = localStorage.getItem('user');
-      const userName = userData ? JSON.parse(userData).nome : 'Usuário';
+      // O pedido vai para o chefe direto do usuário
+      const { usuario } = await userService.getById(Number(userId));
 
       const solicitacaoData = {
         idUsuarioSolicitacao: Number(userId),
-        nomeUsuarioSolicitacao: userName,
-        idResponsavelFeedback: 29, // ID padrão para responsável
-        nomeResponsavelFeedback: 'Administrador', // Nome padrão para responsável
+        nomeUsuarioSolicitacao: usuario?.nome ?? 'Usuário',
+        idResponsavelFeedback: usuario?.idChefe || RESPONSAVEL_PADRAO,
+        nomeResponsavelFeedback: '',
         status: 0, // 0 = pendente
         mensagemSolicitacao: formData.mensagem
       };

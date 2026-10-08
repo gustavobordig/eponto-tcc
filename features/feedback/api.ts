@@ -3,14 +3,20 @@ import { ApiResponse } from '@/shared/types/api';
 
 export interface FeedbackData {
   idFeedback: number;
+  /** Quem recebe o feedback */
   idUsuarioFeedback: number;
-  idSolicitacaoFeedback: number;
+  /** Quem escreveu (o admin que respondeu) */
+  idAutorFeedback: number;
+  nomeUsuarioFeedback?: string | null;
+  nomeAutorFeedback?: string | null;
+  idSolicitacaoFeedback: number | null;
   dataRealizacao: string;
   mensagemFeedback: string;
+  /** FeedbackAvaliacao: 0 Péssimo … 4 Excelente (ver avaliacao.ts) */
   avaliacao: number;
 }
 
-export type FeedbackInsertData = FeedbackData;
+export type NovoFeedback = Omit<FeedbackData, 'idFeedback' | 'nomeUsuarioFeedback' | 'nomeAutorFeedback'>;
 
 export interface SolicitacaoData {
   idSolicitacaoFeedback: number;
@@ -18,7 +24,7 @@ export interface SolicitacaoData {
   nomeUsuarioSolicitacao: string;
   idResponsavelFeedback: number;
   nomeResponsavelFeedback: string;
-  /** 0 pendente, 1 respondida */
+  /** 0 pendente, 1 respondida (o enum StatusFeedback da API tem os nomes trocados; vale o banco) */
   status: number;
   dataSolicitacao: string;
   mensagemSolicitacao: string;
@@ -36,9 +42,9 @@ export type SolicitacaoResponse = ApiResponse<{
 }>;
 
 export const feedbackService = {
-  // Feedbacks
-  createFeedback: async (feedbackData: Omit<FeedbackInsertData, 'idFeedback'>) =>
-    (await api.post<FeedbackResponse>('/api/Feedback/InserirFeedback', feedbackData)).data,
+  // Feedbacks. Ao gravar com idSolicitacaoFeedback, a API já marca a solicitação como respondida.
+  createFeedback: async (feedback: NovoFeedback) =>
+    (await api.post<FeedbackResponse>('/api/Feedback/InserirFeedback', feedback)).data,
 
   getAllFeedbacks: async () =>
     (await api.get<FeedbackResponse>('/api/Feedback/ListarFeedback')).data,
@@ -53,8 +59,4 @@ export const feedbackService = {
 
   getSolicitacoesByUsuario: async (idUsuario: number) =>
     (await api.get<SolicitacaoResponse>(`/api/Feedback/ListarSolicitacoesUsuario/${idUsuario}`)).data,
-
-  // Marca a solicitação como respondida depois de inserir o feedback
-  updateSolicitacaoStatus: async (id: number, status: number) =>
-    (await api.put<SolicitacaoResponse>(`/api/Feedback/AtualizarSolicitacao/${id}`, { status })).data,
 };

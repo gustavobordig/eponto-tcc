@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Button from '@/shared/ui/Button';
 import { MessageSquare, Plus, CheckCircle, AlertCircle, X, Star } from 'lucide-react';
+import RatingStars from '@/features/feedback/components/RatingStars';
 import { useFeedback } from '@/features/feedback/FeedbackContext';
 import { feedbackService, SolicitacaoData, FeedbackData } from '@/features/feedback/api';
 import { tokenUtils } from '@/shared/lib/token';
@@ -112,21 +113,6 @@ export default function FeedbackPage() {
       default:
         return <AlertCircle className="text-gray-600" size={16} />;
     }
-  };
-
-  const getRatingStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            size={16}
-            className={star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-          />
-        ))}
-        <span className="text-sm text-gray-600 ml-1">({rating})</span>
-      </div>
-    );
   };
 
   const formatDate = (dateString: string | null | undefined) => {
@@ -322,7 +308,7 @@ export default function FeedbackPage() {
                       Avaliação Recebida
                     </h4>
                     <div className="flex items-center gap-2">
-                      {getRatingStars(feedbackResponse.avaliacao)}
+                      <RatingStars avaliacao={feedbackResponse.avaliacao} />
                     </div>
                   </div>
 

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { feedbackService, FeedbackData, SolicitacaoData } from '@/features/feedback/api';
-import { STATUS_RESPONDIDA } from '@/features/feedback/status';
+import { avaliacaoDasEstrelas } from '@/features/feedback/avaliacao';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 import { tokenUtils } from '@/shared/lib/token';
 
 export interface RespostaFeedback {
   mensagemFeedback: string;
-  avaliacao: number;
+  /** De 1 a 5, como na tela */
+  estrelas: number;
 }
 
 /** Solicitações de feedback e feedbacks enviados (painel admin). */
@@ -57,23 +58,19 @@ export function useFeedbackAdmin() {
       }
 
       try {
+        // Antes ia o id do admin como destinatário e nenhum autor
         const response = await feedbackService.createFeedback({
-          idUsuarioFeedback: Number(userId),
+          idUsuarioFeedback: solicitacao.idUsuarioSolicitacao,
+          idAutorFeedback: Number(userId),
           idSolicitacaoFeedback: solicitacao.idSolicitacaoFeedback,
           dataRealizacao: new Date().toISOString(),
-          ...resposta,
+          mensagemFeedback: resposta.mensagemFeedback,
+          avaliacao: avaliacaoDasEstrelas(resposta.estrelas),
         });
 
         if (!response.sucesso) {
           showErrorToast(response.mensagem || 'Erro ao enviar feedback');
           return false;
-        }
-
-        try {
-          await feedbackService.updateSolicitacaoStatus(solicitacao.idSolicitacaoFeedback, STATUS_RESPONDIDA);
-        } catch (statusError) {
-          // O feedback já foi gravado; só o status ficou para trás
-          console.warn('Erro ao atualizar status da solicitação:', statusError);
         }
 
         showSuccessToast('Feedback enviado com sucesso!');

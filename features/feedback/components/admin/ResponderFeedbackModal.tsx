@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Send } from 'lucide-react';
 import { SolicitacaoData } from '@/features/feedback/api';
 import { RespostaFeedback } from '@/features/feedback/hooks/useFeedbackAdmin';
+import { AVALIACOES } from '@/features/feedback/avaliacao';
 import Button from '@/shared/ui/Button';
 import TextArea from '@/shared/ui/TextArea';
 import ModalShell from './ModalShell';
@@ -13,21 +14,21 @@ interface Props {
   onSubmit: (resposta: RespostaFeedback) => Promise<boolean>;
 }
 
-function validar({ mensagemFeedback, avaliacao }: RespostaFeedback) {
+function validar({ mensagemFeedback, estrelas }: RespostaFeedback) {
   const erros: Record<string, string> = {};
   if (!mensagemFeedback.trim()) {
     erros.mensagemFeedback = 'Mensagem é obrigatória';
   } else if (mensagemFeedback.length < 10) {
     erros.mensagemFeedback = 'Mensagem deve ter pelo menos 10 caracteres';
   }
-  if (avaliacao < 1 || avaliacao > 5) {
+  if (estrelas < 1 || estrelas > 5) {
     erros.avaliacao = 'Avaliação deve ser entre 1 e 5';
   }
   return erros;
 }
 
 export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit }: Props) {
-  const [resposta, setResposta] = useState<RespostaFeedback>({ mensagemFeedback: '', avaliacao: 5 });
+  const [resposta, setResposta] = useState<RespostaFeedback>({ mensagemFeedback: '', estrelas: 5 });
   const [erros, setErros] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
 
@@ -77,15 +78,15 @@ export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Avaliação (1-5)</label>
           <select
-            value={resposta.avaliacao}
-            onChange={(e) => setResposta((prev) => ({ ...prev, avaliacao: Number(e.target.value) }))}
+            value={resposta.estrelas}
+            onChange={(e) => setResposta((prev) => ({ ...prev, estrelas: Number(e.target.value) }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value={1}>1 - Muito Ruim</option>
-            <option value={2}>2 - Ruim</option>
-            <option value={3}>3 - Regular</option>
-            <option value={4}>4 - Bom</option>
-            <option value={5}>5 - Excelente</option>
+            {AVALIACOES.map(({ estrelas, label }) => (
+              <option key={estrelas} value={estrelas}>
+                {estrelas} - {label}
+              </option>
+            ))}
           </select>
           {erros.avaliacao && <p className="text-red-500 text-sm mt-1">{erros.avaliacao}</p>}
         </div>
