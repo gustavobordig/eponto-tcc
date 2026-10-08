@@ -88,19 +88,19 @@ export default function NavBar({
                 <Container>
                     <div className="flex justify-between items-center py-4">
                         <div
-                            className="cursor-pointer"
+                            className="cursor-pointer shrink-0 mr-6"
                             onClick={() => router.push('/home')}
                         >
                             <Image src={logo.src} alt="logo" width={100} height={100} />
                         </div>
 
-                        <div className="flex items-center gap-8">
-                            <nav className="flex gap-6">
+                        <div className="flex items-center gap-5">
+                            <nav className="flex gap-5">
                                 {itens.map((item, index) => (
                                     <Link 
                                         key={index} 
                                         href={item}
-                                        className="text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap"
+                                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap"
                                     >
                                         {navItemNames[item]}
                                     </Link>
@@ -125,7 +125,7 @@ export default function NavBar({
                                     borderWidth: '1px',
                                     padding: '0.5rem 1.5rem'
                                  }}
-                                className="px-6 font-medium"
+                                className="px-6 font-medium whitespace-nowrap"
                                 onClick={handleLogoutClick}
                             />
                             <Button 
@@ -138,6 +138,7 @@ export default function NavBar({
                                    padding: '0.5rem 1.5rem'
                                 }}
                                 hoverSwapColors={false}
+                                className="whitespace-nowrap"
                                 onClick={handleOpenModal}
                             />
                         </div>
