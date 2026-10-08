@@ -11,6 +11,13 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      // Ainda há `any` nas respostas da API; vira erro quando os services forem tipados
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+    },
+  },
 ];
 
 export default eslintConfig;

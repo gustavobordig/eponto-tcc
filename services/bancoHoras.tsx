@@ -53,7 +53,6 @@ export const bancoHorasService = {
 
       const response = await api.get(`/api/BancoHoras/Atual/${userId}`);
       
-      console.log('Resposta completa da API:', response);
       
       if (!response.data) {
         console.error('Resposta vazia do servidor');

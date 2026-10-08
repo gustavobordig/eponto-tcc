@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
 import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { useRouter } from 'next/navigation';
 
 //Components
 import Table from '@/app/components/atoms/Table';

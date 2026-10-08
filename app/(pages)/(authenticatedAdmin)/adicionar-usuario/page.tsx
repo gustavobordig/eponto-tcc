@@ -1,7 +1,6 @@
 'use client';
 
 import { userService } from '@/services/user';
-import { regexPatterns } from '@/utils/regexPatterns';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 import { listCargos } from '@/services/cargo';
 import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';

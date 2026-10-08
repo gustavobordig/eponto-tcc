@@ -17,7 +17,7 @@ export default function ExcludeModal({
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
     <div className="bg-white rounded-lg p-8 max-w-md w-full">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Confirmar exclusão</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
       <p className="text-black mb-6">
         {message}
       </p>

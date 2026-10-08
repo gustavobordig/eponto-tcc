@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Calendar, X } from "lucide-react";
 import { SlideUp } from "@/app/Animations/sliderUp";
 import { feriasService } from "@/services/ferias";

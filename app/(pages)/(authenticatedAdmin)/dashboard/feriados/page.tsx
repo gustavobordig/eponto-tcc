@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 //Components
 import Table from '@/app/components/atoms/Table';
@@ -47,7 +46,6 @@ export default function FeriadosPage() {
       key: 'indTipoFeriado', 
       label: 'Tipo',
       render: (value: number) => {
-        console.log('Tipo Feriado value:', value, typeof value); // Debug log
         return Number(value) === 1 ? 'Integral' : 'Meio Período';
       }
     }

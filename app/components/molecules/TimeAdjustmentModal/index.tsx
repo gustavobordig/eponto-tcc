@@ -65,7 +65,6 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
 
   if (!isOpen) return null;
 
-  console.log("initialData", initialData);
 
   const handleSubmit = async () => {
     try {
@@ -105,7 +104,6 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
           const formatted = `${year}-${month}-${day}`;
-          console.log("Data formatada:", formatted);
           return formatted;
         } catch (error) {
           console.error('Erro ao formatar data:', error);
@@ -117,11 +115,9 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
       const parseDate = (dateStr: string) => {
         if (!dateStr) return new Date();
         
-        console.log("Data recebida para parse:", dateStr);
         
         // Remove o dia da semana e espaços extras
         const cleanDateStr = dateStr.replace(/^[a-záàâãéèêíïóôõöúçñ]+,?\s*/i, '').trim();
-        console.log("Data limpa:", cleanDateStr);
         
         // Verifica se a string está no formato correto (DD/MM/YYYY)
         const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
@@ -133,11 +129,9 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
         }
 
         const [, day, month, year] = match;
-        console.log("Componentes da data:", { day, month, year });
         
         // Criar a data no timezone local
         const parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
-        console.log("Data após parse:", parsedDate.toISOString());
         
         // Validação adicional para garantir que a data é válida
         if (isNaN(parsedDate.getTime())) {
@@ -149,15 +143,12 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
       };
 
       const targetDate = selectedDate ? formatDate(parseDate(selectedDate)) : formatDate(new Date());
-      console.log("Data selecionada original:", selectedDate);
-      console.log("Data final formatada:", targetDate);
       
       if (!targetDate || targetDate === 'Invalid Date') {
         toast.error('Data selecionada inválida. Por favor, selecione uma data válida.');
         return;
       }
 
-      console.log("targetDate: ", targetDate);
 
       const payload = {
         idSolicitante: parseInt(userId),

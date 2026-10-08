@@ -71,7 +71,6 @@ export default function Calendario() {
         
         // Buscar eventos do calendário (feriados e férias gerais)
         const dados: RespostaCalendario = await calendarioService.buscarCalendario();
-        console.log("dados calendário: ", dados);
         
         const eventosFormatados = dados.dias.map((item, index) => ({
           id: index,
@@ -86,12 +85,11 @@ export default function Calendario() {
         if (idUsuario) {
           try {
             const feriasUsuario = await feriasService.buscarFeriasPorUsuario(parseInt(idUsuario));
-            console.log("férias do usuário: ", feriasUsuario);
             
             const eventosFeriasUsuario = feriasUsuario.map((ferias, index) => ({
               id: `ferias-usuario-${index}`,
               title: `Minhas Férias - ${ferias.dscFerias}`,
-              start: new Date(ferias.datIncioFerias),
+              start: new Date(ferias.datIncioFerias ?? ferias.datInicioFerias ?? ""),
               end: new Date(ferias.datFimFerias),
               desc: 'minhas-ferias'
             }));
@@ -99,7 +97,6 @@ export default function Calendario() {
             // Combinar eventos do calendário com férias do usuário
             const todosEventos = [...eventosFormatados, ...eventosFeriasUsuario];
             setEventos(todosEventos);
-            console.log("todos os eventos: ", todosEventos);
           } catch (error) {
             console.error('Erro ao carregar férias do usuário:', error);
             // Se falhar ao carregar férias do usuário, usar apenas eventos do calendário
@@ -186,7 +183,7 @@ export default function Calendario() {
             const eventosFeriasUsuario = feriasUsuario.map((ferias, index) => ({
               id: `ferias-usuario-${index}`,
               title: `Minhas Férias - ${ferias.dscFerias}`,
-              start: new Date(ferias.datIncioFerias),
+              start: new Date(ferias.datIncioFerias ?? ferias.datInicioFerias ?? ""),
               end: new Date(ferias.datFimFerias),
               desc: 'minhas-ferias'
             }));

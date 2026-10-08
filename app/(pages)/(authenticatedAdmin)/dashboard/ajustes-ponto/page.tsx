@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Container from '@/app/components/atoms/container';
 import { listAdjustmentRequests, validateAdjustmentRequest } from '@/services/timeRecordAdjustment';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import Button from '@/app/components/atoms/Button';
 
 //Components
 import Table from '@/app/components/atoms/Table';
@@ -82,7 +81,6 @@ export default function AjustesPontoPage() {
 
     setUpdateLoading(true);
 
-    console.log("selectedSolicitacao", selectedSolicitacao);
 
     try {
       await validateAdjustmentRequest(selectedSolicitacao.idSolicitacao, selectedStatus);
@@ -117,19 +115,6 @@ export default function AjustesPontoPage() {
         return 'Reprovado';
       default:
         return 'Desconhecido';
-    }
-  };
-
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 0:
-        return 'bg-yellow-100 text-yellow-800';
-      case 1:
-        return 'bg-green-100 text-green-800';
-      case 2:
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 

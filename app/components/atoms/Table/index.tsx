@@ -32,7 +32,6 @@ export default function Table({
   // Garantir que data é sempre um array
   const safeData = Array.isArray(data) ? data : [];
 
-  console.log(`${title}:  ${safeData}`)
 
   const renderCell = (item: any, column: Column) => {
     if (!item || !column) return null;

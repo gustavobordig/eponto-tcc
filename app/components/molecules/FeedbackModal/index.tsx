@@ -63,7 +63,6 @@ const FeedbackModal = ({ isOpen, onClose, onSolicitacaoCreated }: FeedbackModalP
         mensagemSolicitacao: formData.mensagem
       };
 
-      console.log('Dados sendo enviados para a API:', solicitacaoData);
 
       const response = await feedbackService.createSolicitacao(solicitacaoData);
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { MessageSquare, Eye, Clock, User, X, CheckCircle, AlertCircle, MessageCircle, Send, Star } from 'lucide-react';
 
 //Components
-import Table from '@/app/components/atoms/Table';
 import LoadingText from '@/app/components/atoms/LoadingText';
 import Container from '@/app/components/atoms/container';
 import TextArea from '@/app/components/atoms/TextArea';
@@ -116,13 +115,10 @@ export default function FeedbackPage() {
   const fetchSolicitacoes = async () => {
     try {
       const response = await feedbackService.getAllSolicitacoes() as SolicitacaoResponse;
-      console.log('Resposta da API:', response);
       
       if (response.sucesso && response.solicitacoesFeedback) {
-        console.log('Solicitações encontradas:', response.solicitacoesFeedback);
         setSolicitacoes(response.solicitacoesFeedback);
       } else {
-        console.log('Nenhuma solicitação encontrada ou erro na resposta');
         setSolicitacoes([]);
       }
     } catch (error) {
@@ -137,13 +133,10 @@ export default function FeedbackPage() {
   const fetchFeedbacks = async () => {
     try {
       const response = await feedbackService.getAllFeedbacks() as FeedbackResponse;
-      console.log('Resposta da API de feedbacks:', response);
       
       if (response.sucesso && response.feedbacks) {
-        console.log('Feedbacks encontrados:', response.feedbacks);
         setFeedbacks(response.feedbacks);
       } else {
-        console.log('Nenhum feedback encontrado ou erro na resposta');
         setFeedbacks([]);
       }
     } catch (error) {
@@ -222,7 +215,6 @@ export default function FeedbackPage() {
         avaliacao: feedbackData.avaliacao
       };
 
-      console.log('Dados sendo enviados para a API:', feedbackInsertData);
 
       // Inserir o feedback
       const feedbackResponse = await feedbackService.createFeedback(feedbackInsertData);

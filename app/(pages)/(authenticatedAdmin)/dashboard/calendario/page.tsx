@@ -62,7 +62,6 @@ export default function Calendario() {
       try {
         setLoading(true);
         const dados: RespostaCalendario = await calendarioService.buscarCalendario();
-        console.log("dados: ", dados);
         
         const eventosFormatados = dados.dias.map((item, index) => ({
           id: index,
@@ -72,7 +71,6 @@ export default function Calendario() {
           desc: item.tipoEvento === 1 ? 'feriado' : 'ferias'
         }));
         
-        console.log("eventosFormatados: ", eventosFormatados);
         setEventos(eventosFormatados);
       } catch (error) {
         console.error('Erro ao carregar calendário:', error);

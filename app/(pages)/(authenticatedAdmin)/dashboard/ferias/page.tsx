@@ -19,7 +19,7 @@ import { feriasService } from '@/services/ferias';
 import { showErrorToast, showSuccessToast } from '@/utils/toast';
 
 // Types
-import { Column } from '@/types';
+import { Column, Ferias } from '@/types';
 
 // Custom Styles
 import '@/app/styles/calendar.scss';
@@ -36,13 +36,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-interface Ferias {
-  idFerias?: number;
-  dscObservacao: string;
-  datInicioFerias: string;
-  datFimFerias: string;
-  idUsuario?: number | null;
-}
 
 interface EventoCalendario {
   id: string;
@@ -50,12 +43,6 @@ interface EventoCalendario {
   start: Date;
   end: Date;
   desc: string;
-}
-
-interface ApiResponse {
-  mensagem: string;
-  sucesso: boolean;
-  listaFerias: Ferias[];
 }
 
 export default function FeriasPage() {

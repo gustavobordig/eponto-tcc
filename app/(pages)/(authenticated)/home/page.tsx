@@ -15,7 +15,6 @@ import UserImage from "@/public/images/User.png";
 import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from "lucide-react";
 
 // Components
-import { HoursBalanceChart } from "@/app/components/atoms/HoursBalanceChart";
 import { PunctualityChart } from "@/app/components/atoms/PunctualityChart";
 import Button from "@/app/components/atoms/Button";
 import { PageEntrance } from "@/app/Animations/pageEntrance";
@@ -110,24 +109,16 @@ export default function Home() {
               reg.dataRegistro.split('T')[0] === today
           );
 
-          console.log('Registros filtrados:', userRegistros);
-          console.log('IDs de tipo de registro:', userRegistros.map((reg: ApiRegistroPonto) => reg.idTipoRegistroPonto));
 
           // Converte os registros da API para o formato de Point
           const pontosConvertidos = userRegistros.map((reg: ApiRegistroPonto) => {
             const tipo = getPointTypeFromId(reg.idTipoRegistroPonto);
-            console.log('Registro convertido:', {
-              id: reg.idTipoRegistroPonto,
-              tipo,
-              hora: reg.horaRegistro
-            });
             return {
               type: tipo,
               timestamp: reg.horaRegistro
             };
           });
 
-          console.log("pontosConvertidos: ", pontosConvertidos);
 
           setPoints(pontosConvertidos);
         }
@@ -146,13 +137,10 @@ export default function Home() {
       try {
         const userId = tokenUtils.getId();
         if (!userId) {
-          console.log('ID do usuário não encontrado');
           return;
         }
 
-        console.log('Buscando banco de horas para o usuário:', userId);
         const response = await bancoHorasService.obterSaldoAtual(Number(userId));
-        console.log('Resposta do banco de horas:', response);
 
         if (response.sucesso && response.bancoHoras && response.bancoHoras.length > 0) {
           setBancoHoras({
@@ -160,7 +148,6 @@ export default function Home() {
             saldo: response.bancoHoras[0].saldo
           });
         } else {
-          console.log('Resposta sem dados de banco de horas:', response);
           setBancoHoras(null);
         }
       } catch (error) {
@@ -173,7 +160,6 @@ export default function Home() {
   }, []);
 
   const getPointTypeFromId = (id: number): PointType => {
-    console.log('Convertendo ID para tipo:', id);
     switch (id) {
       case 1:
         return "entrada";

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { tokenUtils } from "@/utils/token";
-import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
+import { SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
 import { showErrorToast } from "@/utils/toast";
 import { useRouter } from "next/navigation";
 import Button from "@/app/components/atoms/Button";

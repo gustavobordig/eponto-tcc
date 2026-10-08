@@ -79,7 +79,7 @@ export default function Form({
                     placeholder="Digite seu email"
                     icon={<User />}
                     inputClassName="w-full"
-                    regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                    regex={/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/}
                     regexErrorMessage="Email inválido"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -91,7 +91,7 @@ export default function Form({
                     placeholder="Digite sua senha"
                     icon={<Lock />}
                     inputClassName="w-full"
-                    regex="^(?!\s*$).+"
+                    regex={/^(?!\s*$).+/}
                     regexErrorMessage="A senha não pode estar em branco"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}

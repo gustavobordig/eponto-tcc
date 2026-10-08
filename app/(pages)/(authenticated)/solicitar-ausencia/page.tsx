@@ -220,7 +220,7 @@ export default function SolicitarAusenciaPage() {
                 Sua solicitação de ausência foi enviada com sucesso!
               </p>
               <p className="text-sm text-gray-500 mb-6">
-                Você pode acompanhar o status da sua solicitação na página "Minhas Solicitações".
+                Você pode acompanhar o status da sua solicitação na página &ldquo;Minhas Solicitações&rdquo;.
               </p>
               <Button
                 text="Ver Minhas Solicitações"

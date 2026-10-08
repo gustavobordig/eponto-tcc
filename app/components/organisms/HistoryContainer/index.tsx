@@ -13,7 +13,7 @@ import { getHorariosDoDia } from "@/utils/timeUtils";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import { getIdRegistroDoDia } from "@/utils/registroUtils";
-import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
+import { formatSaldo } from "@/utils/timeUtils";
 
 interface RegistroPonto {
   data: string;
@@ -138,7 +138,6 @@ export default function HistoricoContainer() {
 
   const handleEditClick = (registro: RegistroPonto) => {
 
-    console.log("registros api", registrosApi);
     setSelectedDate(registro.data);
     setSelectedRegistro(registro);
     setIsModalOpen(true);
@@ -149,15 +148,7 @@ export default function HistoricoContainer() {
     setSelectedRegistro(null);
   };
 
-  interface TimeAdjustmentData {
-    entrada: { time: string; location: string };
-    inicioAlmoco: { time: string; location: string };
-    fimAlmoco: { time: string; location: string };
-    saida: { time: string; location: string };
-  }
-
-  const handleModalSubmit = (data: TimeAdjustmentData) => {
-    console.log('Adjustment data:', data);
+  const handleModalSubmit = () => {
     handleModalClose();
   };
 

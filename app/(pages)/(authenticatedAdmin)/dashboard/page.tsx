@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 //Components
 import Table from '@/app/components/atoms/Table';
