@@ -1,6 +1,7 @@
 import api from './api';
 import { ApiResponse } from '@/types/api';
 import { tokenUtils } from '@/utils/token';
+import { isAdminEmail, normalizePerfil, Perfil, perfilFromToken } from '@/lib/session';
 
 interface LoginPayload {
   email: string;
@@ -10,6 +11,8 @@ interface LoginPayload {
 export type LoginResponse = ApiResponse<{
   token: string;
   idUsuario: number;
+  /** Ainda não existe na API; ver docs/arquitetura.md (fase 3) */
+  perfil?: string;
   usuario: {
     id: number;
     nome: string;
@@ -31,12 +34,24 @@ interface RecuperarSenhaPayload {
   email: string;
 }
 
+// Ordem: campo do login, claim do JWT e, por enquanto, a lista de e-mails do .env
+function resolverPerfil(data: LoginResponse, email: string): Perfil {
+  return (
+    normalizePerfil(data.perfil) ??
+    perfilFromToken(data.token) ??
+    (isAdminEmail(email) ? 'admin' : 'funcionario')
+  );
+}
+
 export const authService = {
   async realizarLogin(payload: LoginPayload) {
     const { data } = await api.post<LoginResponse>('api/login/realizarLogin', payload);
     if (data.token) {
-      tokenUtils.setToken(data.token);
-      tokenUtils.setId(data.idUsuario.toString());
+      tokenUtils.setSession({
+        token: data.token,
+        id: data.idUsuario.toString(),
+        perfil: resolverPerfil(data, payload.email),
+      });
     }
     return data;
   },

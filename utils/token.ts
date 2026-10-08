@@ -1,36 +1,62 @@
-const TOKEN_KEY = '@App:token';
-const ID_KEY = '@App:id';
-const USER_KEY = 'user';
+import {
+  Perfil,
+  SESSION_COOKIES,
+  normalizePerfil,
+  tokenMaxAge,
+} from '@/lib/session';
 
-const isBrowser = () => typeof window !== 'undefined';
+const USER_KEY = 'user';
+// Chaves da versão antiga, que guardava a sessão no localStorage
+const LEGACY_KEYS = ['@App:token', '@App:id', 'adminAuthenticated'];
+
+const isBrowser = () => typeof document !== 'undefined';
+
+function readCookie(name: string): string | null {
+  if (!isBrowser()) return null;
+  const match = document.cookie.split('; ').find((c) => c.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
+}
+
+function writeCookie(name: string, value: string, maxAge: number): void {
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+}
 
 export const tokenUtils = {
-    getToken(): string | null {
-        return isBrowser() ? localStorage.getItem(TOKEN_KEY) : null;
-    },
+  getToken(): string | null {
+    return readCookie(SESSION_COOKIES.token);
+  },
 
-    setToken(token: string): void {
-        if (isBrowser()) localStorage.setItem(TOKEN_KEY, token);
-    },
+  getId(): string | null {
+    return readCookie(SESSION_COOKIES.id);
+  },
 
-    getId(): string | null {
-        return isBrowser() ? localStorage.getItem(ID_KEY) : null;
-    },
+  getPerfil(): Perfil | undefined {
+    return normalizePerfil(readCookie(SESSION_COOKIES.perfil));
+  },
 
-    setId(id: string): void {
-        if (isBrowser()) localStorage.setItem(ID_KEY, id);
-    },
+  isAdmin(): boolean {
+    return this.getPerfil() === 'admin';
+  },
 
-    // Limpa a sessão inteira; antes o id e os dados do usuário ficavam para trás
-    clear(): void {
-        if (!isBrowser()) return;
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(ID_KEY);
-        localStorage.removeItem(USER_KEY);
-    },
+  // Os três cookies expiram junto com o token
+  setSession({ token, id, perfil }: { token: string; id: string; perfil: Perfil }): void {
+    if (!isBrowser()) return;
+    const maxAge = tokenMaxAge(token);
+    writeCookie(SESSION_COOKIES.token, token, maxAge);
+    writeCookie(SESSION_COOKIES.id, id, maxAge);
+    writeCookie(SESSION_COOKIES.perfil, perfil, maxAge);
+    LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+  },
 
-    logout(): void {
-        this.clear();
-        window.location.href = '/';
-    }
+  clear(): void {
+    if (!isBrowser()) return;
+    Object.values(SESSION_COOKIES).forEach((name) => writeCookie(name, '', 0));
+    [USER_KEY, ...LEGACY_KEYS].forEach((key) => localStorage.removeItem(key));
+  },
+
+  logout(): void {
+    this.clear();
+    window.location.href = '/';
+  },
 };
