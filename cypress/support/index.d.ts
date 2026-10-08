@@ -3,16 +3,16 @@
 declare namespace Cypress {
   interface Chainable {
     /**
-     * Custom command to login as admin
+     * Grava os cookies de sessão com o perfil informado
+     * @example cy.loginAs('funcionario')
+     */
+    loginAs(perfil: 'admin' | 'funcionario'): Chainable<void>
+
+    /**
+     * Sessão de admin por cookie
      * @example cy.loginAsAdmin()
      */
-    loginAsAdmin(): Chainable<Element>
-    
-    /**
-     * Custom command to ensure admin authentication if needed
-     * @example cy.ensureAdminAuth()
-     */
-    ensureAdminAuth(): Chainable<Element>
+    loginAsAdmin(): Chainable<void>
     
     /**
      * Custom command to create a test cargo

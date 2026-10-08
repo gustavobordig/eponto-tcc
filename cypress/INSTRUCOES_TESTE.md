@@ -3,21 +3,16 @@
 ## Pré-requisitos
 
 1. **Servidor rodando**: Certifique-se de que o servidor Next.js está rodando em `http://localhost:3000`
-2. **Credenciais configuradas**: Configure as credenciais de login no arquivo `cypress/support/commands.ts`
+2. **API rodando** para os testes de login e de CRUD. O teste de acesso às rotas (`admin-auth.cy.ts`) não precisa da API.
 3. **Cypress instalado**: Execute `npm install cypress` se ainda não tiver instalado
 
-## Configuração das Credenciais
+## Sessão nos testes
 
-No arquivo `cypress/support/commands.ts`, atualize as credenciais de login:
-
-```typescript
-cy.get('input[type="text"], input[type="email"]').first().type('SEU_EMAIL_AQUI');
-cy.get('input[type="password"]').first().type('SUA_SENHA_AQUI');
-```
+Os testes não digitam senha de admin: `cy.loginAs('admin' | 'funcionario')` grava os mesmos cookies que o login grava (`eponto_token`, `eponto_id`, `eponto_perfil`). O teste de login (`login.cy.ts`) usa credenciais reais da API.
 
 ## Executando os Testes
 
-### 1. Teste de Autenticação Administrativa
+### 1. Teste de acesso às rotas
 ```bash
 npx cypress run --spec "cypress/e2e/admin-auth.cy.ts"
 ```
@@ -105,8 +100,8 @@ Exclui um cargo pelo nome.
 cy.deleteCargoByName('Desenvolvedor Teste');
 ```
 
-### `cy.ensureAdminAuth()`
-Verifica se é necessário fazer autenticação administrativa e, se sim, executa automaticamente.
+### `cy.loginAs(perfil)` e `cy.loginAsAdmin()`
+Gravam a sessão por cookie com o perfil informado, antes do `cy.visit`.
 
 ## Modo Interativo
 

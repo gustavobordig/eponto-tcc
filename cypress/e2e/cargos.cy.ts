@@ -10,19 +10,13 @@ describe('CRUD de Cargos', () => {
   };
 
   beforeEach(() => {
-    // Comentando o login automático para testar primeiro sem problemas de autenticação
-    // cy.loginAsAdmin();
-    
-    // Por enquanto, vamos assumir que já está logado e ir direto para a página
-    // Você pode descomentar a linha acima quando configurar o login corretamente
+    cy.loginAsAdmin();
     cy.visit('/dashboard/cargos');
   });
 
   describe('Criar Cargo - Validações', () => {
     beforeEach(() => {
       cy.visit('/adicionar-cargo');
-      // Verificar se precisa fazer autenticação administrativa
-      cy.ensureAdminAuth();
     });
 
     it('deve mostrar erro ao tentar salvar sem nome do cargo', () => {
@@ -243,8 +237,6 @@ describe('CRUD de Cargos', () => {
 
   describe('Editar Cargo - Validações', () => {
     beforeEach(() => {
-      // Verificar se precisa fazer autenticação administrativa
-      cy.ensureAdminAuth();
       cy.visit('/dashboard/cargos');
     });
 
@@ -470,7 +462,6 @@ describe('CRUD de Cargos', () => {
 
     it('deve criar um novo cargo', () => {
       cy.visit('/adicionar-cargo');
-      cy.ensureAdminAuth();
       cy.get('#nome').type(nomeCargo);
       cy.get('#formacaoMinima').type('Ensino Superior');
       cy.get('#salario').type('1500');
@@ -480,7 +471,6 @@ describe('CRUD de Cargos', () => {
     });
 
     it('deve excluir o cargo criado e marcar como inativo', () => {
-      cy.ensureAdminAuth();
       cy.visit('/dashboard/cargos');
       cy.get('table tbody tr').contains(nomeCargo).parent().within(() => {
         cy.contains('Excluir').click();

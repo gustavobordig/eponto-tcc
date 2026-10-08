@@ -1,3 +1,5 @@
+import { Perfil, SESSION_COOKIES } from '../../lib/session';
+
 /// <reference types="cypress" />
 // ***********************************************
 // This example commands.ts shows you how to
@@ -25,54 +27,21 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-// // Comando para fazer login como admin
-Cypress.Commands.add('loginAsAdmin', () => {
-  // Primeiro, verificar se já está logado
-  cy.visit('/dashboard/cargos');
-  cy.url().then((url) => {
-    // Se não estiver na página de cargos (provavelmente redirecionado para login)
-    if (!url.includes('/dashboard/cargos')) {
-      // Fazer login
-      cy.visit('/');
-      
-      // Usar seletores baseados na estrutura real do formulário
-      // O componente Input não tem IDs específicos, então vamos usar atributos ou posição
-      cy.get('input[type="text"], input[type="email"]').first().type('admin@exemplo.com');
-      cy.get('input[type="password"]').first().type('senha123');
-      
-      // Clicar no botão de login
-      cy.get('button').contains('Entrar').click();
-      
-      // Verificar se o login foi bem-sucedido
-      cy.url().should('include', '/home');
-      
-      // Navegar para a página de cargos
-      cy.visit('/dashboard/cargos');
-    }
-  });
+// // Sessão simulada por cookie (o mesmo formato que o login grava).
+// Os testes de CRUD ainda precisam da API rodando.
+Cypress.Commands.add('loginAs', (perfil: Perfil) => {
+  cy.setCookie(SESSION_COOKIES.token, 'token-de-teste');
+  cy.setCookie(SESSION_COOKIES.id, '1');
+  cy.setCookie(SESSION_COOKIES.perfil, perfil);
 });
 
-// Comando para verificar e fazer autenticação administrativa se necessário
-Cypress.Commands.add('ensureAdminAuth', () => {
-  // Verificar se aparece o formulário de autenticação administrativa
-  cy.get('body').then(($body) => {
-    if ($body.find('input[placeholder="Digite a senha para acessar a área administrativa"]').length > 0) {
-      // Se encontrar o campo de senha administrativa, fazer login
-      cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').type('123');
-      cy.get('button').contains('Entrar').click();
-      
-      // Aguardar um pouco para a autenticação processar
-      cy.wait(1000);
-    }
-  });
+Cypress.Commands.add('loginAsAdmin', () => {
+  cy.loginAs('admin');
 });
 
 // Comando para criar um cargo de teste
 Cypress.Commands.add('createTestCargo', (nome: string, salario: string, formacaoMinima?: string) => {
   cy.visit('/adicionar-cargo');
-  
-  // Verificar se precisa fazer autenticação administrativa
-  cy.ensureAdminAuth();
   
   // Adicionar data formatada única ao nome para evitar conflitos
   const agora = new Date();
@@ -94,9 +63,6 @@ Cypress.Commands.add('createTestCargo', (nome: string, salario: string, formacao
 // Comando para deletar um cargo pelo nome
 Cypress.Commands.add('deleteCargoByName', (nome: string) => {
   cy.visit('/dashboard/cargos');
-  
-  // Verificar se precisa fazer autenticação administrativa
-  cy.ensureAdminAuth();
   
   cy.get('table tbody tr').contains(nome).parent().find('button').last().click();
   cy.get('[role="dialog"] button').contains('Confirmar').click();

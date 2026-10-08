@@ -1,78 +1,49 @@
-describe('Autenticação Administrativa', () => {
+// Proteção de rotas feita pelo middleware; não depende da API
+describe('Acesso às rotas', () => {
   beforeEach(() => {
-    // Limpar qualquer autenticação anterior
     cy.clearLocalStorage();
     cy.clearCookies();
   });
 
-  it('deve solicitar autenticação administrativa ao acessar página de cargos', () => {
-    cy.visit('/dashboard/cargos');
-    
-    // Verificar se aparece o formulário de autenticação administrativa
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').should('be.visible');
-    cy.get('button').contains('Entrar').should('be.visible');
+  it('sem sessão, manda as rotas do funcionário para o login', () => {
+    cy.visit('/home');
+    cy.location('pathname').should('eq', '/');
   });
 
-  it('deve solicitar autenticação administrativa ao acessar adicionar cargo', () => {
+  it('sem sessão, manda o painel admin para o login', () => {
+    cy.visit('/dashboard/cargos');
+    cy.location('pathname').should('eq', '/');
+
     cy.visit('/adicionar-cargo');
-    
-    // Verificar se aparece o formulário de autenticação administrativa
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').should('be.visible');
-    cy.get('button').contains('Entrar').should('be.visible');
+    cy.location('pathname').should('eq', '/');
   });
 
-  it('deve fazer autenticação administrativa com senha correta', () => {
+  it('funcionário não entra no painel admin', () => {
+    cy.loginAs('funcionario');
     cy.visit('/dashboard/cargos');
-    
-    // Digitar a senha administrativa
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').type('123');
-    
-    // Clicar no botão de entrar
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se foi autenticado e está na página de cargos
-    cy.url().should('include', '/dashboard/cargos');
+    cy.location('pathname').should('eq', '/home');
+  });
+
+  it('admin entra no painel', () => {
+    cy.loginAsAdmin();
+    cy.visit('/dashboard/cargos');
+    cy.location('pathname').should('eq', '/dashboard/cargos');
     cy.contains('Cargos').should('be.visible');
-  });
 
-  it('deve mostrar erro com senha administrativa incorreta', () => {
-    cy.visit('/dashboard/cargos');
-    
-    // Digitar senha incorreta
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').type('senhaerrada');
-    
-    // Clicar no botão de entrar
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se permanece na página de autenticação
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').should('be.visible');
-  });
-
-  it('deve permitir acesso após autenticação administrativa bem-sucedida', () => {
-    // Fazer autenticação administrativa
-    cy.visit('/dashboard/cargos');
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').type('123');
-    cy.get('button').contains('Entrar').click();
-    
-    // Verificar se está na página de cargos
-    cy.url().should('include', '/dashboard/cargos');
-    
-    // Tentar acessar adicionar cargo sem nova autenticação
     cy.visit('/adicionar-cargo');
-    
-    // Verificar se não pede autenticação novamente
-    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').should('not.exist');
+    cy.location('pathname').should('eq', '/adicionar-cargo');
     cy.get('#nome').should('be.visible');
   });
 
-  it('deve usar o comando ensureAdminAuth corretamente', () => {
-    cy.visit('/dashboard/cargos');
-    
-    // Usar o comando personalizado
-    cy.ensureAdminAuth();
-    
-    // Verificar se está autenticado
-    cy.url().should('include', '/dashboard/cargos');
-    cy.contains('Cargos').should('be.visible');
+  it('com sessão, a tela de login leva para a home', () => {
+    cy.loginAs('funcionario');
+    cy.visit('/');
+    cy.location('pathname').should('eq', '/home');
   });
-}); 
+
+  it('não existe mais senha fixa para o painel', () => {
+    cy.loginAsAdmin();
+    cy.visit('/dashboard');
+    cy.get('input[placeholder="Digite a senha para acessar a área administrativa"]').should('not.exist');
+  });
+});

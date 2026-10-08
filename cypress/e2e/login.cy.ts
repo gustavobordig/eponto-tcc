@@ -33,20 +33,13 @@ describe('Login', () => {
     cy.url().should('not.include', '/home');
   });
 
-  it('deve navegar para a página de cargos após login', () => {
-    // Fazer login
+  it('depois do login, voltar para a tela de login leva para a home', () => {
     cy.get('input[type="text"], input[type="email"]').first().type('admin@exemplo.com');
     cy.get('input[type="password"]').first().type('senha123');
     cy.get('button').contains('Entrar').click();
-    
-    // Verificar se foi redirecionado para home
     cy.url().should('include', '/home');
-    
-    // Navegar para a página de cargos
-    cy.visit('/dashboard/cargos');
-    
-    // Verificar se consegue acessar a página de cargos
-    cy.url().should('include', '/dashboard/cargos');
-    cy.contains('Cargos').should('be.visible');
+
+    cy.visit('/');
+    cy.location('pathname').should('eq', '/home');
   });
-}); 
+});

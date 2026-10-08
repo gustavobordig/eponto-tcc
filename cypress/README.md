@@ -56,8 +56,8 @@ cypress/
 
 ## Comandos Personalizados
 
-### `cy.loginAsAdmin()`
-Faz login como administrador. **IMPORTANTE**: Você precisa configurar as credenciais corretas no arquivo `commands.ts`.
+### `cy.loginAs(perfil)` e `cy.loginAsAdmin()`
+Gravam a sessão por cookie (`eponto_token`, `eponto_id`, `eponto_perfil`) com o perfil informado. Chame antes do `cy.visit`.
 
 ### `cy.createTestCargo(nome, salario)`
 Cria um cargo de teste com os dados fornecidos.
