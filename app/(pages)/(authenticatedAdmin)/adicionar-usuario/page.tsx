@@ -1,14 +1,15 @@
 'use client';
 
-import { userService } from '@/services/user';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { Cargo, cargoService } from '@/services/cargo';
-import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { userService } from '@/features/usuarios/api';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import { Cargo, cargoService } from '@/features/cargos/api';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/primitives/select';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { userValidations, ValidationResult } from '@/utils/validations/userValidations';
-import ValidationMessage from '@/app/components/atoms/ValidationMessage';
+import { userValidations } from '@/features/usuarios/validations';
+import { ValidationResult } from '@/shared/types/ui';
+import ValidationMessage from '@/shared/ui/ValidationMessage';
 
 export default function AdicionarUsuario() {
 

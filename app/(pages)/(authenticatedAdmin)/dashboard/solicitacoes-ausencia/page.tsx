@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
-import { showSuccessToast, showErrorToast } from "@/utils/toast";
-import Button from "@/app/components/atoms/Button";
-import LoadingText from "@/app/components/atoms/LoadingText";
-import ConfirmationModal from "@/app/components/atoms/ConfirmationModal";
+import { solicitacaoAusenciaService, SolicitacaoAusencia } from "@/features/ausencias/api";
+import { showSuccessToast, showErrorToast } from "@/shared/lib/toast";
+import Button from "@/shared/ui/Button";
+import LoadingText from "@/shared/ui/LoadingText";
+import ConfirmationModal from "@/shared/ui/ConfirmationModal";
 
 interface SolicitacaoComUsuario extends SolicitacaoAusencia {
   nomeUsuario?: string;

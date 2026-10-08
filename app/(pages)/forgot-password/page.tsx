@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, ChangeEvent } from 'react';
-import { authService } from '@/services/auth';
+import { authService } from '@/features/auth/api';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { Button } from '@/shared/ui/primitives/button';
+import { Input } from '@/shared/ui/primitives/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/primitives/card';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 export default function ForgotPassword() {
     const router = useRouter();

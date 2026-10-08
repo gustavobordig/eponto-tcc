@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SolicitacaoAusencia } from "@/services/solicitacaoAusencia";
-import { showErrorToast } from "@/utils/toast";
+import { SolicitacaoAusencia } from "@/features/ausencias/api";
+import { showErrorToast } from "@/shared/lib/toast";
 import { useRouter } from "next/navigation";
-import Button from "@/app/components/atoms/Button";
-import LoadingText from "@/app/components/atoms/LoadingText";
+import Button from "@/shared/ui/Button";
+import LoadingText from "@/shared/ui/LoadingText";
 
 export default function MinhasSolicitacoesPage() {
   const router = useRouter();

@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import Container from '@/app/components/atoms/container';
-import { feriadoService } from '@/services/feriado';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { feriadoService } from '@/features/feriados/api';
+import { showSuccessToast, showErrorToast } from '@/shared/lib/toast';
 import { useRouter } from 'next/navigation';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { feriadoValidations } from '@/utils/validations/feriadoValidations';
-import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/validations/userValidations';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/shared/ui/primitives/select';
+import { feriadoValidations } from '@/features/feriados/validations';
+import ValidationMessage from '@/shared/ui/ValidationMessage';
+import { ValidationResult } from '@/shared/types/ui';
 
 export default function AdicionarFeriado() {
   const router = useRouter();

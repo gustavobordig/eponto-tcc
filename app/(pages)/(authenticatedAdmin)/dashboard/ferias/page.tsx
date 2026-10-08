@@ -6,20 +6,20 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 // Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
-import ConfirmationModal from '@/app/components/atoms/ConfirmationModal';
+import Table from '@/shared/ui/Table';
+import LoadingText from '@/shared/ui/LoadingText';
+import Container from '@/shared/ui/Container';
+import ExcludeModal from '@/shared/ui/ExcludeModal';
+import ConfirmationModal from '@/shared/ui/ConfirmationModal';
 
 // Services
-import { Ferias, feriasService, SolicitacaoFerias } from '@/services/ferias';
+import { Ferias, feriasService, SolicitacaoFerias } from '@/features/ferias/api';
 
 // Utils
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 // Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 // Custom Styles
 import '@/app/styles/calendar.scss';

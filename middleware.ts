@@ -6,7 +6,7 @@ import {
   isTokenExpired,
   matchesRoute,
   normalizePerfil,
-} from '@/lib/session';
+} from '@/shared/lib/session';
 
 /**
  * Protege a navegação: sem sessão volta para o login, e o painel /dashboard

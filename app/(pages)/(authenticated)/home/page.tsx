@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { registroPontoService, RegistroPonto } from "@/services/registroPonto";
-import { tokenUtils } from "@/utils/token";
-import { bancoHorasService } from "@/services/bancoHoras";
-import { formatHorasTrabalhadas, formatSaldo } from "@/utils/timeUtils";
+import { registroPontoService, RegistroPonto } from "@/features/ponto/api";
+import { tokenUtils } from "@/shared/lib/token";
+import { bancoHorasService } from "@/features/bancoHoras/api";
+import { formatHorasTrabalhadas, formatSaldo } from "@/shared/lib/format";
 
 // Assets
 import UserImage from "@/public/images/User.png";
@@ -15,10 +15,10 @@ import UserImage from "@/public/images/User.png";
 import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from "lucide-react";
 
 // Components
-import { PunctualityChart } from "@/app/components/atoms/PunctualityChart";
-import Button from "@/app/components/atoms/Button";
-import { PageEntrance } from "@/app/Animations/pageEntrance";
-import { DailyStatus, Point, PointType } from "@/app/components/atoms/DailyStatus";
+import { PunctualityChart } from "@/features/ponto/components/PunctualityChart";
+import Button from "@/shared/ui/Button";
+import { PageEntrance } from "@/shared/ui/animations/PageEntrance";
+import { DailyStatus, Point, PointType } from "@/features/ponto/components/DailyStatus";
 
 const mockMonthlyData = {
   hours: [

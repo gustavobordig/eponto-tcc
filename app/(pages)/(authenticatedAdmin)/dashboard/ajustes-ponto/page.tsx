@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Container from '@/app/components/atoms/container';
-import { registroPontoService, SolicitacaoAlteracao, ItemRegistro } from '@/services/registroPonto';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { registroPontoService, SolicitacaoAlteracao, ItemRegistro } from '@/features/ponto/api';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 //Components
-import Table from '@/app/components/atoms/Table';
-import EditModal from '@/app/components/atoms/EditModal';
+import Table from '@/shared/ui/Table';
+import EditModal from '@/shared/ui/EditModal';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 export default function AjustesPontoPage() {
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAlteracao[]>([]);

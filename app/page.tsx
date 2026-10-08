@@ -2,10 +2,10 @@
 
 
 // Atoms
-import Container from "@/app/components/atoms/container";
+import Container from "@/shared/ui/Container";
 
 // Organisms
-import LoginContainer from "@/app/components/organisms/LoginContainer";
+import LoginContainer from "@/features/auth/components/LoginContainer";
 
 // Utils
 

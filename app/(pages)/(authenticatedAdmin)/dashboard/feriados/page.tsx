@@ -3,21 +3,21 @@
 import { useEffect, useState } from 'react';
 
 //Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import EditModal from '@/app/components/atoms/EditModal';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
+import Table from '@/shared/ui/Table';
+import LoadingText from '@/shared/ui/LoadingText';
+import Container from '@/shared/ui/Container';
+import EditModal from '@/shared/ui/EditModal';
+import ExcludeModal from '@/shared/ui/ExcludeModal';
 
 //Services
-import { Feriado, feriadoService } from '@/services/feriado';
+import { Feriado, feriadoService } from '@/features/feriados/api';
 
 //Utils
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { feriadoValidations } from '@/utils/validations/feriadoValidations';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import { feriadoValidations } from '@/features/feriados/validations';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 export default function FeriadosPage() {
   const [feriados, setFeriados] = useState<Feriado[]>([]);

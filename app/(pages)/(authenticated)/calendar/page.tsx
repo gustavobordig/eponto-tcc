@@ -12,16 +12,16 @@ import { ptBR } from 'date-fns/locale/pt-BR';
 import '@/app/styles/calendar.scss';
 
 //Service
-import { calendarioService } from '@/services/calendario';
-import { feriasService } from '@/services/ferias';
+import { calendarioService } from '@/features/calendario/api';
+import { feriasService } from '@/features/ferias/api';
 
 //Utils
-import { tokenUtils } from '@/utils/token';
+import { tokenUtils } from '@/shared/lib/token';
 
 //Components
-import LoadModal from '@/app/components/molecules/LoadModal';
-import Button from '@/app/components/atoms/Button';
-import { FeriasModal } from '@/app/components/molecules/FeriasModal';
+import LoadModal from '@/shared/ui/LoadModal';
+import Button from '@/shared/ui/Button';
+import { FeriasModal } from '@/features/ferias/components/SolicitarFeriasModal';
 
 const locales = {
   'pt-BR': ptBR,

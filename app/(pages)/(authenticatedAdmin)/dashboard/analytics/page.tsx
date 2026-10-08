@@ -1,10 +1,10 @@
 'use client';
 
-import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
-import { LineChart } from "@/components/dashboard/LineChart";
-import { BarChart } from "@/components/dashboard/BarChart";
-import { FuncionarioFilter } from "@/components/dashboard/FuncionarioFilter";
-import { mockData, funcionarios } from "@/lib/mockData";
+import { DashboardContainer } from "@/features/analytics/components/DashboardContainer";
+import { LineChart } from "@/features/analytics/components/LineChart";
+import { BarChart } from "@/features/analytics/components/BarChart";
+import { FuncionarioFilter } from "@/features/analytics/components/FuncionarioFilter";
+import { mockData, funcionarios } from "@/features/analytics/mockData";
 import { useState } from "react";
 
 export default function DashboardPage() {

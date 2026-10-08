@@ -1,13 +1,13 @@
 'use client';
 
-import Container from '@/app/components/atoms/container';
-import { jornadaTrabalhoService } from '@/services/jornadaTrabalho';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { jornadaTrabalhoService } from '@/features/jornadas/api';
+import { showSuccessToast, showErrorToast } from '@/shared/lib/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { jornadaValidations } from '@/utils/validations/jornadaValidations';
-import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/validations/userValidations';
+import { jornadaValidations } from '@/features/jornadas/validations';
+import ValidationMessage from '@/shared/ui/ValidationMessage';
+import { ValidationResult } from '@/shared/types/ui';
 
 export default function AdicionarJornada() {
   const router = useRouter();

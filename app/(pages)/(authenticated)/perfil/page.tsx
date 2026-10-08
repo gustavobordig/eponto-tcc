@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { userService } from '@/services/user';
-import { tokenUtils } from '@/utils/token';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import ConfirmationModal from '@/app/components/atoms/ConfirmationModal';
-import ContractualInfo from '@/app/components/atoms/ContractualInfo';
+import { userService } from '@/features/usuarios/api';
+import { tokenUtils } from '@/shared/lib/token';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import ConfirmationModal from '@/shared/ui/ConfirmationModal';
+import ContractualInfo from '@/features/usuarios/components/ContractualInfo';
 
 interface UserData {
   idUsuario: number;

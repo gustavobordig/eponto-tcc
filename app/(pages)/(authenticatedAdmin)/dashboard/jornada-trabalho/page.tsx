@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Container from '@/app/components/atoms/container';
-import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 //Components
-import Table from '@/app/components/atoms/Table';
-import EditModal from '@/app/components/atoms/EditModal';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
+import Table from '@/shared/ui/Table';
+import EditModal from '@/shared/ui/EditModal';
+import ExcludeModal from '@/shared/ui/ExcludeModal';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 
 export default function JornadaTrabalhoPage() {

@@ -4,20 +4,20 @@ import { useEffect, useState } from 'react';
 import { MessageSquare, Eye, Clock, User, X, CheckCircle, AlertCircle, MessageCircle, Send, Star } from 'lucide-react';
 
 //Components
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import TextArea from '@/app/components/atoms/TextArea';
-import Button from '@/app/components/atoms/Button';
+import LoadingText from '@/shared/ui/LoadingText';
+import Container from '@/shared/ui/Container';
+import TextArea from '@/shared/ui/TextArea';
+import Button from '@/shared/ui/Button';
 
 //Services
-import { feedbackService, SolicitacaoData, FeedbackInsertData, FeedbackData } from '@/services/feedback';
+import { feedbackService, SolicitacaoData, FeedbackInsertData, FeedbackData } from '@/features/feedback/api';
 
 //Utils
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { tokenUtils } from '@/utils/token';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import { tokenUtils } from '@/shared/lib/token';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 export default function FeedbackPage() {
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoData[]>([]);

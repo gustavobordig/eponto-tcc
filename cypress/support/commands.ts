@@ -1,4 +1,4 @@
-import { Perfil, SESSION_COOKIES } from '../../lib/session';
+import { Perfil, SESSION_COOKIES } from '../../shared/lib/session';
 
 /// <reference types="cypress" />
 // ***********************************************

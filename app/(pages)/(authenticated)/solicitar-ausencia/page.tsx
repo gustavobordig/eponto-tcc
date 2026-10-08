@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { tokenUtils } from "@/utils/token";
-import { solicitacaoAusenciaService, SolicitacaoAusenciaInsert } from "@/services/solicitacaoAusencia";
-import { showSuccessToast, showErrorToast } from "@/utils/toast";
+import { tokenUtils } from "@/shared/lib/token";
+import { solicitacaoAusenciaService, SolicitacaoAusenciaInsert } from "@/features/ausencias/api";
+import { showSuccessToast, showErrorToast } from "@/shared/lib/toast";
 import { useRouter } from "next/navigation";
-import Button from "@/app/components/atoms/Button";
-import Input from "@/app/components/atoms/Input";
-import TextArea from "@/app/components/atoms/TextArea";
+import Button from "@/shared/ui/Button";
+import Input from "@/shared/ui/Input";
+import TextArea from "@/shared/ui/TextArea";
 
 export default function SolicitarAusenciaPage() {
   const router = useRouter();

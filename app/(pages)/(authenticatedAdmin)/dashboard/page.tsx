@@ -3,22 +3,22 @@
 import { useEffect, useState } from 'react';
 
 //Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
-import EditModal from '@/app/components/atoms/EditModal';
+import Table from '@/shared/ui/Table';
+import LoadingText from '@/shared/ui/LoadingText';
+import Container from '@/shared/ui/Container';
+import ExcludeModal from '@/shared/ui/ExcludeModal';
+import EditModal from '@/shared/ui/EditModal';
 
 //Services
-import { UserData, userService } from '@/services/user';
-import { Cargo, cargoService } from '@/services/cargo';
-import { JornadaTrabalho, jornadaTrabalhoService } from '@/services/jornadaTrabalho';
+import { UserData, userService } from '@/features/usuarios/api';
+import { Cargo, cargoService } from '@/features/cargos/api';
+import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
 
 //Utils
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 interface UserWithDetails extends UserData {
   cargo?: string;

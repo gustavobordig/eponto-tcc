@@ -3,21 +3,21 @@
 import { useEffect, useState } from 'react';
 
 //Components
-import Table from '@/app/components/atoms/Table';
-import LoadingText from '@/app/components/atoms/LoadingText';
-import Container from '@/app/components/atoms/container';
-import EditModal from '@/app/components/atoms/EditModal';
-import ExcludeModal from '@/app/components/atoms/ExcludeModal';
+import Table from '@/shared/ui/Table';
+import LoadingText from '@/shared/ui/LoadingText';
+import Container from '@/shared/ui/Container';
+import EditModal from '@/shared/ui/EditModal';
+import ExcludeModal from '@/shared/ui/ExcludeModal';
 
 //Services
-import { Cargo, cargoService } from '@/services/cargo';
+import { Cargo, cargoService } from '@/features/cargos/api';
 
 //Utils
-import { showErrorToast, showSuccessToast } from '@/utils/toast';
-import { cargoValidations } from '@/utils/validations/cargoValidations';
+import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import { cargoValidations } from '@/features/cargos/validations';
 
 //Types
-import { Column } from '@/types';
+import { Column } from '@/shared/types/ui';
 
 
 export default function CargosPage() {

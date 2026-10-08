@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import Button from '@/app/components/atoms/Button';
+import Button from '@/shared/ui/Button';
 import { MessageSquare, Plus, CheckCircle, AlertCircle, X, Star } from 'lucide-react';
-import { useFeedback } from '@/app/contexts/FeedbackContext';
-import { feedbackService, SolicitacaoData, FeedbackData } from '@/services/feedback';
-import { tokenUtils } from '@/utils/token';
-import { showErrorToast } from '@/utils/toast';
+import { useFeedback } from '@/features/feedback/FeedbackContext';
+import { feedbackService, SolicitacaoData, FeedbackData } from '@/features/feedback/api';
+import { tokenUtils } from '@/shared/lib/token';
+import { showErrorToast } from '@/shared/lib/toast';
 
 export default function FeedbackPage() {
   const { openFeedbackModal, solicitacoes, setSolicitacoes, registerRefresh } = useFeedback();

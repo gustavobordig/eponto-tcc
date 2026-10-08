@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { tokenUtils } from '@/utils/token';
+import { tokenUtils } from '@/shared/lib/token';
 
 export default function AdminLayout({
   children,

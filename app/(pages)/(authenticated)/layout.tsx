@@ -1,12 +1,12 @@
 "use client";
 
-import NavBar from "@/app/components/molecules/NavBar";
+import NavBar from "@/app/(pages)/(authenticated)/_components/NavBar";
 import { useEffect, useState } from "react";
-import { tokenUtils } from "@/utils/token";
-import { userService } from "@/services/user";
-import { showErrorToast } from "@/utils/toast";
-import FeedbackModal from "@/app/components/molecules/FeedbackModal";
-import { FeedbackProvider, useFeedback } from "@/app/contexts/FeedbackContext";
+import { tokenUtils } from "@/shared/lib/token";
+import { userService } from "@/features/usuarios/api";
+import { showErrorToast } from "@/shared/lib/toast";
+import FeedbackModal from "@/features/feedback/components/FeedbackModal";
+import { FeedbackProvider, useFeedback } from "@/features/feedback/FeedbackContext";
     
 function AuthenticatedLayoutContent({
     children,

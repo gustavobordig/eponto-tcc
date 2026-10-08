@@ -1,5 +1,5 @@
-import Container from "@/app/components/atoms/container";
-import HistoricoContainer from "@/app/components/organisms/HistoryContainer";
+import Container from "@/shared/ui/Container";
+import HistoricoContainer from "@/features/ponto/components/HistoricoPontos";
 
 export default function HomePage() {
   return (

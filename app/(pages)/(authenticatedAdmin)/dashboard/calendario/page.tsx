@@ -12,10 +12,10 @@ import { ptBR } from 'date-fns/locale/pt-BR';
 import '@/app/styles/calendar.scss';
 
 //Service
-import { calendarioService } from '@/services/calendario';
+import { calendarioService } from '@/features/calendario/api';
 
 //Components
-import LoadModal from '@/app/components/molecules/LoadModal';
+import LoadModal from '@/shared/ui/LoadModal';
 
 const locales = {
   'pt-BR': ptBR,

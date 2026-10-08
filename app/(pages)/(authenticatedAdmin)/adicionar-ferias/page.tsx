@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Container from '@/app/components/atoms/container';
-import { feriasService } from '@/services/ferias';
-import { userService, UserData } from '@/services/user';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { feriasService } from '@/features/ferias/api';
+import { userService, UserData } from '@/features/usuarios/api';
+import { showSuccessToast, showErrorToast } from '@/shared/lib/toast';
 import { useRouter } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { feriasValidations } from '@/utils/validations/feriasValidations';
-import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/validations/userValidations';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/primitives/select";
+import { feriasValidations } from '@/features/ferias/validations';
+import ValidationMessage from '@/shared/ui/ValidationMessage';
+import { ValidationResult } from '@/shared/types/ui';
 
 export default function AdicionarFerias() {
   const router = useRouter();

@@ -1,13 +1,13 @@
 'use client';
 
-import Container from '@/app/components/atoms/container';
-import { cargoService } from '@/services/cargo';
-import { showSuccessToast, showErrorToast } from '@/utils/toast';
+import Container from '@/shared/ui/Container';
+import { cargoService } from '@/features/cargos/api';
+import { showSuccessToast, showErrorToast } from '@/shared/lib/toast';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { cargoValidations } from '@/utils/validations/cargoValidations';
-import ValidationMessage from '@/app/components/atoms/ValidationMessage';
-import { ValidationResult } from '@/utils/validations/userValidations';
+import { cargoValidations } from '@/features/cargos/validations';
+import ValidationMessage from '@/shared/ui/ValidationMessage';
+import { ValidationResult } from '@/shared/types/ui';
 
 export default function AdicionarCargo() {
   const router = useRouter();
