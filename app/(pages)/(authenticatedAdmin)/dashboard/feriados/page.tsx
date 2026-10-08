@@ -10,7 +10,7 @@ import EditModal from '@/shared/ui/EditModal';
 import ExcludeModal from '@/shared/ui/ExcludeModal';
 
 //Services
-import { Feriado, feriadoService } from '@/features/feriados/api';
+import { FeriadoListado, feriadoService, labelDoTipo, tipoDoFeriado } from '@/features/feriados/api';
 
 //Utils
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
@@ -20,29 +20,23 @@ import { feriadoValidations } from '@/features/feriados/validations';
 import { Column } from '@/shared/types/ui';
 
 export default function FeriadosPage() {
-  const [feriados, setFeriados] = useState<Feriado[]>([]);
+  const [feriados, setFeriados] = useState<FeriadoListado[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [feriadoToDelete, setFeriadoToDelete] = useState<number | null>(null);
-  const [feriadoToEdit, setFeriadoToEdit] = useState<Feriado | null>(null);
+  const [feriadoToEdit, setFeriadoToEdit] = useState<FeriadoListado | null>(null);
   const [editedDscFeriado, setEditedDscFeriado] = useState('');
   const [editedDatFeriado, setEditedDatFeriado] = useState('');
   const [editedIndTipoFeriado, setEditedIndTipoFeriado] = useState(1);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
-  const columns: Column<Feriado>[] = [
+  const columns: Column<FeriadoListado>[] = [
     { key: 'dscFeriado', label: 'Descrição' },
     { key: 'datFeriado', label: 'Data', type: 'date' },
-    { 
-      key: 'indTipoFeriado', 
-      label: 'Tipo',
-      // render recebe a linha inteira, não o valor da coluna
-      render: (feriado) => {
-        return Number(feriado.indTipoFeriado) === 1 ? 'Integral' : 'Meio Período';
-      }
-    }
+    // A listagem devolve o tipo como texto (dscTipoFeriado)
+    { key: 'dscTipoFeriado', label: 'Tipo', render: (feriado) => labelDoTipo(tipoDoFeriado(feriado.dscTipoFeriado)) }
   ];
 
   // Configuração das validações para o EditModal
@@ -68,11 +62,12 @@ export default function FeriadosPage() {
     fetchFeriados();
   }, []);
 
-  const handleEdit = (feriado: Feriado) => {
+  const handleEdit = (feriado: FeriadoListado) => {
     setFeriadoToEdit(feriado);
     setEditedDscFeriado(feriado.dscFeriado);
-    setEditedDatFeriado(feriado.datFeriado);
-    setEditedIndTipoFeriado(feriado.indTipoFeriado);
+    // O input date precisa de yyyy-MM-dd; a API manda com hora
+    setEditedDatFeriado(feriado.datFeriado?.slice(0, 10) ?? '');
+    setEditedIndTipoFeriado(tipoDoFeriado(feriado.dscTipoFeriado));
     setIsEditModalOpen(true);
   };
 
@@ -89,14 +84,11 @@ export default function FeriadosPage() {
 
     setEditLoading(true);
     try {
-      const updatedFeriado: Feriado = {
-        idFeriado: feriadoToEdit.idFeriado,
+      await feriadoService.atualizarFeriado(feriadoToEdit.idFeriado, {
         dscFeriado: editedDscFeriado,
         datFeriado: editedDatFeriado,
         indTipoFeriado: editedIndTipoFeriado
-      };
-
-      await feriadoService.cadastrarFeriado(updatedFeriado);
+      });
       showSuccessToast('Feriado atualizado com sucesso!');
       fetchFeriados();
       handleEditClose();
@@ -108,7 +100,7 @@ export default function FeriadosPage() {
     }
   };
 
-  const handleDeleteClick = (feriado: Feriado) => {
+  const handleDeleteClick = (feriado: FeriadoListado) => {
     if (feriado.idFeriado === undefined) {
       showErrorToast('ID do feriado não encontrado');
       return;

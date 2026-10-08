@@ -6,7 +6,7 @@ export interface Ferias {
   dscObservacao?: string;
   dscFerias?: string;
   datInicioFerias?: string;
-  // A listagem por usuário devolve o campo com esse nome
+  // A API usa esse nome (com o erro de digitação) no cadastro e na listagem
   datIncioFerias?: string;
   datFimFerias: string;
   idUsuario?: number | null;
@@ -28,8 +28,9 @@ type FeriasResponse = ApiResponse<{ listaFerias?: Ferias[] | null }>;
 type SolicitacoesFeriasResponse = ApiResponse<{ listarSolicitacoesFerias?: SolicitacaoFerias[] | null }>;
 
 export const feriasService = {
+  // Antes ia para /api/feriado/CadastrarFerias, que não existe na API
   cadastrarFerias: async (ferias: Ferias) =>
-    (await api.post<ApiResponse>('/api/feriado/CadastrarFerias', ferias)).data,
+    (await api.post<ApiResponse>('/api/Ferias/CadastrarFerias', ferias)).data,
 
   buscarFerias: async () => {
     const { data } = await api.get<FeriasResponse>('/api/Ferias/ListarFerias');

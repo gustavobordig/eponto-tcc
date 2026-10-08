@@ -13,10 +13,12 @@ import LoadingText from '@/shared/ui/LoadingText';
 import Table from '@/shared/ui/Table';
 import { Column } from '@/shared/types/ui';
 import { showErrorToast } from '@/shared/lib/toast';
+import { formatDate } from '@/shared/lib/format';
 
 const colunasFerias: Column<Ferias>[] = [
   { key: 'dscFerias', label: 'Descrição' },
-  { key: 'datInicioFerias', label: 'Data Início', type: 'date' },
+  // A listagem devolve datIncioFerias (sic)
+  { key: 'datIncioFerias', label: 'Data Início', render: (item) => formatDate(item.datIncioFerias ?? item.datInicioFerias) },
   { key: 'datFimFerias', label: 'Data Fim', type: 'date' },
 ];
 

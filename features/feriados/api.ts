@@ -1,17 +1,27 @@
 import api from '@/shared/lib/api';
 import { ApiResponse } from '@/shared/types/api';
 
+/** Payload de cadastro. indTipoFeriado: 1 integral, 2 meio período */
 export interface Feriado {
-  idFeriado?: number;
   dscFeriado: string;
   datFeriado: string;
   indTipoFeriado: number;
 }
 
-export type FeriadoResponse = ApiResponse<{ listaFeriados?: Feriado[] | null }>;
+/** Como a listagem devolve: o tipo vem como texto ("Feriado Integral" / "Feriado Meio Periodo") */
+export interface FeriadoListado {
+  idFeriado: number;
+  dscFeriado: string;
+  datFeriado: string;
+  dscTipoFeriado: string;
+}
+
+export type FeriadoResponse = ApiResponse<{ listaFeriados?: FeriadoListado[] | null }>;
+
+export const tipoDoFeriado = (dscTipoFeriado: string | undefined) => (/meio/i.test(dscTipoFeriado ?? '') ? 2 : 1);
+export const labelDoTipo = (indTipoFeriado: number) => (indTipoFeriado === 2 ? 'Meio Período' : 'Integral');
 
 export const feriadoService = {
-  // Também é usado para editar: a API não tem rota de atualização
   cadastrarFeriado: async (feriado: Feriado) =>
     (await api.post<ApiResponse>('/api/feriado/CadastrarFeriado', feriado)).data,
 
@@ -22,4 +32,13 @@ export const feriadoService = {
 
   excluirFeriado: async (id: number) =>
     (await api.delete<ApiResponse>(`/api/feriado/DeletarFeriado/${id}`)).data,
+
+  /**
+   * A API não tem rota de atualização. Antes a edição chamava o cadastro e
+   * criava um feriado duplicado; agora cadastra o novo e exclui o antigo.
+   */
+  atualizarFeriado: async (idFeriado: number, feriado: Feriado) => {
+    await feriadoService.cadastrarFeriado(feriado);
+    await feriadoService.excluirFeriado(idFeriado);
+  },
 };
