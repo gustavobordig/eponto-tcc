@@ -20,7 +20,7 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
-            <MessageSquare className="text-blue-600" size={24} />
+            <MessageSquare className="text-primary" size={24} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Solicitações de Feedback</h1>
@@ -67,7 +67,7 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
                       onClick={() => onView(solicitacao)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 my-2 py-1 rounded text-xs flex items-center gap-1 transition-colors"
+                      className="bg-primary hover:bg-primary-dark text-white px-3 my-2 py-1 rounded text-xs flex items-center gap-1 transition-colors"
                     >
                       <Eye size={12} />
                       Visualizar
@@ -100,7 +100,7 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
 
 // Classes completas por cor para o Tailwind encontrar no build
 const CORES = {
-  blue: ['bg-blue-50', 'text-blue-600', 'text-blue-900'],
+  blue: ['bg-blue-50', 'text-primary', 'text-blue-900'],
   yellow: ['bg-yellow-50', 'text-yellow-600', 'text-yellow-900'],
   green: ['bg-green-50', 'text-green-600', 'text-green-900'],
 } as const;

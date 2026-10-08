@@ -21,7 +21,7 @@ export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onRespo
   return (
     <ModalShell
       titulo="Detalhes da Solicitação"
-      icone={<MessageCircle className="text-blue-600" size={20} />}
+      icone={<MessageCircle className="text-primary" size={20} />}
       corIcone="bg-blue-100"
       onClose={onClose}
       rodape={
@@ -56,7 +56,7 @@ export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onRespo
 
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
         <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <User size={18} className="text-blue-600" />
+          <User size={18} className="text-primary" />
           Informações do Solicitante
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

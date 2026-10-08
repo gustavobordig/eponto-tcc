@@ -80,7 +80,7 @@ export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit 
           <select
             value={resposta.estrelas}
             onChange={(e) => setResposta((prev) => ({ ...prev, estrelas: Number(e.target.value) }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
           >
             {AVALIACOES.map(({ estrelas, label }) => (
               <option key={estrelas} value={estrelas}>

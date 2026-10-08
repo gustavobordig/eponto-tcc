@@ -97,7 +97,7 @@ export default function Table<T extends object = TableRow>({
             <div className="w-fit">
               <Button
                 text={`Adicionar ${title}`}
-              backgroundColor="bg-indigo-600"
+              backgroundColor="bg-primary"
               textColor="text-white"
               className="whitespace-nowrap p-2"
                 onClick={() => router.push(`${addItemHref}`)}
@@ -143,7 +143,7 @@ export default function Table<T extends object = TableRow>({
                           {handleEdit && (
                             <button
                               onClick={() => handleEdit(item)}
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="text-primary hover:text-primary"
                             >
                               Editar
                             </button>

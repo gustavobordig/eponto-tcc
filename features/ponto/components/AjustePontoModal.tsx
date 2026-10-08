@@ -208,7 +208,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-2xl font-bold text-[#002085] mb-6">
+        <h2 className="text-2xl font-bold text-primary mb-6">
           Ajuste de Ponto {selectedDate && `- ${selectedDate}`}
         </h2>
 
@@ -244,7 +244,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
                 setFormData({ ...formData, justificativa: e.target.value })
               }
               placeholder="Digite sua justificativa para o ajuste..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002085] min-h-[100px]
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]
               text-gray-800"
             />
           </div>
@@ -259,7 +259,7 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
             />
             <Button
               text="Pedir Ajuste"
-              backgroundColor="bg-[#002085]"
+              backgroundColor="bg-primary"
               textColor="text-white"
               onClick={handleSubmit}
               fullWidth={false}

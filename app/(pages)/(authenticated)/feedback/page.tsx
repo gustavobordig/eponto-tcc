@@ -144,7 +144,7 @@ export default function FeedbackPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <MessageSquare className="text-blue-600" size={24} />
+                <MessageSquare className="text-primary" size={24} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Avaliação de Desempenho</h1>
@@ -160,7 +160,7 @@ export default function FeedbackPage() {
           </div>
           
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <p className="text-gray-600 mt-4">Carregando suas solicitações...</p>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function FeedbackPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
-              <MessageSquare className="text-blue-600" size={24} />
+              <MessageSquare className="text-primary" size={24} />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Avaliação de Desempenho</h1>
@@ -226,7 +226,7 @@ export default function FeedbackPage() {
                           {formatDate(solicitacao.dataSolicitacao)}
                         </span>
                         {solicitacao.status === 1 && (
-                          <span className="text-xs text-blue-600 font-medium">
+                          <span className="text-xs text-primary font-medium">
                             Clique para ver a resposta
                           </span>
                         )}

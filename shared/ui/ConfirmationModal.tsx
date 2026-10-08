@@ -22,7 +22,7 @@ export default function ConfirmationModal({
   onConfirm,
   onCancel,
   loading = false,
-  confirmButtonColor = 'bg-blue-600 hover:bg-blue-700',
+  confirmButtonColor = 'bg-primary hover:bg-primary-dark',
   children
 }: ConfirmationModalProps) {
   if (!isOpen) return null;

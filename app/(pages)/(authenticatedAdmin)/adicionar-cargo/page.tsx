@@ -104,7 +104,7 @@ export default function AdicionarCargo() {
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
                 (showValidations.nome && validations.nome && !validations.nome.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-blue-200'
+                  : 'border-gray-300 focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -130,7 +130,7 @@ export default function AdicionarCargo() {
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
                 (showValidations.formacaoMinima && validations.formacaoMinima && !validations.formacaoMinima.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-blue-200'
+                  : 'border-gray-300 focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -156,7 +156,7 @@ export default function AdicionarCargo() {
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
                 (showValidations.salario && validations.salario && !validations.salario.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-blue-200'
+                  : 'border-gray-300 focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -169,9 +169,9 @@ export default function AdicionarCargo() {
           <button
             type="submit"
             disabled={!isFormValid()}
-            className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+            className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               isFormValid() 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                ? 'bg-primary text-white hover:bg-primary-dark' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >

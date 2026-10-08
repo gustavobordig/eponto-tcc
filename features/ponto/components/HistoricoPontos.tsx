@@ -136,7 +136,7 @@ export default function HistoricoContainer() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#002085] text-white">
+              <tr className="bg-primary text-white">
                 <th className="p-4 text-center">Data</th>
                 <th className="p-4 text-center">Entrada/saída</th>
                 <th className="p-4 text-center">Horas extras</th>
@@ -163,8 +163,8 @@ export default function HistoricoContainer() {
                     key={index} 
                     className="border-b border-gray-200"
                   >
-                    <td className="p-4 text-[#002085] text-center">{registro.data}</td>
-                    <td className="p-4 text-[#002085] text-center">{registro.entradaSaida}</td>
+                    <td className="p-4 text-primary text-center">{registro.data}</td>
+                    <td className="p-4 text-primary text-center">{registro.entradaSaida}</td>
                     <td className="p-4 text-green-500 text-center">{registro.horasExtras}</td>
                     <td className="p-4 text-red-500 text-center">{registro.faltantes}</td>
                     <td className="p-4 text-center">

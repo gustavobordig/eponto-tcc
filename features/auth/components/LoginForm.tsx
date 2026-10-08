@@ -97,7 +97,7 @@ export default function Form({
                         <Button
                             key={perfil.idPerfil}
                             text={perfil.dscPerfil}
-                            backgroundColor="bg-[#002085]"
+                            backgroundColor="bg-primary"
                             textColor="text-white"
                             className="w-full"
                             isLoading={isLoading}
@@ -159,7 +159,7 @@ export default function Form({
                     <div className="w-full">
                         <Button
                             text="Entrar"
-                            backgroundColor="bg-[#002085]"
+                            backgroundColor="bg-primary"
                             textColor="text-white"
                             className="w-full"
                             onClick={handleSubmit}

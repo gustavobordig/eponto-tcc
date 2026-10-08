@@ -18,7 +18,7 @@ interface ButtonProps {
 
 const Button = ({
   text,
-  backgroundColor = 'bg-[#002085]',
+  backgroundColor = 'bg-primary',
   textColor = 'text-white',
   onClick,
   className = '',
@@ -56,7 +56,7 @@ const Button = ({
         ${fullWidth ? 'w-full' : 'w-auto px-4'}
         ${className}
         ${(disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        ${hoverSwapColors ? 'hover:bg-[#002085] hover:text-white' : ''}
+        ${hoverSwapColors ? 'hover:bg-primary hover:text-white' : ''}
         transition-all
         duration-300
         ease-in-out

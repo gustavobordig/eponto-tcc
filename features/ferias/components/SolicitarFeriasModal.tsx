@@ -133,7 +133,7 @@ export const FeriasModal: React.FC<FeriasModalProps> = ({
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-xl font-semibold text-gray-800">
                 Solicitar Férias
@@ -200,7 +200,7 @@ export const FeriasModal: React.FC<FeriasModalProps> = ({
           <div className="flex gap-3 mt-6">
             <Button
               text={isSubmitting ? "Enviando..." : "Solicitar"}
-              backgroundColor="bg-blue-600"
+              backgroundColor="bg-primary"
               textColor="text-white"
               onClick={handleSubmit}
               hoverSwapColors={false}

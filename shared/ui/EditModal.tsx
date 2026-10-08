@@ -130,7 +130,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   } ${
                     (showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-blue-200'
+                      : 'border-gray-300 focus:ring-primary/30'
                   }`}
                   disabled={field.readOnly}
                   required={field.required}
@@ -152,7 +152,7 @@ const EditModal: React.FC<EditModalProps> = ({
                   } ${
                     (showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-blue-200'
+                      : 'border-gray-300 focus:ring-primary/30'
                   }`}
                   readOnly={field.readOnly}
                   required={field.required}
@@ -182,7 +182,7 @@ const EditModal: React.FC<EditModalProps> = ({
               onClick={handleConfirm}
               className={`px-4 py-2 rounded-md disabled:opacity-50 ${
                 isFormValid() 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  ? 'bg-primary text-white hover:bg-primary-dark' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
               disabled={loading || !isFormValid()}

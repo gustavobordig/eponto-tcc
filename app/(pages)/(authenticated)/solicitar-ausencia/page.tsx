@@ -175,7 +175,7 @@ export default function SolicitarAusenciaPage() {
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-primary hover:file:bg-blue-100"
             />
             {errors.arquivo && (
               <p className="mt-1 text-sm text-red-600">{errors.arquivo}</p>
@@ -188,7 +188,7 @@ export default function SolicitarAusenciaPage() {
           <div className="flex gap-4 pt-4">
             <Button
               text={loading ? "Enviando..." : "Enviar Solicitação"}
-              backgroundColor="bg-blue-600"
+              backgroundColor="bg-primary"
               textColor="text-white"
               onClick={handleSubmit}
               disabled={loading}
@@ -224,7 +224,7 @@ export default function SolicitarAusenciaPage() {
               </p>
               <Button
                 text="Ver Minhas Solicitações"
-                backgroundColor="bg-blue-600"
+                backgroundColor="bg-primary"
                 textColor="text-white"
                 onClick={handleModalClose}
                 fullWidth={true}

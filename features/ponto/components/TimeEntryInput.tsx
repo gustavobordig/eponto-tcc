@@ -33,7 +33,7 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({
             value={value.time}
             onChange={(e) => onChange({ ...value, time: e.target.value })}
             disabled={!isTimeEditable}
-            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002085] placeholder-gray-800
+            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-800
             text-gray-800 ${!isTimeEditable ? 'bg-gray-50' : 'bg-white'}`}
             placeholder="00:00"
           />
@@ -52,7 +52,7 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({
             onChange={(e) => onChange({ ...value, location: e.target.value })}
             disabled={!isLocationEditable}
             placeholder="Localização"
-            className={`w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002085] placeholder-gray-800
+            className={`w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-800
             text-gray-800 ${!isLocationEditable ? 'bg-gray-50' : 'bg-white'}`}
           />
           <button

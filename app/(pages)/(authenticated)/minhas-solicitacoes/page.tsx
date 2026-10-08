@@ -45,7 +45,7 @@ export default function MinhasSolicitacoesPage() {
           </h1>
           <Button
             text="Nova Solicitação"
-            backgroundColor="bg-blue-600"
+            backgroundColor="bg-primary"
             textColor="text-white"
             onClick={() => router.push('/solicitar-ausencia')}
             fullWidth={false}
@@ -67,7 +67,7 @@ export default function MinhasSolicitacoesPage() {
             </p>
             <Button
               text="Fazer Nova Solicitação"
-              backgroundColor="bg-blue-600"
+              backgroundColor="bg-primary"
               textColor="text-white"
               onClick={() => router.push('/solicitar-ausencia')}
               fullWidth={false}
@@ -209,7 +209,7 @@ export default function MinhasSolicitacoesPage() {
                       href={selectedSolicitacao.linkArquivo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     >
                       <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

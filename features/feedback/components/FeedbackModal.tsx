@@ -122,7 +122,7 @@ const FeedbackModal = ({ isOpen, onClose, onSolicitacaoCreated }: FeedbackModalP
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-[#002085]">Solicitar Feedback</h2>
+          <h2 className="text-xl font-semibold text-primary">Solicitar Feedback</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"

@@ -168,7 +168,7 @@ export default function PerfilPage() {
   if (isLoading && !userData.nome) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -178,7 +178,7 @@ export default function PerfilPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r bg-[#002085] px-6 py-8 text-white">
+          <div className="bg-gradient-to-r bg-primary px-6 py-8 text-white">
             <h1 className="text-3xl font-bold">Bem vindo, {userData.nome}</h1>
             <p className="text-indigo-100 mt-2">Gerencie suas informações pessoais</p>
           </div>
@@ -189,7 +189,7 @@ export default function PerfilPage() {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative group">
                   <div
-                    className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 cursor-pointer group-hover:border-indigo-300 transition-all duration-300 shadow-lg bg-gray-200 flex items-center justify-center"
+                    className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 cursor-pointer group-hover:border-primary/40 transition-all duration-300 shadow-lg bg-gray-200 flex items-center justify-center"
                     onClick={handleImageClick}
                   >
                     {previewImage ? (
@@ -200,7 +200,7 @@ export default function PerfilPage() {
                         width={128}
                         height={128}
                         className="w-full h-full object-cover absolute z-10 rounded-full
-                        border-4 border-[#002085]"
+                        border-4 border-primary"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -229,7 +229,7 @@ export default function PerfilPage() {
                 <button
                   type="button"
                   onClick={handleImageClick}
-                  className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 cursor-pointer"
+                  className="text-sm text-primary hover:text-primary font-medium transition-colors duration-200 cursor-pointer"
                 >
                   Alterar foto
                 </button>
@@ -252,7 +252,7 @@ export default function PerfilPage() {
                     id="nome"
                     value={userData.nome}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
                     placeholder="Digite seu nome completo"
                   />
                 </div>
@@ -267,7 +267,7 @@ export default function PerfilPage() {
                     id="dataNascimento"
                     value={userData.dataNascimento.split('T')[0]}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export default function PerfilPage() {
                     id="email"
                     value={userData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
                     placeholder="seu@email.com"
                   />
                 </div>
@@ -296,7 +296,7 @@ export default function PerfilPage() {
                     id="telefone"
                     value={userData.telefone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
                     placeholder="(11) 99999-9999"
                   />
                 </div>
@@ -307,7 +307,7 @@ export default function PerfilPage() {
                 <p className="block text-sm font-semibold text-gray-700">Senha</p>
                 <p className="text-sm text-gray-600">
                   Para trocar a senha,{' '}
-                  <Link href="/forgot-password" className="text-indigo-600 hover:underline">
+                  <Link href="/forgot-password" className="text-primary hover:underline">
                     receba um código no seu e-mail
                   </Link>
                   .
@@ -320,8 +320,8 @@ export default function PerfilPage() {
                   type="submit"
                   disabled={isLoading}
                   className="flex-1 sm:flex-none px-8 py-3 text-white font-semibold rounded-lg cursor-pointer opacity-80
-                   hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all 
-                   duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg bg-[#002085]"
+                   hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all 
+                   duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg bg-primary"
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">

@@ -65,7 +65,7 @@ export default function FeriasPage() {
     <button
       onClick={() => setView(valor)}
       className={`px-4 py-2 rounded-md ${
-        view === valor ? 'bg-[#002085] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        view === valor ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
       }`}
     >
       {label}
