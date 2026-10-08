@@ -12,8 +12,10 @@ interface TableProps<T extends object> {
   data: T[];
   title: string;
   columns: Column<T>[];
-  handleEdit?: (item: T) => void | ReactNode;
+  handleEdit?: (item: T) => void;
   handleDeleteClick?: (item: T) => void;
+  /** Ações próprias da linha, no lugar de Editar/Excluir */
+  renderActions?: (item: T) => ReactNode;
   addItemHref?: string;
   isAjustePonto?: boolean;
 }
@@ -23,11 +25,16 @@ export default function Table<T extends object = TableRow>({
     title,
     columns,
     handleEdit,
-    handleDeleteClick,  
+    handleDeleteClick,
+    renderActions,
     addItemHref,
     isAjustePonto = false
 }: TableProps<T>) {
   const router = useRouter();
+  // Antes, a tabela chamava handleEdit durante a renderização para ver se ele
+  // devolvia JSX; nas telas em que ele abre o modal de edição, o modal abria
+  // sozinho com a última linha e não fechava mais.
+  const temAcoes = Boolean(handleEdit || handleDeleteClick || renderActions);
 
   // Garantir que data é sempre um array
   const safeData = Array.isArray(data) ? data : [];
@@ -127,32 +134,20 @@ export default function Table<T extends object = TableRow>({
                       {renderCell(item, column)}
                     </td>
                   ))}
-                  {(handleEdit || handleDeleteClick) && (
+                  {temAcoes && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {handleEdit && typeof handleEdit === 'function' ? (
-                        (() => {
-                          const result = handleEdit(item);
-                          return typeof result === 'object' ? result : (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleEdit(item)}
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                Editar
-                              </button>
-                              {handleDeleteClick && (
-                                <button
-                                  onClick={() => handleDeleteClick(item)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Excluir
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })()
+                      {renderActions ? (
+                        renderActions(item)
                       ) : (
                         <div className="flex space-x-2">
+                          {handleEdit && (
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Editar
+                            </button>
+                          )}
                           {handleDeleteClick && (
                             <button
                               onClick={() => handleDeleteClick(item)}
