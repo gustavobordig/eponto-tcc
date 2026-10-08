@@ -19,23 +19,6 @@ import { tokenUtils } from '@/utils/token';
 //Types
 import { Column } from '@/types';
 
-interface SolicitacaoResponse {
-  sucesso: boolean;
-  mensagem: string | null;
-  solicitacao: SolicitacaoData | null;
-  solicitacoes: SolicitacaoData[] | null;
-  solicitacoesFeedback: SolicitacaoData[] | null;
-  feedback: SolicitacaoData | null;
-  feedbacks: SolicitacaoData[] | null;
-}
-
-interface FeedbackResponse {
-  sucesso: boolean;
-  mensagem: string | null;
-  feedback: FeedbackData | null;
-  feedbacks: FeedbackData[] | null;
-}
-
 export default function FeedbackPage() {
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoData[]>([]);
   const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([]);
@@ -114,7 +97,7 @@ export default function FeedbackPage() {
 
   const fetchSolicitacoes = async () => {
     try {
-      const response = await feedbackService.getAllSolicitacoes() as SolicitacaoResponse;
+      const response = await feedbackService.getAllSolicitacoes();
       
       if (response.sucesso && response.solicitacoesFeedback) {
         setSolicitacoes(response.solicitacoesFeedback);
@@ -132,7 +115,7 @@ export default function FeedbackPage() {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await feedbackService.getAllFeedbacks() as FeedbackResponse;
+      const response = await feedbackService.getAllFeedbacks();
       
       if (response.sucesso && response.feedbacks) {
         setFeedbacks(response.feedbacks);
