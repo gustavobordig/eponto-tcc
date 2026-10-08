@@ -6,10 +6,6 @@ export interface JornadaTrabalho {
   nomeJornada: string;
   qtdHorasDiarias: number;
   indAtivo?: number;
-  // Campos descritos no api.md; as telas de cadastro usam qtdHorasDiarias
-  horaInicio?: string;
-  horaFim?: string;
-  cargaHoraria?: number;
 }
 
 export type JornadaTrabalhoResponse = ApiResponse<{

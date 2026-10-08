@@ -1,5 +1,5 @@
 interface ApiRegistroPonto {
-  id_Usuario: number;
+  idUsuario: number;
   horaRegistro: string;
   dataRegistro: string;
   idTipoRegistroPonto: number;

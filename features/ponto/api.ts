@@ -6,7 +6,7 @@ export type TipoRegistroPonto = 1 | 2 | 3 | 4;
 
 export interface RegistroPonto {
   idRegistro: number;
-  id_Usuario: number;
+  idUsuario: number;
   horaRegistro: string;
   dataRegistro: string;
   idTipoRegistroPonto: number;

@@ -12,6 +12,6 @@ export interface DiaCalendario {
 export type CalendarioResponse = ApiResponse<{ dias: DiaCalendario[] }>;
 
 export const calendarioService = {
-  buscarCalendario: async () =>
-    (await api.get<CalendarioResponse>('/api/Calendario/BuscaCalendario')).data,
+  buscarCalendario: async (ano = new Date().getFullYear()) =>
+    (await api.get<CalendarioResponse>('/api/Calendario/BuscaCalendario', { params: { ano } })).data,
 };
