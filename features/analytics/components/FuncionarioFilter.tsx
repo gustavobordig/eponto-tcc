@@ -1,6 +1,6 @@
 'use client';
 
-import { funcionarios } from "@/features/analytics/mockData";
+import { funcionarios } from "@/features/analytics/demoData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/primitives/select";
 
 interface FuncionarioFilterProps {

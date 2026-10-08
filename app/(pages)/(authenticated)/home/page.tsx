@@ -16,20 +16,11 @@ import { LogIn, Coffee, UtensilsCrossed, LogOut, MapPin, Clock, Calendar } from 
 
 // Components
 import { PunctualityChart } from "@/features/ponto/components/PunctualityChart";
+import { pontualidadeExemplo } from "@/features/ponto/demoData";
+import DemoBadge from "@/shared/ui/DemoBadge";
 import Button from "@/shared/ui/Button";
 import { PageEntrance } from "@/shared/ui/animations/PageEntrance";
 import { DailyStatus, Point, PointType } from "@/features/ponto/components/DailyStatus";
-
-const mockMonthlyData = {
-  hours: [
-    { date: "2024-02", balance: 2 },
-    { date: "2024-03", balance: -1 },
-  ],
-  punctuality: [
-    { date: "2024-02", late: 2, early: 1 },
-    { date: "2024-03", late: 1, early: 0 },
-  ],
-};
 
 export default function Home() {
   const [location, setLocation] = useState<string>("Carregando localização...");
@@ -344,9 +335,12 @@ export default function Home() {
 
             {/* Punctuality Chart */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#002085] mb-4">Pontualidade</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[#002085]">Pontualidade</h2>
+                <DemoBadge />
+              </div>
               <div className="h-64">
-                <PunctualityChart data={mockMonthlyData.punctuality} />
+                <PunctualityChart data={pontualidadeExemplo} />
               </div>
             </div>
           </div>

@@ -4,8 +4,9 @@ import { DashboardContainer } from "@/features/analytics/components/DashboardCon
 import { LineChart } from "@/features/analytics/components/LineChart";
 import { BarChart } from "@/features/analytics/components/BarChart";
 import { FuncionarioFilter } from "@/features/analytics/components/FuncionarioFilter";
-import { mockData, funcionarios } from "@/features/analytics/mockData";
+import { mockData, funcionarios } from "@/features/analytics/demoData";
 import { useState } from "react";
+import DemoBadge from "@/shared/ui/DemoBadge";
 
 export default function DashboardPage() {
   const [selectedFuncionario, setSelectedFuncionario] = useState(1);
@@ -13,7 +14,10 @@ export default function DashboardPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-black">Analitycs</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-black">Estatísticas</h1>
+          <DemoBadge label="Dados de exemplo: ainda não ligado à API" />
+        </div>
         <FuncionarioFilter 
           selectedFuncionario={selectedFuncionario}
           onFuncionarioChange={setSelectedFuncionario}
