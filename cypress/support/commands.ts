@@ -25,42 +25,7 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
-
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      /**
-       * Custom command to login as admin
-       * @example cy.loginAsAdmin()
-       */
-      loginAsAdmin(): Chainable<Element>
-      
-      /**
-       * Custom command to create a test cargo
-       * @example cy.createTestCargo('Desenvolvedor', '5000')
-       */
-      createTestCargo(nome: string, salario: string, formacaoMinima?: string): Chainable<Element>
-      
-      /**
-       * Custom command to delete a cargo by name
-       * @example cy.deleteCargoByName('Desenvolvedor Teste')
-       */
-      deleteCargoByName(nome: string): Chainable<Element>
-    }
-  }
-}
-
-// Comando para fazer login como admin
+// // Comando para fazer login como admin
 Cypress.Commands.add('loginAsAdmin', () => {
   // Primeiro, verificar se já está logado
   cy.visit('/dashboard/cargos');
