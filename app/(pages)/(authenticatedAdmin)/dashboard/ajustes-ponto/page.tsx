@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Container from '@/shared/ui/Container';
 import { registroPontoService, SolicitacaoAlteracao, ItemRegistro } from '@/features/ponto/api';
+import { ETAPAS_DO_DIA } from '@/features/ponto/etapas';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
 //Components
@@ -32,8 +33,9 @@ export default function AjustesPontoPage() {
         <div>
           {item.itens.map((registro: ItemRegistro, i: number) => (
             <div key={i} className="text-sm">
-              {formatarHora(registro.horaRegistro)} - 
-              {registro.idTipoRegistroPonto === 1 ? ' Entrada' : ' Saída'}
+              {/* Antes só existia Entrada/Saída: início e fim do almoço apareciam como "Saída" */}
+              {formatarHora(registro.horaRegistro)} –{' '}
+              {ETAPAS_DO_DIA.find((e) => e.tipo === registro.idTipoRegistroPonto)?.label ?? 'Registro'}
             </div>
           ))}
         </div>
