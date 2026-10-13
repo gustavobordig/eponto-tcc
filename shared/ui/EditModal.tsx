@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { EditModalField, ValidationResult } from '@/shared/types/ui';
-import { X } from 'lucide-react';
+import Modal, { BotaoModal } from '@/shared/ui/Modal';
 import ValidationMessage from '@/shared/ui/ValidationMessage';
 
 interface EditModalProps {
@@ -101,101 +101,77 @@ const EditModal: React.FC<EditModalProps> = ({
   // regra, e Salvar ficava sempre desabilitado em usuários, jornadas e ajustes.
   const isFormValid = () => Object.values(validations).every(v => v.isValid);
 
+  const erro = (field: EditModalField) =>
+    showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid;
+  const classeCampo = (field: EditModalField) =>
+    `h-11 w-full rounded-[10px] border bg-white px-3.5 text-[15px] font-medium text-foreground focus:outline-none focus:ring-4 ${
+      field.readOnly ? 'cursor-not-allowed bg-background text-muted' : ''
+    } ${erro(field) ? 'border-danger focus:ring-danger-soft' : 'border-line-strong focus:border-primary focus:ring-primary-soft'}`;
+
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <h2 className="text-xl font-bold mb-4 text-blue-950">{title}</h2>
-        
-        <div className="space-y-4">
-          {fields.map((field, index) => (
-            <div key={index}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {field.label}
-                {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-              </label>
-              {field.type === 'select' ? (
-                <select
-                  value={field.value}
-                  onChange={(e) => handleFieldChange(field, e.target.value)}
-                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
-                  className={`w-full p-2 border rounded-md text-black ${
-                    field.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''
-                  } ${
-                    (showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid)
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
-                  }`}
-                  disabled={field.readOnly}
-                  required={field.required}
-                >
-                  {field.options?.map((option) => (
-                    <option key={option.value} value={option.value} className="text-black">
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type={field.type === 'date' ? 'date' : field.type || 'text'}
-                  value={field.value}
-                  onChange={(e) => handleFieldChange(field, e.target.value)}
-                  onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
-                  className={`w-full p-2 border rounded-md text-black ${
-                    field.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''
-                  } ${
-                    (showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid)
-                      ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
-                  }`}
-                  readOnly={field.readOnly}
-                  required={field.required}
-                />
-              )}
-              {field.fieldName && (
-                <ValidationMessage
-                  isValid={validations[field.fieldName]?.isValid ?? false}
-                  message={validations[field.fieldName]?.message ?? ''}
-                  show={!!(showValidations[field.fieldName] && validations[field.fieldName])}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            disabled={loading}
-          >
+    <Modal
+      isOpen
+      onClose={onClose}
+      titulo={title}
+      bloqueado={loading}
+      rodape={
+        <>
+          <BotaoModal variante="secundario" onClick={onClose} disabled={loading}>
             Cancelar
-          </button>
+          </BotaoModal>
           {onConfirm && (
-            <button
-              onClick={handleConfirm}
-              className={`px-4 py-2 rounded-md disabled:opacity-50 ${
-                isFormValid() 
-                  ? 'bg-primary text-white hover:bg-primary-dark' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-              disabled={loading || !isFormValid()}
-            >
+            <BotaoModal onClick={handleConfirm} disabled={loading || !isFormValid()}>
               {loading ? 'Processando...' : confirmText}
-            </button>
+            </BotaoModal>
           )}
-        </div>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {fields.map((field, index) => (
+          <div key={index} className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold">
+              {field.label}
+              {field.required !== false && <span className="ml-0.5 text-danger">*</span>}
+            </label>
+            {field.type === 'select' ? (
+              <select
+                value={field.value}
+                onChange={(e) => handleFieldChange(field, e.target.value)}
+                onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
+                className={classeCampo(field)}
+                disabled={field.readOnly}
+                required={field.required}
+              >
+                {field.options?.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field.type === 'date' ? 'date' : field.type || 'text'}
+                value={field.value}
+                onChange={(e) => handleFieldChange(field, e.target.value)}
+                onBlur={(e) => field.fieldName && handleFieldBlur(field.fieldName, e.target.value)}
+                className={classeCampo(field)}
+                readOnly={field.readOnly}
+                required={field.required}
+              />
+            )}
+            {field.fieldName && (
+              <ValidationMessage
+                isValid={validations[field.fieldName]?.isValid ?? false}
+                message={validations[field.fieldName]?.message ?? ''}
+                show={!!(showValidations[field.fieldName] && validations[field.fieldName])}
+              />
+            )}
+          </div>
+        ))}
       </div>
-    </div>
+    </Modal>
   );
 };
 
 export default EditModal;
-
-

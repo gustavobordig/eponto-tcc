@@ -396,9 +396,9 @@ describe('CRUD de Cargos', () => {
       cy.contains('A formação mínima é obrigatória.').should('not.exist');
       
       // Campos não devem ter borda vermelha
-      cy.get('.fixed.inset-0 input').first().should('not.have.class', 'border-red-500');
-      cy.get('.fixed.inset-0 input[type="number"]').should('not.have.class', 'border-red-500');
-      cy.get('.fixed.inset-0 input').eq(2).should('not.have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').first().should('not.have.class', 'border-danger');
+      cy.get('.fixed.inset-0 input[type="number"]').should('not.have.class', 'border-danger');
+      cy.get('.fixed.inset-0 input').eq(2).should('not.have.class', 'border-danger');
       
       // Botão salvar deve estar habilitado
       cy.get('button').contains('Salvar').should('not.be.disabled');
@@ -421,8 +421,8 @@ describe('CRUD de Cargos', () => {
       cy.get('button').contains('Editar').first().click();
       cy.get('.fixed.inset-0').should('be.visible');
       
-      // Clicar no X do modal (botão com classe absolute right-4 top-4)
-      cy.get('.fixed.inset-0 button.absolute.right-4.top-4').click();
+      // Clicar no X do modal
+      cy.get('.fixed.inset-0 button[aria-label="Fechar"]').click();
       
       // Modal deve fechar
       cy.get('.fixed.inset-0').should('not.exist');
@@ -444,9 +444,9 @@ describe('CRUD de Cargos', () => {
       cy.contains('A formação mínima deve ter no mínimo 3 caracteres.').should('be.visible');
       
       // Verificar se todos os campos ficaram com borda vermelha
-      cy.get('.fixed.inset-0 input').first().should('have.class', 'border-red-500');
-      cy.get('.fixed.inset-0 input[type="number"]').should('have.class', 'border-red-500');
-      cy.get('.fixed.inset-0 input').eq(2).should('have.class', 'border-red-500');
+      cy.get('.fixed.inset-0 input').first().should('have.class', 'border-danger');
+      cy.get('.fixed.inset-0 input[type="number"]').should('have.class', 'border-danger');
+      cy.get('.fixed.inset-0 input').eq(2).should('have.class', 'border-danger');
     });
   });
 
