@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { ArrowLeft, ArrowRight, ChevronRight, Clock, Lock, Mail, ShieldCheck, WifiOff, AlertCircle } from "lucide-react";
 import { authService, PerfilUsuario } from "@/features/auth/api";
+import { CONTAS_DEMO, DEMO_ATIVA } from "@/features/auth/demo";
 import PainelMarca from "@/features/auth/components/PainelMarca";
 
 // Atoms
@@ -40,7 +41,6 @@ export default function Form() {
     const [perfis, setPerfis] = useState<PerfilUsuario[]>([]);
 
     const isFormValid = formData.email.trim() !== '' && formData.password.trim() !== '';
-    const credenciais = { email: formData.email, senha: formData.password };
 
     // O erro fica na tela (e não num toast que some), com a mensagem da API quando houver
     const mostrarErro = (error: unknown) => {
@@ -56,7 +56,7 @@ export default function Form() {
     };
 
     // 2ª etapa: pede o token com o perfil escolhido
-    const entrarComPerfil = async (idPerfil: number) => {
+    const entrarComPerfil = async (idPerfil: number, credenciais = { email: formData.email, senha: formData.password }) => {
         try {
             setIsLoading(true);
             setErro(null);
@@ -69,10 +69,7 @@ export default function Form() {
     };
 
     // 1ª etapa: confere e-mail e senha e busca os perfis do usuário
-    const handleSubmit = async (e?: React.FormEvent) => {
-        e?.preventDefault();
-        if (!isFormValid || isLoading) return;
-
+    const entrar = async (credenciais: { email: string; senha: string }) => {
         try {
             setIsLoading(true);
             setErro(null);
@@ -84,7 +81,7 @@ export default function Form() {
                 return;
             }
             if (perfisUsuario.length === 1) {
-                await entrarComPerfil(perfisUsuario[0].idPerfil);
+                await entrarComPerfil(perfisUsuario[0].idPerfil, credenciais);
                 return;
             }
             setPerfis(perfisUsuario);
@@ -93,6 +90,19 @@ export default function Form() {
             mostrarErro(error);
             setIsLoading(false);
         }
+    };
+
+    const handleSubmit = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        if (!isFormValid || isLoading) return;
+        entrar({ email: formData.email, senha: formData.password });
+    };
+
+    // Deploy público: entra com uma das contas de teste, preenchendo o formulário
+    const entrarComoDemo = (conta: (typeof CONTAS_DEMO)[number]) => {
+        if (isLoading) return;
+        setFormData({ email: conta.email, password: conta.senha });
+        entrar({ email: conta.email, senha: conta.senha });
     };
 
     const avisoErro = erro && (
@@ -222,6 +232,29 @@ export default function Form() {
                             isLoading={isLoading}
                             disabled={!isFormValid}
                         />
+
+                        {DEMO_ATIVA && (
+                            <div className="flex flex-col gap-3 border-t border-line pt-6">
+                                <p className="text-[13px] text-muted">
+                                    <b className="text-foreground">Demonstração.</b> Entre com uma conta de teste. Os dados voltam ao
+                                    original todo dia e cada conta pode gravar algumas vezes por hora.
+                                </p>
+                                <div className="grid grid-cols-2 gap-2.5">
+                                    {CONTAS_DEMO.map((conta) => (
+                                        <button
+                                            key={conta.email}
+                                            type="button"
+                                            disabled={isLoading}
+                                            onClick={() => entrarComoDemo(conta)}
+                                            className="flex flex-col items-start gap-0.5 rounded-[10px] border border-line px-3.5 py-2.5 text-left transition-colors hover:border-primary hover:bg-primary-tint disabled:opacity-60"
+                                        >
+                                            <b className="text-sm">{conta.rotulo}</b>
+                                            <span className="text-xs text-muted">{conta.descricao}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </form>
                 )}
             </div>
