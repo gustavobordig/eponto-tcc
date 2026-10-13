@@ -7,8 +7,16 @@ import { RegistrarPontoModal } from '@/features/ponto/components/RegistrarPontoM
 import { showErrorToast } from '@/shared/lib/toast';
 import { tokenUtils } from '@/shared/lib/token';
 
+export interface UsuarioLogado {
+  nome: string;
+  email: string;
+  cargo: string;
+  foto: string | null;
+}
+
 interface AreaFuncionario {
   nomeUsuario: string;
+  usuario: UsuarioLogado | null;
   ponto: ReturnType<typeof usePontosDoDia>;
   abrirRegistro: () => void;
 }
@@ -20,15 +28,23 @@ const Contexto = createContext<AreaFuncionario | null>(null);
  * de hoje e o modal de registro (aberto pela barra e pela home).
  */
 export function AreaFuncionarioProvider({ children }: { children: ReactNode }) {
-  const [nomeUsuario, setNomeUsuario] = useState('');
+  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [registroAberto, setRegistroAberto] = useState(false);
   const ponto = usePontosDoDia();
 
   useEffect(() => {
     const carregar = async () => {
       try {
-        const response = await userService.getById(Number(tokenUtils.getId()));
-        if (response.sucesso && response.usuario) setNomeUsuario(response.usuario.nome);
+        // O contrato traz o nome do cargo, que a barra mostra ao lado do nome
+        const { contrato } = await userService.getContrato(Number(tokenUtils.getId()));
+        if (contrato) {
+          setUsuario({
+            nome: contrato.nome,
+            email: contrato.email,
+            cargo: contrato.nomeCargo,
+            foto: contrato.fotoPerfil || localStorage.getItem('userProfilePhoto'),
+          });
+        }
       } catch (error) {
         // Sessão inválida (401) já é encerrada no interceptor do axios.
         // Voltar para "/" aqui criava um loop com o middleware.
@@ -40,7 +56,7 @@ export function AreaFuncionarioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Contexto.Provider value={{ nomeUsuario, ponto, abrirRegistro: () => setRegistroAberto(true) }}>
+    <Contexto.Provider value={{ nomeUsuario: usuario?.nome ?? '', usuario, ponto, abrirRegistro: () => setRegistroAberto(true) }}>
       {children}
       <RegistrarPontoModal isOpen={registroAberto} onClose={() => setRegistroAberto(false)} ponto={ponto} />
     </Contexto.Provider>

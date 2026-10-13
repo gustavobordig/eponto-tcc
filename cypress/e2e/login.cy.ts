@@ -38,6 +38,9 @@ describe('Login', () => {
     cy.location('pathname').should('eq', '/home');
     cy.getCookie('eponto_id').its('value').should('eq', '7');
     cy.getCookie('eponto_perfil').its('value').should('eq', 'funcionario');
+    // O link do painel fica no menu do avatar
+    cy.get('button[aria-label="Menu da conta"]').click();
+    cy.contains('Meu perfil').should('be.visible');
     cy.get('a[href="/dashboard"]').should('not.exist');
   });
 
@@ -49,7 +52,8 @@ describe('Login', () => {
 
     cy.location('pathname').should('eq', '/home');
     cy.getCookie('eponto_perfil').its('value').should('eq', 'admin');
-    cy.get('a[href="/dashboard"]').should('exist');
+    cy.get('button[aria-label="Menu da conta"]').click();
+    cy.contains('a', 'Ir para o Painel RH').should('have.attr', 'href', '/dashboard');
   });
 
   it('com mais de um perfil, pede para escolher', () => {

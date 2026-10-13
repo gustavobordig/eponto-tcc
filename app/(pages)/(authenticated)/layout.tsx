@@ -14,7 +14,7 @@ function AuthenticatedLayoutContent({
     return (
         <div className="min-h-screen bg-background">
             <BarraFuncionario />
-            <main className="mx-auto max-w-7xl px-4 pb-10 pt-24">
+            <main className="mx-auto max-w-7xl px-4 pb-12 pt-7 sm:px-8">
                 {children}
             </main>
 
