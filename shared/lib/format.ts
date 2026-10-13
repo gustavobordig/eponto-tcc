@@ -25,6 +25,13 @@ export const formatarMinutos = (totalMinutos: number): string => {
   return `${sinal}${horas}h ${minutos}min`;
 };
 
+/** Saldo no formato do redesign: 150 → "+2h30", -241 → "-4h01", 0 → "0h00". */
+export const saldoCurto = (totalMinutos: number): string => {
+  const sinal = totalMinutos > 0 ? '+' : totalMinutos < 0 ? '-' : '';
+  const abs = Math.abs(totalMinutos);
+  return `${sinal}${Math.floor(abs / 60)}h${String(abs % 60).padStart(2, '0')}`;
+};
+
 /** Horas trabalhadas da API ("152:30:00" ou "6.08:30:00") → "152h 30min". */
 export const formatHorasTrabalhadas = (horasString: string): string => {
   const minutos = duracaoEmMinutos(horasString);

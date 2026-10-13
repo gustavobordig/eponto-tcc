@@ -12,6 +12,8 @@ export interface UsuarioLogado {
   email: string;
   cargo: string;
   foto: string | null;
+  /** Jornada diária, em horas */
+  horasDiarias: number | null;
 }
 
 interface AreaFuncionario {
@@ -43,6 +45,7 @@ export function AreaFuncionarioProvider({ children }: { children: ReactNode }) {
             email: contrato.email,
             cargo: contrato.nomeCargo,
             foto: contrato.fotoPerfil || localStorage.getItem('userProfilePhoto'),
+            horasDiarias: contrato.qtdHorasDiarias ?? null,
           });
         }
       } catch (error) {

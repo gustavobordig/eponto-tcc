@@ -16,6 +16,8 @@ export interface PontoMarcado {
 /** Pontos de hoje do usuário logado e o registro do próximo. */
 export function usePontosDoDia() {
   const [registros, setRegistros] = useState<RegistroPonto[]>([]);
+  // Todos os registros do usuário (a home usa o mês para a pontualidade)
+  const [todos, setTodos] = useState<RegistroPonto[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   const recarregar = useCallback(async () => {
@@ -27,6 +29,7 @@ export function usePontosDoDia() {
     try {
       const response = await registroPontoService.listarPorUsuario(Number(idUsuario));
       const hoje = format(new Date(), 'yyyy-MM-dd');
+      setTodos(response.registros ?? []);
       setRegistros((response.registros ?? []).filter((r) => r.dataRegistro.split('T')[0] === hoje));
     } catch (error) {
       console.error('Erro ao buscar os pontos do dia:', error);
@@ -68,5 +71,5 @@ export function usePontosDoDia() {
     [proxima, recarregar]
   );
 
-  return { marcados, proxima, carregando, registrar, recarregar };
+  return { marcados, proxima, carregando, registrar, recarregar, todos };
 }

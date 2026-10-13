@@ -53,3 +53,9 @@ body {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* Anel pulsando na próxima marcação do dia */
+@keyframes pulso {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); }
+  100% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+}
