@@ -14,8 +14,10 @@ interface ButtonProps {
   hoverSwapColors?: boolean;
   disabled?: boolean;
   isLoading?: boolean;
+  type?: 'button' | 'submit';
 }
 
+/** Botão no padrão MK Ponto: cantos de 10px, peso 700, sem animação de escala. */
 const Button = ({
   text,
   backgroundColor = 'bg-primary',
@@ -30,66 +32,37 @@ const Button = ({
   hoverSwapColors = false,
   disabled = false,
   isLoading = false,
+  type = 'button',
 }: ButtonProps) => {
+  const primario = backgroundColor === 'bg-primary';
   return (
     <button
+      type={type}
       onClick={onClick}
       style={style}
       disabled={disabled || isLoading}
       className={`
         ${backgroundColor}
         ${textColor}
-        py-3
-        rounded-lg
-        font-medium
-        transition-all
-        duration-300
-        ease-in-out
-        hover:scale-[1.02]
-        hover:shadow-lg
-        hover:brightness-110
-        active:scale-[0.98]
-        flex
-        items-center
-        justify-center
-        gap-2
+        flex min-h-11 items-center justify-center gap-2 rounded-[10px] py-2.5 text-sm font-bold
+        transition-colors
+        ${primario ? 'hover:bg-primary-dark' : 'hover:brightness-95'}
         ${fullWidth ? 'w-full' : 'w-auto px-4'}
-        ${className}
-        ${(disabled || isLoading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${(disabled || isLoading) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
         ${hoverSwapColors ? 'hover:bg-primary hover:text-white' : ''}
-        transition-all
-        duration-300
-        ease-in-out
-        relative
-        overflow-hidden
-        before:absolute
-        before:inset-0
-        before:bg-gradient-to-r
-        before:from-transparent
-        before:via-white/10
-        before:to-transparent
-        before:translate-x-[-100%]
-        hover:before:translate-x-[100%]
-        before:transition-transform
-        before:duration-1000
-        shadow-[0_2px_8px_rgba(0,32,133,0.15)]
-        hover:shadow-[0_4px_12px_rgba(0,32,133,0.25)]
+        ${className}
       `}
     >
       {isLoading ? (
         <>
-          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          <span>Carregando...</span>
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+          <span>Carregando…</span>
         </>
       ) : (
         <>
-          {icon && iconPosition === 'left' && (
-            <span className={iconClassName}>{icon}</span>
-          )}
+          {icon && iconPosition === 'left' && <span className={iconClassName}>{icon}</span>}
           {text}
-          {icon && iconPosition === 'right' && (
-            <span className={iconClassName}>{icon}</span>
-          )}
+          {icon && iconPosition === 'right' && <span className={iconClassName}>{icon}</span>}
         </>
       )}
     </button>

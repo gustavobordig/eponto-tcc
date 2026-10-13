@@ -14,6 +14,8 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   onInputChange?: (value: string) => void;
   regexErrorMessage?: string;
+  /** Link ou ação à direita do rótulo ("Esqueci minha senha") */
+  labelAction?: React.ReactNode;
 }
 
 const Input = ({
@@ -27,6 +29,7 @@ const Input = ({
   onInputChange,
   regex,
   regexErrorMessage = 'Valor inválido',
+  labelAction,
   type,
   ...props
 }: InputProps) => {
@@ -48,18 +51,21 @@ const Input = ({
   const isPassword = type === 'password';
 
   return (
-    <div className={`flex flex-col gap-1 w-full ${containerClassName}`}>
-      {label && (
-        <label 
-          className={`text-gray-600 text-sm font-medium ${labelClassName}`}
-        >
-          {label}
-        </label>
+    <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`}>
+      {(label || labelAction) && (
+        <div className="flex items-baseline justify-between gap-3">
+          {label && (
+            <label htmlFor={props.id} className={`text-[13px] font-semibold text-foreground ${labelClassName}`}>
+              {label}
+            </label>
+          )}
+          {labelAction}
+        </div>
       )}
-      
+
       <div className="relative w-full">
         {icon && (
-          <div className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 ${iconClassName}`}>
+          <div className={`absolute left-3.5 top-1/2 -translate-y-1/2 text-muted [&_svg]:h-[17px] [&_svg]:w-[17px] ${iconClassName}`}>
             {icon}
           </div>
         )}
@@ -68,22 +74,16 @@ const Input = ({
           {...props}
           type={isPassword && showPassword ? 'text' : type}
           className={`
-            w-full
-            px-4
-            py-3
-            rounded-lg
-            border
-            border-gray-200
-            text-gray-700
-            placeholder:text-gray-400
-            focus:outline-none
-            focus:border-[#D97745]
-            transition-all
+            h-12 w-full rounded-[10px] border border-line-strong bg-white px-3.5 text-[15px] font-medium text-foreground
+            placeholder:font-normal placeholder:text-subtle
+            transition-[border-color,box-shadow]
+            focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft
             ${icon ? 'pl-10' : ''}
-            ${isPassword ? 'pr-10' : ''}
+            ${isPassword ? 'pr-11' : ''}
             ${inputClassName}
-            ${error ? 'border-red-500' : ''}
+            ${error ? 'border-danger focus:border-danger focus:ring-danger-soft' : ''}
           `}
+          aria-invalid={Boolean(error)}
           onChange={(e) => {
             const value = e.target.value;
             
@@ -108,15 +108,16 @@ const Input = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted transition-colors hover:text-foreground"
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
         )}
       </div>
 
       {error && (
-        <span className="text-red-500 text-sm mt-1">
+        <span className="text-[13px] text-danger-ink">
           {error}
         </span>
       )}

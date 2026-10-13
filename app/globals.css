@@ -1,27 +1,51 @@
 @import "tailwindcss";
 
 /*
- * Cores da marca. No Tailwind 4 o tema fica aqui (o tailwind.config.js do
- * formato antigo não era lido). Use bg-primary, text-primary, border-primary…
+ * Identidade MK Ponto (redesign). No Tailwind 4 o tema fica aqui.
+ * Marinho é a única cor de marca; verde, âmbar e vermelho só aparecem em
+ * status de ponto e de solicitação; violeta marca férias.
  */
 @theme {
-  --color-primary: #002085;
-  --color-primary-dark: #001a6e;
-  --color-primary-soft: #e8ecf7;
-  --color-background: #f3f4f6;
-  --color-foreground: #111827;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-primary: #03218a;
+  --color-primary-dark: #021660;
+  --color-primary-soft: #ebeffb;
+  --color-primary-tint: #f6f8fe;
+
+  --color-background: #f4f5f9;
+  --color-foreground: #0e1430;
+  --color-muted: #5b6380;
+  --color-subtle: #8a90a8;
+  --color-line: #e1e4ec;
+  --color-line-strong: #d9dce6;
+  --color-surface-2: #eef0f5;
+
+  --color-ok: #0f8a4f;
+  --color-ok-soft: #e3f5ec;
+  --color-ok-ink: #0b6b3d;
+  --color-warn: #e8a23a;
+  --color-warn-soft: #fdf1df;
+  --color-warn-ink: #8a4a06;
+  --color-danger: #c2302b;
+  --color-danger-soft: #fbe7e6;
+  --color-danger-ink: #9a231f;
+  --color-ferias: #5135b8;
+  --color-ferias-soft: #eeeafc;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --shadow-card: 0 1px 2px rgba(14, 20, 48, 0.06);
 }
 
-/*
- * Antes: o fundo usava a cor do texto, a fonte Arial sobrescrevia a Geist e o
- * modo escuro do sistema clareava o texto sobre os cards brancos.
- */
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+/* Horários sempre com dígitos de largura fixa */
+.font-mono {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Foco visível para quem navega pelo teclado */
