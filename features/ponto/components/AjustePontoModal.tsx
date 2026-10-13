@@ -32,18 +32,22 @@ interface TimeAdjustmentModalProps {
   };
 }
 
+// Fora do componente: um objeto novo a cada render disparava o efeito que
+// reinicia o formulário, em loop ("Maximum update depth exceeded")
+const HORARIOS_VAZIOS = {
+  entrada: { time: "", location: "" },
+  inicioAlmoco: { time: "", location: "" },
+  fimAlmoco: { time: "", location: "" },
+  saida: { time: "", location: "" },
+};
+
 export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
   selectedDate,
   registrosDoDia,
-  initialData = {
-    entrada: { time: "", location: "" },
-    inicioAlmoco: { time: "", location: "" },
-    fimAlmoco: { time: "", location: "" },
-    saida: { time: "", location: "" },
-  },
+  initialData = HORARIOS_VAZIOS,
 }) => {
   const [formData, setFormData] = React.useState({
     entrada: initialData.entrada,
