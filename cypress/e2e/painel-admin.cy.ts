@@ -24,7 +24,7 @@ describe('Painel admin', () => {
       cy.intercept('PUT', '**/api/Usuario/Atualizar/*', { body: { sucesso: true, mensagem: null } }).as('atualizar');
       cy.get('table tbody tr').first().contains('Editar').click();
 
-      cy.get('select').first().select('Gerente');
+      cy.get('[role=dialog] select').first().select('Gerente');
       cy.contains('button', 'Salvar').should('not.be.disabled').click();
 
       cy.wait('@atualizar').then(({ request }) => {
@@ -52,28 +52,11 @@ describe('Painel admin', () => {
       // Fixa a data para o calendário abrir sempre em outubro de 2026
       cy.clock(new Date(2026, 9, 8).getTime(), ['Date']);
       cy.intercept('GET', '**/api/Ferias/ListarFerias', { fixture: 'ferias.json' });
-      cy.intercept('GET', '**/api/Ferias/ListarSolicitacoesFerias', { fixture: 'solicitacoesFerias.json' });
       cy.visit('/dashboard/ferias');
     });
 
     it('mostra a data de início das férias cadastradas', () => {
       cy.contains('tr', 'Recesso de fim de ano').should('contain', '22/12/2026');
-    });
-
-    it('só mostra aprovar/reprovar nas solicitações pendentes', () => {
-      cy.contains('tr', 'Ana Souza').should('contain', 'Pendente').and('contain', 'Aprovar');
-      cy.contains('tr', 'Bruno Lima').should('contain', 'Aprovado').and('not.contain', 'Reprovar');
-    });
-
-    it('reprova enviando a situação 2', () => {
-      cy.intercept('POST', '**/api/Ferias/AtualizaSolicitacaoFerias*', { body: { sucesso: true, mensagem: null } }).as('decidir');
-      cy.contains('tr', 'Ana Souza').contains('Reprovar').click();
-      cy.contains('Confirmar Reprovação').should('be.visible');
-      cy.contains('Funcionário: Ana Souza').should('be.visible');
-      cy.get('.fixed.inset-0').contains('button', 'Reprovar').click();
-
-      cy.wait('@decidir').its('request.url').should('include', 'idSolicitacao=4').and('include', 'indSituacao=2');
-      cy.contains('Confirmar Reprovação').should('not.exist');
     });
 
     it('mostra as férias cadastradas no calendário', () => {
@@ -157,9 +140,10 @@ describe('Painel admin', () => {
     });
   });
 
-  describe('Ausências', () => {
-    it('mostra aprovar/reprovar só na pendente (status 0) e aprova', () => {
+  describe('Solicitações', () => {
+    beforeEach(() => {
       cy.intercept('GET', '**/api/Usuario/Listar', { fixture: 'usuarios.json' });
+      cy.intercept('GET', '**/api/Ferias/ListarSolicitacoesFerias', { fixture: 'solicitacoesFerias.json' });
       cy.intercept('GET', '**/api/SolicitacaoAusencia/ListarSolicitacaoAusencia', {
         body: {
           sucesso: true,
@@ -170,14 +154,36 @@ describe('Painel admin', () => {
           ],
         },
       });
+    });
+
+    it('junta férias e ausências pendentes numa fila e conta no menu', () => {
+      cy.visit('/dashboard/solicitacoes');
+      cy.contains('2 pedidos aguardando sua decisão').should('be.visible');
+      cy.get('nav[aria-label="Painel RH"]').contains('a', 'Todas').should('contain', '2');
+      // O mais recente fica em destaque
+      cy.get('article').should('contain', 'Ana Souza').and('contain', 'Consulta médica');
+      cy.get('ul').should('contain', 'Férias');
+    });
+
+    it('reprova férias enviando a situação 2', () => {
+      cy.intercept('POST', '**/api/Ferias/AtualizaSolicitacaoFerias*', { body: { sucesso: true, mensagem: null } }).as('decidir');
+      cy.visit('/dashboard/solicitacoes');
+      cy.contains('button', 'Férias · 1').click();
+      cy.get('article').should('contain', 'Viagem').contains('button', 'Reprovar').click();
+      cy.wait('@decidir').its('request.url').should('include', 'idSolicitacao=4').and('include', 'indSituacao=2');
+    });
+
+    it('mostra as já respondidas na aba Aprovadas, sem aprovar/reprovar', () => {
+      cy.visit('/dashboard/solicitacoes');
+      cy.contains('[role=tab]', 'Aprovadas').click();
+      cy.contains('Bruno Lima').should('be.visible');
+      cy.get('article').should('contain', 'Aprovada').and('not.contain', 'Reprovar');
+    });
+
+    it('aprova ausência pela tela de ausências', () => {
       cy.intercept('PUT', '**/api/SolicitacaoAusencia/ResponderSolicitacao/*', { body: { sucesso: true, mensagem: null } }).as('responder');
       cy.visit('/dashboard/solicitacoes-ausencia');
-
-      cy.contains('tr', 'Ana Souza').should('contain', 'Pendente').and('contain', 'Aprovar');
-      cy.contains('tr', 'Bruno Lima').should('contain', 'Aprovada').and('not.contain', 'Reprovar');
-
-      cy.contains('tr', 'Ana Souza').contains('button', 'Aprovar').click();
-      cy.get('.fixed.inset-0').contains('button', 'Aprovar').click();
+      cy.get('article').should('contain', 'Ana Souza').and('not.contain', 'Viagem').contains('button', 'Aprovar').click();
       cy.wait('@responder').its('request.url').should('include', 'ResponderSolicitacao/9').and('include', 'aprovar=true');
     });
   });

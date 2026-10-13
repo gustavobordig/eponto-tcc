@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Ferias, feriasService, SolicitacaoFerias } from '@/features/ferias/api';
+import { Ferias, feriasService } from '@/features/ferias/api';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
-/** Férias cadastradas e solicitações de férias (painel admin). */
+/** Férias da empresa (painel admin). Os pedidos dos funcionários ficam na fila de solicitações. */
 export function useFeriasAdmin() {
   const [ferias, setFerias] = useState<Ferias[]>([]);
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoFerias[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchFerias = useCallback(async () => {
@@ -20,22 +19,9 @@ export function useFeriasAdmin() {
     }
   }, []);
 
-  const fetchSolicitacoes = useCallback(async () => {
-    try {
-      setSolicitacoes(await feriasService.buscarSolicitacoes());
-    } catch (error) {
-      showErrorToast('Erro ao carregar solicitação de férias');
-      console.error('Erro ao carregar solicitação de férias:', error);
-      setSolicitacoes([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchFerias();
-    fetchSolicitacoes();
-  }, [fetchFerias, fetchSolicitacoes]);
+  }, [fetchFerias]);
 
   const excluir = useCallback(
     async (idFerias: number) => {
@@ -51,23 +37,5 @@ export function useFeriasAdmin() {
     [fetchFerias]
   );
 
-  /** Aprova ou reprova. Devolve se deu certo. */
-  const decidir = useCallback(
-    async (solicitacao: SolicitacaoFerias, aprovar: boolean) => {
-      const acao = aprovar ? 'aprovar' : 'reprovar';
-      try {
-        await feriasService.atualizarStatusSolicitacao(solicitacao.idSolicFerias, aprovar ? 1 : 2);
-        showSuccessToast(`Férias ${aprovar ? 'aprovadas' : 'reprovadas'} com sucesso!`);
-        fetchSolicitacoes();
-        return true;
-      } catch (error) {
-        showErrorToast(`Erro ao ${acao} férias. Tente novamente.`);
-        console.error(`Erro ao ${acao} férias:`, error);
-        return false;
-      }
-    },
-    [fetchSolicitacoes]
-  );
-
-  return { ferias, solicitacoes, loading, excluir, decidir };
+  return { ferias, loading, excluir };
 }
