@@ -44,8 +44,8 @@ describe('Área do funcionário', () => {
       body: { sucesso: true, mensagem: null, saldosDiarios: null, bancoHoras: [{ idBancoHoras: 1, idUsuario: 1, horasTrabalhadas: '6.08:30:00', saldo: '03:45:00' }] },
     });
     cy.visit('/home');
-    cy.contains('+3h 45min').should('be.visible'); // antes aparecia "45h"
-    cy.contains('152h 30min').should('be.visible');
+    cy.contains('+3h45').should('be.visible'); // antes aparecia "45h"
+    cy.contains('45h').should('not.exist');
   });
 
   it('mostra o contrato pela rota do próprio usuário, sem chamar rotas de admin', () => {
@@ -62,10 +62,10 @@ describe('Área do funcionário', () => {
     cy.visit('/perfil');
 
     cy.wait('@contrato');
-    cy.contains('Informações Contratuais').should('be.visible');
-    cy.contains('Analista').should('be.visible');
-    cy.contains('8h/dia').should('be.visible');
-    cy.contains('40h/semana').should('be.visible');
+    cy.contains('Informações contratuais').should('be.visible');
+    cy.contains('dd', 'Analista').should('be.visible');
+    cy.contains('Carga diária').next().should('have.text', '8h');
+    cy.contains('Carga semanal').next().should('have.text', '40h');
     cy.contains('01/03/2024').should('be.visible');
     cy.get('@cargosAdmin.all').should('have.length', 0);
     cy.get('@jornadasAdmin.all').should('have.length', 0);
