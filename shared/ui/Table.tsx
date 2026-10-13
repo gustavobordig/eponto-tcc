@@ -132,10 +132,11 @@ export default function Table<T extends object = TableRow>({
           <button
             type="button"
             onClick={() => handleDeleteClick(item)}
-            className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-muted hover:bg-danger-soft hover:text-danger"
+            aria-label="Excluir"
+            title="Excluir"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"
           >
             <Trash2 className="h-[15px] w-[15px]" />
-            Excluir
           </button>
         )}
       </div>
@@ -208,12 +209,12 @@ export default function Table<T extends object = TableRow>({
                 <thead className="bg-primary">
                   <tr>
                     {columns.map((column) => (
-                      <th key={column.key} scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-[.4px] text-white">
+                      <th key={column.key} scope="col" className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[.4px] text-white first:pl-6">
                         {column.label}
                       </th>
                     ))}
                     {temAcoes && (
-                      <th scope="col" className="px-6 py-3.5">
+                      <th scope="col" className="px-4 py-3.5 last:pr-6">
                         <span className="sr-only">Ações</span>
                       </th>
                     )}
@@ -223,11 +224,11 @@ export default function Table<T extends object = TableRow>({
                   {filtradas.map((item, index) => (
                     <tr key={(item as TableRow).id || `row-${index}`} className="border-b border-surface-2 last:border-b-0 hover:bg-[#eef1f8]">
                       {columns.map((column) => (
-                        <td key={column.key} className="whitespace-nowrap px-6 py-3.5 text-sm">
+                        <td key={column.key} className="whitespace-nowrap px-4 py-3.5 text-sm first:pl-6">
                           {renderCell(item, column)}
                         </td>
                       ))}
-                      {temAcoes && <td className="whitespace-nowrap px-6 py-3.5 text-sm">{acoes(item)}</td>}
+                      {temAcoes && <td className="whitespace-nowrap px-4 py-3.5 text-sm last:pr-6">{acoes(item)}</td>}
                     </tr>
                   ))}
                 </tbody>
