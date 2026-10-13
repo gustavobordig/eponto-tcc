@@ -129,7 +129,7 @@ describe('Área do funcionário', () => {
     cy.intercept('POST', '**/api/Feedback/InserirSolicitacao', { body: { sucesso: true, mensagem: null } }).as('inserir');
     cy.visit('/feedback');
 
-    cy.contains('button', 'Nova Solicitação').first().click();
+    cy.contains('button', 'Novo').click();
     cy.get('textarea').type('Queria um retorno sobre o último projeto.');
     cy.contains('button', 'Enviar Solicitação').click();
 

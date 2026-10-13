@@ -10,10 +10,10 @@ export default function RatingStars({ avaliacao }: { avaliacao: number }) {
         <Star
           key={star}
           size={16}
-          className={star <= estrelas ? 'text-yellow-400 fill-current' : 'text-gray-300'}
+          className={star <= estrelas ? 'fill-current text-warn' : 'text-line-strong'}
         />
       ))}
-      <span className="text-sm text-gray-600 ml-1">({estrelas})</span>
+      <span className="ml-1 text-xs text-muted">({estrelas})</span>
     </div>
   );
 }

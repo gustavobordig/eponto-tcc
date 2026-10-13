@@ -18,7 +18,7 @@ const corDoSaldo = (minutos: number | null) =>
 const COLUNAS = "grid-cols-[1.4fr_repeat(4,1fr)_1fr_1fr_120px]";
 
 /** Histórico do mês (1d): resumo, marcações do dia a dia e pedido de ajuste. */
-export default function HistoricoContainer() {
+export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviado?: () => void }) {
   const [mes, setMes] = useState(() => new Date());
   const [registros, setRegistros] = useState<RegistroPonto[]>([]);
   const [saldos, setSaldos] = useState(new Map<string, number>());
@@ -193,7 +193,10 @@ export default function HistoricoContainer() {
       <TimeAdjustmentModal
         isOpen={diaAjuste !== null}
         onClose={() => setDiaAjuste(null)}
-        onSubmit={() => setDiaAjuste(null)}
+        onSubmit={() => {
+          setDiaAjuste(null);
+          onAjusteEnviado?.();
+        }}
         selectedDate={dadosAjuste?.data ?? ""}
         initialData={dadosAjuste?.horarios}
         registrosDoDia={dadosAjuste?.ids}
