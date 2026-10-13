@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Container from '@/shared/ui/Container';
+import LoadingText from '@/shared/ui/LoadingText';
 import { JornadaTrabalho, jornadaTrabalhoService } from '@/features/jornadas/api';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 
@@ -29,16 +29,16 @@ export default function JornadaTrabalhoPage() {
 
  
 
-  const columns: Column[] = [
+  const columns: Column<JornadaTrabalho>[] = [
     {
       key: 'nomeJornada',
-      label: 'Nome da Jornada',
-      type: 'text'
+      label: 'Jornada',
+      render: (j) => <b className="text-sm">{j.nomeJornada}</b>
     },
     {
       key: 'qtdHorasDiarias',
-      label: 'Quantidade de Horas Diárias',
-      type: 'text'
+      label: 'Horas por dia',
+      render: (j) => <span className="font-mono text-[13px]">{j.qtdHorasDiarias}h</span>
     },
     {
       key: 'indAtivo',
@@ -141,17 +141,12 @@ export default function JornadaTrabalhoPage() {
 
   if (loading) {
     return (
-      <Container className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando jornadas...</p>
-        </div>
-      </Container>
+      <LoadingText title="jornadas" />
     );
   }
 
   return (
-    <Container className="py-8">
+    <>
 
 
        {/* Tabela de Jornadas de Trabalho */}
@@ -159,6 +154,8 @@ export default function JornadaTrabalhoPage() {
         data={jornadas}
         columns={columns}   
         title="Jornadas de trabalho"
+        subtitle={`${jornadas.length} ${jornadas.length === 1 ? 'jornada cadastrada' : 'jornadas cadastradas'} · ${jornadas.filter((j) => j.indAtivo === 1).length} ativas`}
+        searchPlaceholder="Buscar jornada"
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-jornada"
@@ -202,6 +199,6 @@ export default function JornadaTrabalhoPage() {
           loading={deleteLoading}
         />
       )}
-    </Container>
+    </>
   );
 } 

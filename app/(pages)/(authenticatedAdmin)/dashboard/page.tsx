@@ -3,21 +3,41 @@
 import { useState } from 'react';
 import { UserData } from '@/features/usuarios/api';
 import { UsuarioComDetalhes, useUsuariosAdmin } from '@/features/usuarios/hooks/useUsuariosAdmin';
-import Container from '@/shared/ui/Container';
 import EditModal from '@/shared/ui/EditModal';
 import ExcludeModal from '@/shared/ui/ExcludeModal';
 import LoadingText from '@/shared/ui/LoadingText';
-import Table from '@/shared/ui/Table';
+import Avatar from '@/shared/ui/Avatar';
+import Table, { FiltroTabela } from '@/shared/ui/Table';
 import { Column } from '@/shared/types/ui';
 
 const colunas: Column<UsuarioComDetalhes>[] = [
-  { key: 'nome', label: 'Nome' },
-  { key: 'email', label: 'Email' },
-  { key: 'telefone', label: 'Telefone', type: 'phone' },
+  {
+    key: 'nome',
+    label: 'Nome',
+    render: (u) => (
+      <span className="flex min-w-0 items-center gap-3">
+        <Avatar nome={u.nome} foto={u.fotoPerfil} tamanho="sm" className="!h-9 !w-9" />
+        <span className="flex min-w-0 flex-col gap-px">
+          <b className="text-sm">{u.nome}</b>
+          <span className="text-xs text-muted">{u.email}</span>
+        </span>
+      </span>
+    ),
+  },
   { key: 'cargo', label: 'Cargo' },
   { key: 'jornada', label: 'Jornada' },
+  { key: 'telefone', label: 'Telefone', type: 'phone' },
   { key: 'indAtivo', label: 'Status', type: 'status' },
 ];
+
+const filtroStatus: FiltroTabela<UsuarioComDetalhes> = {
+  rotulo: 'Status',
+  opcoes: [
+    { valor: '1', rotulo: 'ativos' },
+    { valor: '0', rotulo: 'inativos' },
+  ],
+  valorDe: (u) => String(u.indAtivo),
+};
 
 interface Edicao {
   usuario: UserData;
@@ -83,11 +103,22 @@ export default function UsuariosPage() {
   }
 
   return (
-    <Container className="py-8">
+    <>
       <Table
         data={usuarios}
         title="Usuários"
+        subtitle={`${usuarios.length} ${usuarios.length === 1 ? 'pessoa cadastrada' : 'pessoas cadastradas'} · ${usuarios.filter((u) => u.indAtivo === 1).length} ativas`}
         columns={colunas}
+        searchPlaceholder="Buscar por nome ou e-mail"
+        camposBusca={['email']}
+        filtros={[
+          {
+            rotulo: 'Cargo',
+            opcoes: cargos.map((c) => ({ valor: c.nomeCargo, rotulo: c.nomeCargo })),
+            valorDe: (u) => u.cargo,
+          },
+          filtroStatus,
+        ]}
         handleEdit={abrirEdicao}
         handleDeleteClick={(user) => setUsuarioParaExcluir(user.idUsuario)}
         addItemHref="/adicionar-usuario"
@@ -132,6 +163,6 @@ export default function UsuariosPage() {
           loading={excluindo}
         />
       )}
-    </Container>
+    </>
   );
 }

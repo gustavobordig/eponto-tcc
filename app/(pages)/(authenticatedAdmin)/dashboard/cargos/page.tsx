@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 //Components
 import Table from '@/shared/ui/Table';
 import LoadingText from '@/shared/ui/LoadingText';
-import Container from '@/shared/ui/Container';
 import EditModal from '@/shared/ui/EditModal';
 import ExcludeModal from '@/shared/ui/ExcludeModal';
 
@@ -35,9 +34,9 @@ export default function CargosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
 
-  const columns: Column[] = [
-    { key: 'nomeCargo', label: 'Nome do Cargo' },
-    { key: 'formacaoMinima', label: 'Formação Mínima' },
+  const columns: Column<Cargo>[] = [
+    { key: 'nomeCargo', label: 'Cargo', render: (c) => <b className="text-sm">{c.nomeCargo}</b> },
+    { key: 'formacaoMinima', label: 'Formação mínima' },
     { key: 'salario', label: 'Salário', type: 'currency' },
     { key: 'indAtivo', label: 'Status', type: 'status' }
   ];
@@ -147,13 +146,16 @@ export default function CargosPage() {
   }
 
   return (
-    <Container className="py-8">
+    <>
 
       {/* Tabela de Cargos */}
       <Table
         data={cargos}
         title="Cargos"
+        subtitle={`${cargos.length} ${cargos.length === 1 ? 'cargo cadastrado' : 'cargos cadastrados'} · ${cargos.filter((c) => c.indAtivo === 1).length} ativos`}
         columns={columns}
+        searchPlaceholder="Buscar cargo ou formação"
+        filtros={[{ rotulo: 'Status', opcoes: [{ valor: '1', rotulo: 'ativos' }, { valor: '0', rotulo: 'inativos' }], valorDe: (c) => String(c.indAtivo) }]}
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-cargo"
@@ -217,6 +219,6 @@ export default function CargosPage() {
           loading={deleteLoading}
         />
       )}
-    </Container>
+    </>
   );
 } 

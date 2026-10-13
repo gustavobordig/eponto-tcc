@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 //Components
 import Table from '@/shared/ui/Table';
 import LoadingText from '@/shared/ui/LoadingText';
-import Container from '@/shared/ui/Container';
 import EditModal from '@/shared/ui/EditModal';
 import ExcludeModal from '@/shared/ui/ExcludeModal';
 
 //Services
+import { formatDate } from '@/shared/lib/format';
 import { FeriadoListado, feriadoService, labelDoTipo, tipoDoFeriado } from '@/features/feriados/api';
 
 //Utils
@@ -33,11 +33,16 @@ export default function FeriadosPage() {
   const [editLoading, setEditLoading] = useState(false);
 
   const columns: Column<FeriadoListado>[] = [
-    { key: 'dscFeriado', label: 'Descrição' },
+    { key: 'dscFeriado', label: 'Feriado', render: (feriado) => <b className="text-sm">{feriado.dscFeriado}</b> },
     { key: 'datFeriado', label: 'Data', type: 'date' },
     // A listagem devolve o tipo como texto (dscTipoFeriado)
     { key: 'dscTipoFeriado', label: 'Tipo', render: (feriado) => labelDoTipo(tipoDoFeriado(feriado.dscTipoFeriado)) }
   ];
+
+  // Em ordem de data, e o próximo no subtítulo
+  const ordenados = [...feriados].sort((a, b) => String(a.datFeriado).localeCompare(String(b.datFeriado)));
+  const hoje = new Date().toISOString().slice(0, 10);
+  const proximo = ordenados.find((f) => String(f.datFeriado).slice(0, 10) >= hoje);
 
   // Configuração das validações para o EditModal
   const validationConfigs = {
@@ -142,12 +147,27 @@ export default function FeriadosPage() {
   }
 
   return (
-    <Container className="py-8">
+    <>
       {/* Tabela de Feriados */}
       <Table
-        data={feriados}
+        data={ordenados}
         title="Feriados"
+        subtitle={
+          `${feriados.length} ${feriados.length === 1 ? 'feriado cadastrado' : 'feriados cadastrados'}` +
+          (proximo ? ` · próximo: ${proximo.dscFeriado}, ${formatDate(proximo.datFeriado)}` : '')
+        }
         columns={columns}
+        searchPlaceholder="Buscar feriado"
+        filtros={[
+          {
+            rotulo: 'Tipo',
+            opcoes: [
+              { valor: '1', rotulo: 'integral' },
+              { valor: '2', rotulo: 'meio período' },
+            ],
+            valorDe: (f) => String(tipoDoFeriado(f.dscTipoFeriado)),
+          },
+        ]}
         handleEdit={handleEdit}
         handleDeleteClick={handleDeleteClick}
         addItemHref="/adicionar-feriado"
@@ -204,6 +224,6 @@ export default function FeriadosPage() {
           loading={deleteLoading}
         />
       )}
-    </Container>
+    </>
   );
 } 
