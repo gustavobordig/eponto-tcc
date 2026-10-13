@@ -1,6 +1,7 @@
 'use client';
 
-import { Calendar, CalendarProps, dateFnsLocalizer } from 'react-big-calendar';
+import { useState } from 'react';
+import { Calendar, CalendarProps, dateFnsLocalizer, View } from 'react-big-calendar';
 import { addDays, format, getDay, parse, startOfDay, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import '@/app/styles/calendar.scss';
@@ -54,8 +55,16 @@ type Props = Omit<CalendarProps<EventoCalendario>, 'localizer' | 'messages' | 'c
 
 /** react-big-calendar em português, com os estilos do app. */
 export default function Calendario({ mensagemVazio = 'Não existe eventos para esse período', ...props }: Props) {
+  // Data e visão controladas aqui: sem isso, Próximo/Anterior e Mês/Semana não mudavam nada
+  const [data, setData] = useState<Date>(() => (props.defaultDate ? new Date(props.defaultDate) : new Date()));
+  const [visao, setVisao] = useState<View>(props.defaultView ?? 'month');
+
   return (
     <Calendar<EventoCalendario>
+      date={data}
+      onNavigate={setData}
+      view={visao}
+      onView={setVisao}
       localizer={localizer}
       startAccessor="start"
       endAccessor="end"
