@@ -1,7 +1,8 @@
 import React from "react";
-import { X } from "lucide-react";
-import { motion } from "framer-motion";
-import Button from "@/shared/ui/Button";
+import { Clock } from "lucide-react";
+import Modal, { BotaoModal } from "@/shared/ui/Modal";
+import TextArea from "@/shared/ui/TextArea";
+import { ETAPAS_DO_DIA } from "@/features/ponto/etapas";
 import { TimeEntryInput, TimeEntry } from "@/features/ponto/components/TimeEntryInput";
 import { registroPontoService } from "@/features/ponto/api";
 import { toast } from "react-hot-toast";
@@ -192,85 +193,52 @@ export const TimeAdjustmentModal: React.FC<TimeAdjustmentModalProps> = ({
     }
   };  
 
+  const campos = [
+    { chave: 'entrada', tipo: 1 },
+    { chave: 'inicioAlmoco', tipo: 2 },
+    { chave: 'fimAlmoco', tipo: 3 },
+    { chave: 'saida', tipo: 4 },
+  ] as const;
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-lg p-6 w-[90%] max-w-lg shadow-xl relative z-10 h-fit overflow-y-auto"
-      >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-red-500 cursor-pointer"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        <h2 className="text-2xl font-bold text-primary mb-6">
-          Ajuste de Ponto {selectedDate && `- ${selectedDate}`}
-        </h2>
-
-        <div>
-          <TimeEntryInput
-            label="Entrada"
-            value={formData.entrada}
-            onChange={(value) => setFormData({ ...formData, entrada: value })}
-          />
-          <TimeEntryInput
-            label="Início do Almoço"
-            value={formData.inicioAlmoco}
-            onChange={(value) => setFormData({ ...formData, inicioAlmoco: value })}
-          />
-          <TimeEntryInput
-            label="Fim do Almoço"
-            value={formData.fimAlmoco}
-            onChange={(value) => setFormData({ ...formData, fimAlmoco: value })}
-          />
-          <TimeEntryInput
-            label="Saída"
-            value={formData.saida}
-            onChange={(value) => setFormData({ ...formData, saida: value })}
-          />
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Justificativa
-            </label>
-            <textarea
-              value={formData.justificativa}
-              onChange={(e) =>
-                setFormData({ ...formData, justificativa: e.target.value })
-              }
-              placeholder="Digite sua justificativa para o ajuste..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px]
-              text-gray-800"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <Button
-              text="Cancelar"
-              backgroundColor="bg-gray-100"
-              textColor="text-gray-700"
-              onClick={onClose}
-              fullWidth={false}
-            />
-            <Button
-              text="Pedir Ajuste"
-              backgroundColor="bg-primary"
-              textColor="text-white"
-              onClick={handleSubmit}
-              fullWidth={false}
-            />
-          </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      titulo="Pedir ajuste de ponto"
+      descricao={selectedDate ? `Dia ${selectedDate}. Corrija os horários e explique ao RH o que aconteceu.` : undefined}
+      icone={<Clock className="h-5 w-5" />}
+      rodape={
+        <>
+          <BotaoModal variante="secundario" onClick={onClose}>
+            Cancelar
+          </BotaoModal>
+          <BotaoModal onClick={handleSubmit}>Pedir Ajuste</BotaoModal>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-3">
+          {campos.map(({ chave, tipo }) => {
+            const etapa = ETAPAS_DO_DIA.find((e) => e.tipo === tipo)!;
+            return (
+              <TimeEntryInput
+                key={chave}
+                label={etapa.label}
+                icone={etapa.icone('h-3.5 w-3.5')}
+                value={formData[chave]}
+                onChange={(value) => setFormData({ ...formData, [chave]: value })}
+              />
+            );
+          })}
         </div>
-      </motion.div>
-    </div>
+        <TextArea
+          id="ajuste-justificativa"
+          label="Justificativa"
+          value={formData.justificativa}
+          onChange={(e) => setFormData({ ...formData, justificativa: e.target.value })}
+          placeholder="Ex.: esqueci de registrar a volta do almoço."
+        />
+      </div>
+    </Modal>
   );
-}; 
+};

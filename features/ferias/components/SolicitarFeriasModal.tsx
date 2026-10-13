@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Calendar, X } from "lucide-react";
-import { SlideUp } from "@/shared/ui/animations/SliderUp";
+import { Calendar, Plane } from "lucide-react";
+import Modal, { BotaoModal } from "@/shared/ui/Modal";
 import { feriasService } from "@/features/ferias/api";
 import { tokenUtils } from "@/shared/lib/token";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 
 // Atoms
-import Button from "@/shared/ui/Button";
 import Input from "@/shared/ui/Input";
 
 interface FeriasModalProps {
@@ -122,103 +121,62 @@ export const FeriasModal: React.FC<FeriasModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div
-        className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-      <SlideUp>
-        <div className="bg-white rounded-lg p-6 w-[500px] max-w-md shadow-xl relative z-10">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-primary" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                Solicitar Férias
-              </h2>
-            </div>
-            <button
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Form */}
-          <div className="space-y-4">
-            {/* Descrição */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Descrição
-              </label>
-              <Input
-                type="text"
-                placeholder="Ex: Férias de verão"
-                value={formData.dscObservacao}
-                onChange={(e) => handleInputChange("dscObservacao", e.target.value)}
-                error={errors.dscObservacao}
-                disabled={isSubmitting}
-              />
-            </div>
-
-            {/* Data de Início */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Início
-              </label>
-              <Input
-                type="date"
-                value={formData.datInicioFerias}
-                onChange={(e) => handleInputChange("datInicioFerias", e.target.value)}
-                error={errors.datInicioFerias}
-                disabled={isSubmitting}
-                min={format(new Date(), "yyyy-MM-dd")}
-              />
-            </div>
-
-            {/* Data de Fim */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Data de Fim
-              </label>
-              <Input
-                type="date"
-                value={formData.datFimFerias}
-                onChange={(e) => handleInputChange("datFimFerias", e.target.value)}
-                error={errors.datFimFerias}
-                disabled={isSubmitting}
-                min={formData.datInicioFerias || format(new Date(), "yyyy-MM-dd")}
-              />
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-3 mt-6">
-            <Button
-              text={isSubmitting ? "Enviando..." : "Solicitar"}
-              backgroundColor="bg-primary"
-              textColor="text-white"
-              onClick={handleSubmit}
-              hoverSwapColors={false}
-              disabled={isSubmitting}
-              className="flex-1"
-            />
-            <Button
-              text="Cancelar"
-              backgroundColor="bg-gray-500"
-              textColor="text-white"
-              onClick={handleClose}
-              hoverSwapColors={false}
-              disabled={isSubmitting}
-              className="flex-1"
-            />
-          </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      titulo="Solicitar férias"
+      descricao="O pedido vai para o RH aprovar. Você acompanha em Solicitações."
+      icone={<Plane className="h-5 w-5" />}
+      bloqueado={isSubmitting}
+      rodape={
+        <>
+          <BotaoModal variante="secundario" onClick={handleClose} disabled={isSubmitting}>
+            Cancelar
+          </BotaoModal>
+          <BotaoModal onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Enviando…" : "Solicitar"}
+          </BotaoModal>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <Input
+          id="ferias-descricao"
+          label="Descrição"
+          type="text"
+          placeholder="Ex.: viagem em família"
+          value={formData.dscObservacao}
+          onChange={(e) => handleInputChange("dscObservacao", e.target.value)}
+          error={errors.dscObservacao}
+          disabled={isSubmitting}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            id="ferias-inicio"
+            label="Primeiro dia"
+            type="date"
+            icon={<Calendar />}
+            inputClassName="font-mono text-sm"
+            value={formData.datInicioFerias}
+            onChange={(e) => handleInputChange("datInicioFerias", e.target.value)}
+            error={errors.datInicioFerias}
+            disabled={isSubmitting}
+            min={format(new Date(), "yyyy-MM-dd")}
+          />
+          <Input
+            id="ferias-fim"
+            label="Último dia"
+            type="date"
+            icon={<Calendar />}
+            inputClassName="font-mono text-sm"
+            value={formData.datFimFerias}
+            onChange={(e) => handleInputChange("datFimFerias", e.target.value)}
+            error={errors.datFimFerias}
+            disabled={isSubmitting}
+            min={formData.datInicioFerias || format(new Date(), "yyyy-MM-dd")}
+          />
         </div>
-      </SlideUp>
-    </div>
+      </div>
+    </Modal>
   );
 };

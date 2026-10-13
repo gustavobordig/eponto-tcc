@@ -1,17 +1,14 @@
 import LoadingText from "@/shared/ui/LoadingText";
 
 interface LoadModalProps {
-    title: string;
+  title: string;
 }
 
-export default function LoadModal({
-    title
-}: LoadModalProps) {
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-                <LoadingText title={title} />
-            </div>
-        </div>
-    );
+/** Carregamento de página inteira (antes cobria a tela com um fundo preto) */
+export default function LoadModal({ title }: LoadModalProps) {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center">
+      <LoadingText title={title} />
+    </div>
+  );
 }

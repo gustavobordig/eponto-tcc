@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { CheckCircle2, MapPin, X } from 'lucide-react';
-import { SlideUp } from '@/shared/ui/animations/SliderUp';
+import { Check, CheckCircle2, Fingerprint, MapPin } from 'lucide-react';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 import { useLocalizacao } from '@/features/ponto/hooks/useLocalizacao';
 import { usePontosDoDia } from '@/features/ponto/hooks/usePontosDoDia';
-import LinhaDoDia from '@/features/ponto/components/LinhaDoDia';
+import { ETAPAS_DO_DIA } from '@/features/ponto/etapas';
+import { horaMinuto, useAgora } from '@/shared/lib/useAgora';
+import Modal, { BotaoModal } from '@/shared/ui/Modal';
 
 interface Props {
   isOpen: boolean;
@@ -21,11 +21,8 @@ interface Props {
 export function RegistrarPontoModal({ isOpen, onClose, ponto }: Props) {
   const [registrando, setRegistrando] = useState(false);
   const { endereco, texto: textoLocal } = useLocalizacao(isOpen);
-
-  if (!isOpen) return null;
-
+  const agora = useAgora();
   const { proxima, marcados, registrar } = ponto;
-  const agora = new Date();
 
   const confirmar = async () => {
     try {
@@ -42,63 +39,68 @@ export function RegistrarPontoModal({ isOpen, onClose, ponto }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="titulo-registrar-ponto">
-      <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
-      <SlideUp>
-        <div className="relative z-10 w-[92vw] max-w-md rounded-2xl bg-white p-6 shadow-xl">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Fechar"
-            className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-
-          <h2 id="titulo-registrar-ponto" className="text-lg font-semibold text-gray-900">
-            Registrar ponto
-          </h2>
-
-          <div className="mt-4 text-center">
-            <p className="text-5xl font-bold tabular-nums text-primary">{format(agora, 'HH:mm')}</p>
-            <p className="mt-1 text-sm text-gray-500">{format(agora, "EEEE, d 'de' MMMM", { locale: ptBR })}</p>
-            <p className="mt-2 flex items-center justify-center gap-1 text-xs text-gray-500">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="max-w-[18rem] truncate">{textoLocal}</span>
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <LinhaDoDia marcados={marcados} proxima={proxima} compacta />
-          </div>
-
-          {proxima ? (
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
-              <button
-                type="button"
-                onClick={confirmar}
-                disabled={registrando}
-                className="flex-1 rounded-lg bg-primary px-4 py-3 font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
-              >
-                {registrando ? 'Registrando…' : `Registrar ${proxima.label.toLowerCase()}`}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={registrando}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-            </div>
-          ) : (
-            <div className="mt-6 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-              <CheckCircle2 className="h-5 w-5 shrink-0" />
-              Você já registrou os quatro pontos de hoje.
-            </div>
-          )}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      titulo="Registrar ponto"
+      largura="sm"
+      bloqueado={registrando}
+      rodape={
+        proxima && (
+          <>
+            <BotaoModal variante="secundario" onClick={onClose} disabled={registrando}>
+              Cancelar
+            </BotaoModal>
+            <BotaoModal onClick={confirmar} disabled={registrando}>
+              <Fingerprint className="h-4 w-4" />
+              {registrando ? 'Registrando…' : `Registrar ${proxima.label.toLowerCase()}`}
+            </BotaoModal>
+          </>
+        )
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col items-center gap-1 rounded-[14px] bg-primary px-5 py-5 text-white">
+          <p className="font-mono text-5xl font-semibold tracking-[-2px]" suppressHydrationWarning>
+            {agora ? horaMinuto(agora) : '--:--'}
+          </p>
+          <p className="text-sm text-white/85 first-letter:uppercase" suppressHydrationWarning>
+            {agora?.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+          <p className="mt-1 flex max-w-full items-center gap-1.5 text-xs text-white/80">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{textoLocal}</span>
+          </p>
         </div>
-      </SlideUp>
-    </div>
+
+        <ol className="grid grid-cols-4 gap-2">
+          {ETAPAS_DO_DIA.map((etapa) => {
+            const marcado = marcados.find((m) => m.etapa.tipo === etapa.tipo);
+            const ehProxima = proxima?.tipo === etapa.tipo;
+            return (
+              <li
+                key={etapa.tipo}
+                className={`flex flex-col items-center gap-1 rounded-xl px-1 py-2.5 text-center ${
+                  ehProxima ? 'bg-primary-soft ring-1 ring-primary/40' : 'bg-background'
+                }`}
+              >
+                <span className={marcado ? 'text-ok' : ehProxima ? 'text-primary' : 'text-subtle'}>
+                  {marcado ? <Check className="h-4 w-4" /> : etapa.icone('h-4 w-4')}
+                </span>
+                <span className="text-[11px] leading-tight text-muted">{etapa.label}</span>
+                <span className={`font-mono text-sm font-semibold ${marcado ? '' : 'text-subtle'}`}>{marcado?.hora ?? '--:--'}</span>
+              </li>
+            );
+          })}
+        </ol>
+
+        {!proxima && (
+          <p className="flex items-center gap-2 rounded-[10px] bg-ok-soft p-3 text-sm text-ok-ink">
+            <CheckCircle2 className="h-5 w-5 shrink-0" />
+            Você já registrou os quatro pontos de hoje.
+          </p>
+        )}
+      </div>
+    </Modal>
   );
 }

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import Modal, { BotaoModal } from '@/shared/ui/Modal';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface ConfirmationModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   loading?: boolean;
+  /** Classes do botão de confirmar; com "red" vira o botão de perigo */
   confirmButtonColor?: string;
   children?: ReactNode;
 }
@@ -22,42 +24,30 @@ export default function ConfirmationModal({
   onConfirm,
   onCancel,
   loading = false,
-  confirmButtonColor = 'bg-primary hover:bg-primary-dark',
-  children
+  confirmButtonColor = '',
+  children,
 }: ConfirmationModalProps) {
-  if (!isOpen) return null;
-
+  const perigo = /red|danger/.test(confirmButtonColor) || /^(sair|excluir|reprovar)/i.test(confirmText);
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-600 mt-2">{message}</p>
-        </div>
-
-        {children && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-md">
-            {children}
-          </div>
-        )}
-
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-          >
+    <Modal
+      isOpen={isOpen}
+      onClose={onCancel}
+      titulo={title}
+      descricao={message}
+      largura="sm"
+      bloqueado={loading}
+      rodape={
+        <>
+          <BotaoModal variante="secundario" onClick={onCancel} disabled={loading}>
             {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md ${confirmButtonColor} disabled:opacity-50`}
-          >
-            {loading ? 'Processando...' : confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
+          </BotaoModal>
+          <BotaoModal variante={perigo ? 'perigo' : 'primario'} onClick={onConfirm} disabled={loading}>
+            {loading ? 'Processando…' : confirmText}
+          </BotaoModal>
+        </>
+      }
+    >
+      {children && <div className="rounded-[10px] bg-background p-3 text-sm">{children}</div>}
+    </Modal>
   );
-} 
+}

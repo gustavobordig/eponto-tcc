@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
+import Modal, { BotaoModal } from '@/shared/ui/Modal';
 import TextArea from '@/shared/ui/TextArea';
-import Button from '@/shared/ui/Button';
 import { feedbackService } from '@/features/feedback/api';
 import { userService } from '@/features/usuarios/api';
 import { tokenUtils } from '@/shared/lib/token';
@@ -102,66 +102,35 @@ const FeedbackModal = ({ isOpen, onClose, onSolicitacaoCreated }: FeedbackModalP
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Overlay */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        style={{
-          opacity: '0.5',
-        }}
-        onClick={handleClose}
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      titulo="Pedir feedback"
+      descricao="O pedido vai para o seu gestor. Conte sobre o que você quer um retorno."
+      icone={<MessageSquare className="h-5 w-5" />}
+      bloqueado={isLoading}
+      rodape={
+        <>
+          <BotaoModal variante="secundario" onClick={handleClose} disabled={isLoading}>
+            Cancelar
+          </BotaoModal>
+          <BotaoModal onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? 'Enviando…' : 'Enviar Solicitação'}
+          </BotaoModal>
+        </>
+      }
+    >
+      <TextArea
+        label="Mensagem"
+        placeholder="Ex.: queria um retorno sobre o projeto de outubro."
+        value={formData.mensagem}
+        onTextareaChange={(value) => setFormData((prev) => ({ ...prev, mensagem: value }))}
+        error={errors.mensagem}
+        textareaClassName="min-h-[120px]"
       />
-      
-      {/* Modal */}
-      <div 
-        className="bg-white rounded-xl p-6 shadow-lg flex flex-col max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-51"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-primary">Solicitar Feedback</h2>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <div className="space-y-4">
-          <TextArea
-            label="Mensagem da Solicitação"
-            placeholder="Descreva sua solicitação de feedback, avaliação ou qualquer outra observação que gostaria de compartilhar..."
-            value={formData.mensagem}
-            onTextareaChange={(value) => setFormData(prev => ({ ...prev, mensagem: value }))}
-            error={errors.mensagem}
-          />
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3 mt-6">
-          <Button
-            text="Cancelar"
-            backgroundColor="bg-gray-300"
-            textColor="text-gray-700"
-            onClick={handleClose}
-            fullWidth={false}
-            className="flex-1"
-          />
-          <Button
-            text="Enviar Solicitação"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            className="flex-1"
-          />
-        </div>
-      </div>
-    </>
+    </Modal>
   );
 };
 
-export default FeedbackModal; 
+export default FeedbackModal;

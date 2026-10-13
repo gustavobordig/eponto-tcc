@@ -137,7 +137,7 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
               >
                 <div role="cell" className="flex flex-col gap-px">
                   <b>{format(dia.data, "dd/MM")}</b>
-                  <span className="truncate text-xs capitalize text-muted">
+                  <span className="truncate text-xs text-muted first-letter:uppercase">
                     {dia.evento ?? dia.data.toLocaleDateString("pt-BR", { weekday: "long" }).replace("-feira", "")}
                   </span>
                 </div>
