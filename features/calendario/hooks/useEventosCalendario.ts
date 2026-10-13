@@ -35,7 +35,7 @@ export function useEventosCalendario({ incluirMinhasFerias = false } = {}) {
           ...eventosCalendario,
           ...minhasFerias.map((ferias, index) => ({
             id: `ferias-usuario-${index}`,
-            title: `Minhas Férias - ${ferias.dscFerias}`,
+            title: "Minhas férias",
             ...diaInteiro(new Date(ferias.datIncioFerias ?? ferias.datInicioFerias ?? ''), new Date(ferias.datFimFerias)),
             desc: 'minhas-ferias',
           })),

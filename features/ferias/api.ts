@@ -24,6 +24,14 @@ export interface SolicitacaoFerias {
   indSituacao: number;
 }
 
+export interface SaldoFerias {
+  idUsuario: number;
+  qtdSaldo: number;
+  nomeUsuario: string;
+}
+
+type SaldoFeriasResponse = ApiResponse<{ listaSaldoFerias?: SaldoFerias[] | null }>;
+
 type FeriasResponse = ApiResponse<{ listaFerias?: Ferias[] | null }>;
 type SolicitacoesFeriasResponse = ApiResponse<{ listarSolicitacoesFerias?: SolicitacaoFerias[] | null }>;
 
@@ -47,6 +55,17 @@ export const feriasService = {
 
   solicitarFerias: async (ferias: Ferias) =>
     (await api.post<ApiResponse>('/api/Ferias/CadastrarSolicitacaoFerias', ferias)).data,
+
+  /** Dias de férias disponíveis do usuário (null se não houver saldo cadastrado) */
+  saldo: async (idUsuario: number) => {
+    const { data } = await api.get<SaldoFeriasResponse>('/api/Ferias/RetornaSaldoFerias', { params: { idUsuario } });
+    return data.listaSaldoFerias?.[0]?.qtdSaldo ?? null;
+  },
+
+  buscarSolicitacoesPorUsuario: async (idUsuario: number) => {
+    const { data } = await api.get<SolicitacoesFeriasResponse>('/api/Ferias/ListarSolicitacoesFerias', { params: { idUsuario } });
+    return data.listarSolicitacoesFerias || [];
+  },
 
   buscarSolicitacoes: async () => {
     const { data } = await api.get<SolicitacoesFeriasResponse>('/api/Ferias/ListarSolicitacoesFerias');
