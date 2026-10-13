@@ -1,243 +1,132 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { SolicitacaoAusencia } from "@/features/ausencias/api";
-import { useMinhasSolicitacoes } from "@/features/ausencias/hooks/useMinhasSolicitacoes";
-import { getStatusColor, getStatusText } from "@/features/ausencias/status";
-import { useRouter } from "next/navigation";
-import Button from "@/shared/ui/Button";
-import LoadingText from "@/shared/ui/LoadingText";
+import { useMemo, useState } from 'react';
+import { CalendarOff, Clock, LucideIcon, Paperclip, Plane, Plus, Stethoscope } from 'lucide-react';
+import { useAreaFuncionario } from '@/app/(pages)/(authenticated)/_components/AreaFuncionario';
+import NovaAusencia from '@/features/ausencias/components/NovaAusencia';
+import { TipoPedido } from '@/features/solicitacoes/pedidos';
+import StatusPill, { Situacao } from '@/shared/ui/StatusPill';
 
+const ICONE: Record<TipoPedido, LucideIcon> = {
+  ajuste: Clock,
+  atestado: Stethoscope,
+  folga: CalendarOff,
+  outro: CalendarOff,
+  ferias: Plane,
+};
+
+type Filtro = 'todas' | 'analise' | 'aprovada' | 'reprovada';
+
+const quando = (d: Date | null) => {
+  if (!d) return '—';
+  const hoje = new Date();
+  if (d.toDateString() === hoje.toDateString()) return `Hoje, ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+};
+
+/** Solicitações (1f): ausências, ajustes de ponto e férias enviados ao RH, com o novo pedido ao lado. */
 export default function MinhasSolicitacoesPage() {
-  const router = useRouter();
-  const { solicitacoes, loading } = useMinhasSolicitacoes();
-  const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAusencia | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const { pedidos: meus } = useAreaFuncionario();
+  const { pedidos, carregando, falhou, recarregar } = meus;
+  const [filtro, setFiltro] = useState<Filtro>('todas');
+  const [formAberto, setFormAberto] = useState(true);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
-  };
+  const contagem = useMemo(() => {
+    const por = (s: Situacao) => pedidos.filter((p) => p.situacao === s).length;
+    return { todas: pedidos.length, analise: por('analise'), aprovada: por('aprovada'), reprovada: por('reprovada') };
+  }, [pedidos]);
 
-  const handleViewDetails = (solicitacao: SolicitacaoAusencia) => {
-    setSelectedSolicitacao(solicitacao);
-    setShowModal(true);
-  };
+  const visiveis = filtro === 'todas' ? pedidos : pedidos.filter((p) => p.situacao === filtro);
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedSolicitacao(null);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingText title="solicitações" />
-      </div>
-    );
-  }
+  const filtros: [Filtro, string][] = [
+    ['todas', 'Todas'],
+    ['analise', 'Em análise'],
+    ['aprovada', 'Aprovadas'],
+    ['reprovada', 'Reprovadas'],
+  ];
 
   return (
-    <div>
-      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Ausências</h1>
-            <p className="text-sm text-gray-500">Seus pedidos de ausência e a situação de cada um</p>
+    <div className={`grid items-start gap-5 ${formAberto ? 'lg:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-[28px] font-bold tracking-tight">Solicitações</h1>
+            <p className="text-sm text-muted">Ausências, ajustes de ponto e férias que você enviou ao RH</p>
           </div>
-          <Button
-            text="Pedir ausência"
-            backgroundColor="bg-primary"
-            textColor="text-white"
-            onClick={() => router.push('/solicitar-ausencia')}
-            fullWidth={false}
-          />
+          {!formAberto && (
+            <button
+              type="button"
+              onClick={() => setFormAberto(true)}
+              className="flex h-10 items-center gap-2 rounded-[10px] bg-primary px-4 text-sm font-bold text-white hover:bg-primary-dark"
+            >
+              <Plus className="h-4 w-4" /> Nova ausência
+            </button>
+          )}
         </div>
 
-        {solicitacoes.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
-              <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Nenhuma solicitação encontrada
-            </h3>
-            <p className="text-gray-500 mb-4">
-              Você ainda não possui solicitações de ausência.
-            </p>
-            <Button
-              text="Fazer Nova Solicitação"
-              backgroundColor="bg-primary"
-              textColor="text-white"
-              onClick={() => router.push('/solicitar-ausencia')}
-              fullWidth={false}
-            />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
-                    Motivo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
-                    Pedido em
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
-                    Início da Ausência
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[140px]">
-                    Fim da Ausência
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[100px]">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {solicitacoes.map((solicitacao, index) => (
-                  <tr key={solicitacao.idSolicitacaoAusencia || index} className="hover:bg-gray-50">
-                    <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-900" title={solicitacao.mensagemSolicitacao}>
-                      {solicitacao.mensagemSolicitacao || '—'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 min-w-[140px] whitespace-nowrap">
-                      {formatDate(solicitacao.dataSolicitacao)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 min-w-[140px] whitespace-nowrap">
-                      {formatDate(solicitacao.dataInicioAusencia)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 min-w-[140px] whitespace-nowrap">
-                      {formatDate(solicitacao.dataFimAusencia)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 min-w-[100px] whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(solicitacao.statusSolicitacao)}`}>
-                        {getStatusText(solicitacao.statusSolicitacao)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium min-w-[150px] whitespace-nowrap">
-                      <Button
-                        text="Detalhes"
-                        backgroundColor="bg-gray-200"
-                        textColor="text-gray-700"
-                        onClick={() => handleViewDetails(solicitacao)}
-                        fullWidth={false}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex flex-wrap gap-1.5 text-[13px] font-semibold" role="tablist" aria-label="Filtrar por situação">
+          {filtros.map(([valor, rotulo]) => {
+            const n = contagem[valor];
+            return (
+              <button
+                key={valor}
+                type="button"
+                role="tab"
+                aria-selected={filtro === valor}
+                onClick={() => setFiltro(valor)}
+                className={`rounded-full px-3.5 py-[7px] ${filtro === valor ? 'bg-foreground text-white' : 'border border-line bg-white hover:border-foreground/30'}`}
+              >
+                {rotulo}
+                {n > 0 && (valor === 'todas' || valor === 'analise') ? ` · ${n}` : ''}
+              </button>
+            );
+          })}
+        </div>
+
+        {falhou && (
+          <p className="rounded-[10px] bg-warn-soft px-3.5 py-3 text-[13px] text-warn-ink">
+            Não foi possível carregar todos os seus pedidos. Alguns podem não aparecer.
+          </p>
         )}
+
+        <div className="overflow-hidden rounded-2xl bg-white shadow-card">
+          {carregando ? (
+            <p className="px-5 py-10 text-center text-sm text-muted">Carregando solicitações…</p>
+          ) : visiveis.length === 0 ? (
+            <p className="px-5 py-10 text-center text-sm text-muted">
+              {pedidos.length === 0 ? 'Você ainda não enviou nenhum pedido.' : 'Nenhum pedido com essa situação.'}
+            </p>
+          ) : (
+            <ul>
+              {visiveis.map((p) => {
+                const Icone = ICONE[p.tipo];
+                return (
+                  <li key={p.chave} className="flex items-center gap-4 border-b border-surface-2 px-5 py-[18px] last:border-b-0">
+                    <span className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[11px] bg-primary-soft text-primary">
+                      <Icone className="h-[19px] w-[19px]" />
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <b className="text-sm">{p.titulo}</b>
+                      <span className="truncate text-[13px] text-muted" title={p.observacao}>{p.detalhe}</span>
+                    </div>
+                    {p.anexo && (
+                      <a href={p.anexo} target="_blank" rel="noreferrer" className="hidden items-center gap-1 text-xs font-semibold text-primary hover:underline sm:flex">
+                        <Paperclip className="h-3.5 w-3.5" /> Anexo
+                      </a>
+                    )}
+                    <span className="hidden w-[110px] text-xs text-muted sm:block">{quando(p.enviadoEm)}</span>
+                    <StatusPill situacao={p.situacao} className="w-24" />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
 
-      {/* Modal de Detalhes */}
-      {showModal && selectedSolicitacao && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Detalhes da Solicitação</h2>
-              <button
-                onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Data da Solicitação
-                  </label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {formatDate(selectedSolicitacao.dataSolicitacao)}
-                  </p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Status
-                  </label>
-                  <p className="mt-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedSolicitacao.statusSolicitacao)}`}>
-                      {getStatusText(selectedSolicitacao.statusSolicitacao)}
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Data de Início
-                  </label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {formatDate(selectedSolicitacao.dataInicioAusencia)}
-                  </p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Data de Fim
-                  </label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {formatDate(selectedSolicitacao.dataFimAusencia)}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Justificativa
-                </label>
-                <div className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-md max-h-32 overflow-y-auto">
-                  <p className="whitespace-pre-wrap break-words">
-                    {selectedSolicitacao.mensagemSolicitacao}
-                  </p>
-                </div>
-              </div>
-
-              {selectedSolicitacao.linkArquivo && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Atestado Médico
-                  </label>
-                  <div className="mt-1">
-                    <a
-                      href={selectedSolicitacao.linkArquivo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                    >
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      Baixar Atestado
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end pt-4">
-                <Button
-                  text="Fechar"
-                  backgroundColor="bg-gray-200"
-                  textColor="text-gray-700"
-                  onClick={handleCloseModal}
-                  fullWidth={false}
-                />
-              </div>
-            </div>
-          </div>
+      {formAberto && (
+        <div className="lg:sticky lg:top-32">
+          <NovaAusencia onEnviado={recarregar} onFechar={() => setFormAberto(false)} />
         </div>
       )}
     </div>

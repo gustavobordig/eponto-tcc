@@ -39,11 +39,9 @@ const TextArea = ({
   };
 
   return (
-    <div className={`flex flex-col gap-1 w-full ${containerClassName}`}>
+    <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`}>
       {label && (
-        <label 
-          className={`text-gray-600 text-sm font-medium ${labelClassName}`}
-        >
+        <label htmlFor={props.id} className={`text-[13px] font-semibold text-foreground ${labelClassName}`}>
           {label}
         </label>
       )}
@@ -51,21 +49,12 @@ const TextArea = ({
       <textarea
         {...props}
         className={`
-          w-full
-          px-4
-          py-3
-          rounded-lg
-          border
-          border-gray-200
-          text-gray-700
-          placeholder:text-gray-400
-          focus:outline-none
-          focus:border-[#D97745]
-          transition-all
-          resize-none
-          min-h-[100px]
+          min-h-[76px] w-full resize-none rounded-[10px] border border-line-strong bg-white px-3.5 py-2.5 text-sm text-foreground
+          placeholder:text-subtle
+          transition-[border-color,box-shadow]
+          focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft
           ${textareaClassName}
-          ${error ? 'border-red-500' : ''}
+          ${error ? 'border-danger' : ''}
         `}
         onChange={(e) => {
           const value = e.target.value;
@@ -88,7 +77,7 @@ const TextArea = ({
       />
 
       {error && (
-        <span className="text-red-500 text-sm mt-1">
+        <span className="text-[13px] text-danger-ink">
           {error}
         </span>
       )}

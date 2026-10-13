@@ -32,10 +32,12 @@ export interface SolicitacaoAlteracao {
   justificativa: string;
   statusSolicitacao: number;
   dataRegistroAlteracao: string;
+  /** Quando o pedido foi feito */
+  dataSolicitacao?: string;
   itens: ItemRegistro[];
 }
 
-export type NovaSolicitacaoAlteracao = Omit<SolicitacaoAlteracao, 'idSolicitacao' | 'statusSolicitacao'>;
+export type NovaSolicitacaoAlteracao = Omit<SolicitacaoAlteracao, 'idSolicitacao' | 'statusSolicitacao' | 'dataSolicitacao'>;
 
 export type RegistroPontoResponse = ApiResponse<{ registros?: RegistroPonto[] | null }>;
 export type SolicitacaoAlteracaoResponse = ApiResponse<{ solicitacoes?: SolicitacaoAlteracao[] | null }>;
@@ -52,6 +54,10 @@ export const registroPontoService = {
   // Solicitações de alteração (ajuste de ponto)
   solicitarAlteracao: async (solicitacao: NovaSolicitacaoAlteracao) =>
     (await api.post<ApiResponse>('/api/RegistroPonto/CriarSolicitacaoAlteracao', solicitacao)).data,
+
+  /** Pedidos de ajuste do próprio usuário */
+  listarMinhasSolicitacoes: async (idUsuario: number) =>
+    (await api.get<SolicitacaoAlteracaoResponse>(`/api/RegistroPonto/ListarSolicitacoesAlteracaoUsuario/${idUsuario}`)).data,
 
   listarSolicitacoesAlteracao: async () =>
     (await api.get<SolicitacaoAlteracaoResponse>('/api/RegistroPonto/ListarSolicitacoesAlteracao')).data,

@@ -52,7 +52,7 @@ const COR_STATUS: Record<SituacaoDoDia, { pilula: string; ponto: string }> = {
 /** Barra do funcionário (opção 2b do redesign): status do dia + abas sublinhadas. */
 export default function BarraFuncionario() {
   const pathname = usePathname();
-  const { abrirRegistro, usuario, ponto } = useAreaFuncionario();
+  const { abrirRegistro, usuario, ponto, pedidos } = useAreaFuncionario();
   const agora = useAgora(30_000);
   const [menuAberto, setMenuAberto] = useState(false);
   const [confirmarSaida, setConfirmarSaida] = useState(false);
@@ -188,6 +188,11 @@ export default function BarraFuncionario() {
             >
               <Icone className="h-4 w-4" />
               {item.label}
+              {item.href === '/minhas-solicitacoes' && pedidos.emAnalise > 0 && (
+                <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-[5px] text-[11px] font-extrabold text-white" aria-label={`${pedidos.emAnalise} em análise`}>
+                  {pedidos.emAnalise}
+                </span>
+              )}
             </Link>
           );
         })}

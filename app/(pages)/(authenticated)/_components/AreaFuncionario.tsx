@@ -3,6 +3,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { userService } from '@/features/usuarios/api';
 import { usePontosDoDia } from '@/features/ponto/hooks/usePontosDoDia';
+import { useMeusPedidos } from '@/features/solicitacoes/hooks/useMeusPedidos';
 import { RegistrarPontoModal } from '@/features/ponto/components/RegistrarPontoModal';
 import { showErrorToast } from '@/shared/lib/toast';
 import { tokenUtils } from '@/shared/lib/token';
@@ -20,6 +21,8 @@ interface AreaFuncionario {
   nomeUsuario: string;
   usuario: UsuarioLogado | null;
   ponto: ReturnType<typeof usePontosDoDia>;
+  /** Pedidos ao RH (a barra mostra quantos estão em análise) */
+  pedidos: ReturnType<typeof useMeusPedidos>;
   abrirRegistro: () => void;
 }
 
@@ -33,6 +36,7 @@ export function AreaFuncionarioProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [registroAberto, setRegistroAberto] = useState(false);
   const ponto = usePontosDoDia();
+  const pedidos = useMeusPedidos();
 
   useEffect(() => {
     const carregar = async () => {
@@ -59,7 +63,7 @@ export function AreaFuncionarioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Contexto.Provider value={{ nomeUsuario: usuario?.nome ?? '', usuario, ponto, abrirRegistro: () => setRegistroAberto(true) }}>
+    <Contexto.Provider value={{ nomeUsuario: usuario?.nome ?? '', usuario, ponto, pedidos, abrirRegistro: () => setRegistroAberto(true) }}>
       {children}
       <RegistrarPontoModal isOpen={registroAberto} onClose={() => setRegistroAberto(false)} ponto={ponto} />
     </Contexto.Provider>

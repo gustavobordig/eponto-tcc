@@ -71,7 +71,7 @@ describe('Área do funcionário', () => {
     cy.get('@jornadasAdmin.all').should('have.length', 0);
   });
 
-  it('mostra o status das ausências como na API (0 pendente, 1 aprovada, 2 reprovada)', () => {
+  it('mostra o status das ausências como na API (0 em análise, 1 aprovada, 2 reprovada)', () => {
     cy.intercept('GET', '**/api/SolicitacaoAusencia/ListarSolicitacoesAusenciaUsuario/1', {
       body: {
         sucesso: true,
@@ -85,9 +85,10 @@ describe('Área do funcionário', () => {
     });
     cy.visit('/minhas-solicitacoes');
 
-    cy.get('tbody tr').eq(0).should('contain', 'Pendente');
-    cy.get('tbody tr').eq(1).should('contain', 'Aprovada');
-    cy.get('tbody tr').eq(2).should('contain', 'Reprovada');
+    // Lista única de pedidos (ausências, ajustes e férias); 0 aparece como "Em análise"
+    cy.contains('li', 'Pedido 0').should('contain', 'Em análise');
+    cy.contains('li', 'Pedido 1').should('contain', 'Aprovada');
+    cy.contains('li', 'Pedido 2').should('contain', 'Reprovada');
   });
 
   it('vê a resposta do feedback pela rota dos próprios feedbacks', () => {
