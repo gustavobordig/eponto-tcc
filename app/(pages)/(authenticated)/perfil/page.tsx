@@ -1,361 +1,229 @@
 'use client';
 
 import Link from 'next/link';
-
-import { useState, useEffect, useRef } from 'react';
-import { userService } from '@/features/usuarios/api';
+import { useEffect, useRef, useState } from 'react';
+import { Camera, KeyRound, Mail, Pencil, Phone, ShieldCheck } from 'lucide-react';
+import { ContratoUsuario, UserData, userService } from '@/features/usuarios/api';
+import { ETAPAS_DO_DIA } from '@/features/ponto/etapas';
+import { formatDate, formatMoeda, formatTelefone } from '@/shared/lib/format';
 import { tokenUtils } from '@/shared/lib/token';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
+import Avatar from '@/shared/ui/Avatar';
+import Button from '@/shared/ui/Button';
+import Cartao from '@/shared/ui/Cartao';
 import ConfirmationModal from '@/shared/ui/ConfirmationModal';
-import ContractualInfo from '@/features/usuarios/components/ContractualInfo';
+import Input from '@/shared/ui/Input';
 
-interface UserData {
-  idUsuario: number;
-  nome: string;
-  dataNascimento: string;
-  senha: string;
-  email: string;
-  telefone: number;
-  idCargo: number;
-  idJornada: number;
-  indAtivo: number;
-  fotoPerfil?: string;
-}
+/** A API guarda a foto em base64 puro; a tela precisa do prefixo data: */
+const comPrefixo = (foto?: string | null) => (foto && !foto.startsWith('data:image') ? `data:image/jpeg;base64,${foto}` : foto || '');
 
+/** Meu perfil (1h): cartão com foto e contato, dados do contrato, jornada e senha. */
 export default function PerfilPage() {
-  const [userData, setUserData] = useState<UserData>({
-    idUsuario: 0,
-    nome: '',
-    dataNascimento: '',
-    senha: '',
-    email: '',
-    telefone: 0,
-    idCargo: 0,
-    idJornada: 0,
-    indAtivo: 1,
-    fotoPerfil: '',
-  });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [usuario, setUsuario] = useState<UserData | null>(null);
+  const [contrato, setContrato] = useState<ContratoUsuario | null>(null);
+  const [rascunho, setRascunho] = useState<UserData | null>(null);
+  const [editando, setEditando] = useState(false);
+  const [confirmar, setConfirmar] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [perfil, setPerfil] = useState('');
+  const arquivoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        setIsLoading(true);
-        const userId = tokenUtils.getId();
-        
-        if (!userId) {
-          showErrorToast("Usuário não encontrado");
-          return;
-        }
-
-        const response = await userService.getById(Number(userId));
-        
-        if (response.sucesso && response.usuario) {
-          let fotoPerfilData = response.usuario.fotoPerfil || '';
-
-          // If the image from the DB is raw base64, add the data URI prefix to display it
-          if (fotoPerfilData && !fotoPerfilData.startsWith('data:image')) {
-            fotoPerfilData = `data:image/jpeg;base64,${fotoPerfilData}`;
-          }
-
-          const userWithPhoto = {
-            ...response.usuario,
-            fotoPerfil: fotoPerfilData,
-          };
-
-          setUserData(userWithPhoto);
-          setPreviewImage(fotoPerfilData);
-          
-          // Salvar a foto no localStorage para uso na NavBar
-          if (fotoPerfilData) {
-            localStorage.setItem('userProfilePhoto', fotoPerfilData);
-          }
-        } else {
-          showErrorToast("Erro ao carregar dados do usuário");
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        showErrorToast("Erro ao carregar dados do usuário");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUserData();
+    const id = Number(tokenUtils.getId());
+    setPerfil(tokenUtils.isAdmin() ? 'Administrador' : 'Funcionário');
+    Promise.all([userService.getById(id), userService.getContrato(id)])
+      .then(([u, c]) => {
+        if (u.usuario) setUsuario({ ...u.usuario, fotoPerfil: comPrefixo(u.usuario.fotoPerfil) });
+        setContrato(c.contrato ?? null);
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar perfil:', error);
+        showErrorToast('Não foi possível carregar seus dados');
+      });
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      [name]: name === 'telefone' || name === 'idCargo' || name === 'idJornada' 
-        ? Number(value) 
-        : value
-    }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setPreviewImage(result);
-        setUserData(prev => ({
-          ...prev,
-          fotoPerfil: result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmUpdate = async () => {
+  const salvar = async (dados: UserData) => {
+    setSalvando(true);
     try {
-      setIsLoading(true);
-      const userId = tokenUtils.getId();
-      
-      if (!userId) {
-        showErrorToast("Usuário não encontrado");
-        return;
-      }
-
-      // Prepare data for submission
-      const dataToSend = { ...userData };
-
-      // Backend expects raw base64, so we remove the data URI prefix before sending
-      if (dataToSend.fotoPerfil && dataToSend.fotoPerfil.startsWith('data:image')) {
-        dataToSend.fotoPerfil = dataToSend.fotoPerfil.split(',')[1];
-      }
-
-      const response = await userService.update(dataToSend);
-      
-      if (response.sucesso) {
-        // Salvar a foto no localStorage para uso na NavBar
-        if (userData.fotoPerfil) {
-          localStorage.setItem('userProfilePhoto', userData.fotoPerfil);
-        }
-        showSuccessToast("Dados atualizados com sucesso!");
-      } else {
-        showErrorToast(response.mensagem || "Erro ao atualizar dados");
-      }
+      // A API espera a foto sem o prefixo data:
+      const foto = dados.fotoPerfil?.startsWith('data:image') ? dados.fotoPerfil.split(',')[1] : dados.fotoPerfil;
+      const response = await userService.update({ ...dados, fotoPerfil: foto });
+      if (!response.sucesso) throw new Error(response.mensagem || 'Erro ao salvar');
+      setUsuario(dados);
+      if (dados.fotoPerfil) localStorage.setItem('userProfilePhoto', dados.fotoPerfil);
+      showSuccessToast('Dados atualizados');
+      setEditando(false);
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
-      showErrorToast("Erro ao atualizar dados do usuário");
+      showErrorToast('Não foi possível salvar. Tente de novo.');
     } finally {
-      setIsLoading(false);
-      setIsModalOpen(false);
+      setSalvando(false);
+      setConfirmar(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const trocarFoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arquivo = e.target.files?.[0];
+    if (!arquivo || !usuario) return;
+    const leitor = new FileReader();
+    leitor.onload = () => salvar({ ...usuario, fotoPerfil: leitor.result as string });
+    leitor.readAsDataURL(arquivo);
+    e.target.value = '';
   };
 
-  if (isLoading && !userData.nome) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (!usuario) {
+    return <p className="py-16 text-center text-sm text-muted">Carregando seu perfil…</p>;
   }
 
+  const horas = contrato?.qtdHorasDiarias ?? null;
+  const dadosContrato = [
+    { rotulo: 'Matrícula', valor: String(usuario.idUsuario).padStart(6, '0'), mono: true },
+    { rotulo: 'Cargo', valor: contrato?.nomeCargo ?? '—' },
+    { rotulo: 'Salário', valor: contrato ? formatMoeda(contrato.salario) : '—' },
+    { rotulo: 'Carga diária', valor: horas ? `${horas}h` : '—' },
+    { rotulo: 'Carga semanal', valor: horas ? `${horas * 5}h` : '—' },
+    { rotulo: 'Admissão', valor: contrato?.dataCadastro ? formatDate(contrato.dataCadastro) : '—' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r bg-primary px-6 py-8 text-white">
-            <h1 className="text-3xl font-bold">Meu perfil</h1>
-            <p className="text-indigo-100 mt-2">Gerencie suas informações pessoais</p>
+    <div className="grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <section className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card">
+        <div className="h-[88px] bg-primary" />
+        <div className="-mt-12 flex flex-col items-center gap-3 px-6 pb-6 text-center">
+          <div className="relative">
+            <Avatar nome={usuario.nome} foto={usuario.fotoPerfil} tamanho="xl" className="border-4 border-white" />
+            <button
+              type="button"
+              onClick={() => arquivoRef.current?.click()}
+              disabled={salvando}
+              aria-label="Trocar foto"
+              className="absolute bottom-0.5 right-0 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_4px_rgba(0,0,0,.15)] hover:bg-primary-soft"
+            >
+              <Camera className="h-[15px] w-[15px]" />
+            </button>
+            <input ref={arquivoRef} type="file" accept="image/*" className="hidden" onChange={trocarFoto} />
           </div>
+          <div className="flex flex-col gap-0.5">
+            <h1 className="text-[19px] font-bold">{usuario.nome}</h1>
+            <p className="text-sm text-muted">{contrato?.nomeCargo}</p>
+          </div>
+          <ul className="flex w-full flex-col gap-2 border-t border-surface-2 pt-3 text-left text-[13px]">
+            <li className="flex items-center gap-2.5 break-all"><Mail className="h-[15px] w-[15px] shrink-0 text-muted" />{usuario.email}</li>
+            <li className="flex items-center gap-2.5"><Phone className="h-[15px] w-[15px] shrink-0 text-muted" />{formatTelefone(usuario.telefone)}</li>
+            <li className="flex items-center gap-2.5"><ShieldCheck className="h-[15px] w-[15px] shrink-0 text-muted" />Entrou como {perfil}</li>
+          </ul>
+          {!editando && (
+            <button
+              type="button"
+              onClick={() => {
+                setRascunho(usuario);
+                setEditando(true);
+              }}
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-[10px] border border-line text-[13px] font-semibold hover:bg-background"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Editar dados pessoais
+            </button>
+          )}
+        </div>
+      </section>
 
-          <div className="p-6 lg:p-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Foto de Perfil */}
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative group">
-                  <div
-                    className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 cursor-pointer group-hover:border-primary/40 transition-all duration-300 shadow-lg bg-gray-200 flex items-center justify-center"
-                    onClick={handleImageClick}
-                  >
-                    {previewImage ? (
-                      <img
-                        key={previewImage}
-                        src={previewImage}
-                        alt="Foto de perfil"
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover absolute z-10 rounded-full
-                        border-4 border-primary"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <svg className="w-24 h-24 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div 
-                    onClick={handleImageClick}
-                    className="absolute inset-0 bg-gray-500 bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer">
-                    <svg className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
+      <div className="flex flex-col gap-5">
+        {editando && rascunho && (
+          <Cartao titulo="Dados pessoais">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setConfirmar(true);
+              }}
+              className="flex flex-col gap-5"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input id="nome" label="Nome completo" value={rascunho.nome} onChange={(e) => setRascunho({ ...rascunho, nome: e.target.value })} />
+                <Input
+                  id="dataNascimento"
+                  label="Data de nascimento"
+                  type="date"
+                  value={rascunho.dataNascimento?.split('T')[0] ?? ''}
+                  onChange={(e) => setRascunho({ ...rascunho, dataNascimento: e.target.value })}
                 />
-                <button
-                  type="button"
-                  onClick={handleImageClick}
-                  className="text-sm text-primary hover:text-primary font-medium transition-colors duration-200 cursor-pointer"
-                >
-                  Alterar foto
-                </button>
+                <Input id="email" label="E-mail" type="email" value={rascunho.email} onChange={(e) => setRascunho({ ...rascunho, email: e.target.value })} />
+                <Input
+                  id="telefone"
+                  label="Telefone (só números, com DDD)"
+                  type="tel"
+                  inputMode="numeric"
+                  value={rascunho.telefone || ''}
+                  onChange={(e) => setRascunho({ ...rascunho, telefone: Number(e.target.value.replace(/\D/g, '')) })}
+                />
               </div>
-
-              {/* Informações Contratuais */}
-              <div className="mb-8">
-                <ContractualInfo userId={userData.idUsuario} />
-              </div>
-
-              {/* Informações Pessoais */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="nome" className="block text-sm font-semibold text-gray-700">
-                    Nome Completo
-                  </label>
-                  <input
-                    type="text"
-                    name="nome"
-                    id="nome"
-                    value={userData.nome}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
-                    placeholder="Digite seu nome completo"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="dataNascimento" className="block text-sm font-semibold text-gray-700">
-                    Data de Nascimento
-                  </label>
-                  <input
-                    type="date"
-                    name="dataNascimento"
-                    id="dataNascimento"
-                    value={userData.dataNascimento.split('T')[0]}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    value={userData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
-                    placeholder="seu@email.com"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="telefone" className="block text-sm font-semibold text-gray-700">
-                    Telefone
-                  </label>
-                  <input
-                    type="tel"
-                    name="telefone"
-                    id="telefone"
-                    value={userData.telefone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white placeholder-gray-700 text-gray-700"
-                    placeholder="(11) 99999-9999"
-                  />
-                </div>
-              </div>
-
-              {/* Senha: a API não altera a senha pelo cadastro; a troca é pelo fluxo com código */}
-              <div className="space-y-2">
-                <p className="block text-sm font-semibold text-gray-700">Senha</p>
-                <p className="text-sm text-gray-600">
-                  Para trocar a senha,{' '}
-                  <Link href="/forgot-password" className="text-primary hover:underline">
-                    receba um código no seu e-mail
-                  </Link>
-                  .
-                </p>
-              </div>
-
-              {/* Botões */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex-1 sm:flex-none px-8 py-3 text-white font-semibold rounded-lg cursor-pointer opacity-80
-                   hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all 
-                   duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg bg-primary"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Salvando...
-                    </div>
-                  ) : (
-                    'Salvar Alterações'
-                  )}
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => window.history.back()}
-                  className="flex-1 sm:flex-none px-8 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg cursor-pointer opacity-80
-                  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
-                >
-                  Cancelar
-                </button>
+              <div className="flex flex-wrap justify-end gap-3">
+                <Button text="Cancelar" fullWidth={false} backgroundColor="bg-white" textColor="text-foreground" className="border border-line" onClick={() => setEditando(false)} />
+                <Button text="Salvar alterações" type="submit" fullWidth={false} isLoading={salvando} />
               </div>
             </form>
+          </Cartao>
+        )}
+
+        <Cartao
+          titulo={
+            <span className="flex flex-col gap-0.5">
+              <span className="text-[17px]">Informações contratuais</span>
+              <span className="text-[13px] font-normal text-muted">Mantidas pelo RH. Para corrigir algo, fale com o RH.</span>
+            </span>
+          }
+          className="gap-5"
+        >
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-3">
+            {dadosContrato.map((d) => (
+              <div key={d.rotulo} className="flex flex-col gap-1 border-b border-surface-2 pb-3.5">
+                <dt className="text-xs font-semibold text-muted">{d.rotulo}</dt>
+                <dd className={`text-[15px] font-semibold ${d.mono ? 'font-mono' : ''}`}>{d.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        </Cartao>
+
+        <Cartao
+          titulo={<span className="text-[17px]">Jornada{horas ? ` · ${horas}h por dia` : ''}</span>}
+          acao={<span className="text-[13px] text-muted">Segunda a sexta</span>}
+        >
+          <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {ETAPAS_DO_DIA.map((etapa) => (
+              <li key={etapa.tipo} className="flex flex-col gap-1 rounded-xl bg-primary-tint px-4 py-3.5">
+                <span className="flex items-center gap-1.5 text-xs text-muted">
+                  {etapa.icone('h-3.5 w-3.5')}
+                  {etapa.label}
+                </span>
+                <span className="font-mono text-xl font-semibold text-primary">{etapa.referencia}</span>
+              </li>
+            ))}
+          </ul>
+        </Cartao>
+
+        <section className="flex flex-wrap items-center gap-4 rounded-2xl bg-white px-6 py-5 shadow-card">
+          <span className="flex h-[42px] w-[42px] items-center justify-center rounded-[11px] bg-primary-soft text-primary">
+            <KeyRound className="h-[19px] w-[19px]" />
+          </span>
+          <div className="flex flex-1 flex-col gap-0.5">
+            <b className="text-[15px]">Senha</b>
+            <span className="text-[13px] text-muted">A troca é feita com um código enviado ao seu e-mail.</span>
           </div>
-        </div>
+          <Link href="/forgot-password" className="flex h-10 items-center rounded-[10px] border border-line px-4 text-[13px] font-semibold hover:bg-background">
+            Alterar senha
+          </Link>
+        </section>
       </div>
-    
+
       <ConfirmationModal
-        isOpen={isModalOpen}
-        onCancel={handleCloseModal}
-        onConfirm={handleConfirmUpdate}
-        title="Confirmar Atualização"
-        message="Tem certeza que deseja atualizar seus dados?"
-        confirmText="Confirmar"
+        isOpen={confirmar}
+        onCancel={() => setConfirmar(false)}
+        onConfirm={() => rascunho && salvar(rascunho)}
+        loading={salvando}
+        title="Salvar alterações?"
+        message="Seus dados pessoais serão atualizados."
+        confirmText="Salvar"
         cancelText="Cancelar"
       />
     </div>
   );
-} 
+}
