@@ -37,6 +37,8 @@ export interface EventoCalendario {
   /** Vira a classe CSS do evento (feriado, ferias, minhas-ferias…) */
   desc: string;
   allDay?: boolean;
+  /** Texto do comunicado, mostrado ao abrir o evento */
+  descricao?: string;
 }
 
 /**

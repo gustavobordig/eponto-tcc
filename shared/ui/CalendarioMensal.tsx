@@ -39,10 +39,13 @@ export default function CalendarioMensal({
   eventos,
   data,
   onDataChange,
+  onEventoClick,
 }: {
   eventos: EventoCalendario[];
   data: Date;
   onDataChange: (data: Date) => void;
+  /** Abre os detalhes do evento */
+  onEventoClick?: (evento: EventoCalendario) => void;
 }) {
   const [visao, setVisao] = useState<Visao>('mes');
   const hoje = new Date();
@@ -110,7 +113,13 @@ export default function CalendarioMensal({
                     {format(e.start, 'dd/MM')}
                     {!isSameDay(fim, e.start) && ` – ${format(fim, 'dd/MM')}`}
                   </span>
-                  <span className={`rounded-[5px] px-2 py-1 text-xs font-semibold ${corDe(e.desc).chip}`}>{e.title}</span>
+                  <button
+                    type="button"
+                    onClick={() => onEventoClick?.(e)}
+                    className={`rounded-[5px] px-2 py-1 text-left text-xs font-semibold hover:brightness-95 ${corDe(e.desc).chip}`}
+                  >
+                    {e.title}
+                  </button>
                 </li>
               );
             })}
@@ -141,9 +150,15 @@ export default function CalendarioMensal({
                     {format(dia, 'dd')}
                   </span>
                   {evs.slice(0, visao === 'semana' ? 8 : 2).map((e) => (
-                    <span key={e.id} title={e.title} className={`truncate rounded-[5px] px-1.5 py-[3px] text-[11px] font-semibold ${corDe(e.desc).chip}`}>
+                    <button
+                      key={e.id}
+                      type="button"
+                      title={e.title}
+                      onClick={() => onEventoClick?.(e)}
+                      className={`truncate rounded-[5px] px-1.5 py-[3px] text-left text-[11px] font-semibold hover:brightness-95 ${corDe(e.desc).chip}`}
+                    >
                       {e.title}
-                    </span>
+                    </button>
                   ))}
                   {visao === 'mes' && evs.length > 2 && <span className="px-1 text-[11px] text-muted">+{evs.length - 2}</span>}
                 </div>

@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, startOfDay } from 'date-fns';
 import { comunicadoService, Comunicado } from '@/features/comunicados/api';
-import { EventoCalendario } from '@/shared/ui/Calendario';
+import { diaInteiro, EventoCalendario } from '@/shared/ui/Calendario';
 import Cartao from '@/shared/ui/Cartao';
+import DetalheEventoModal from '@/shared/ui/DetalheEventoModal';
 
 interface Item {
   chave: string;
@@ -12,6 +13,7 @@ interface Item {
   titulo: string;
   detalhe: string;
   cor: string;
+  evento: EventoCalendario;
 }
 
 const COR = {
@@ -26,6 +28,7 @@ const diaMes = (d: Date) => d.toLocaleDateString('pt-BR', { day: '2-digit', mont
 /** Os próximos três eventos: feriados, férias (da empresa e suas) e comunicados do RH. */
 export default function CardProximos({ eventos }: { eventos: EventoCalendario[] }) {
   const [comunicados, setComunicados] = useState<Comunicado[]>([]);
+  const [aberto, setAberto] = useState<EventoCalendario | null>(null);
 
   useEffect(() => {
     comunicadoService
@@ -42,12 +45,12 @@ export default function CardProximos({ eventos }: { eventos: EventoCalendario[] 
         const fim = addDays(e.end, -1);
         const periodo = fim > e.start ? `${diaMes(e.start)} a ${diaMes(fim)}` : diaMes(e.start);
         if (e.desc === 'minhas-ferias') {
-          return { chave: `mf-${e.id}`, data: e.start, titulo: 'Suas férias', detalhe: periodo, cor: COR['minhas-ferias'] };
+          return { chave: `mf-${e.id}`, data: e.start, titulo: 'Suas férias', detalhe: periodo, cor: COR['minhas-ferias'], evento: e };
         }
         if (e.desc === 'feriado') {
-          return { chave: `fe-${e.id}`, data: e.start, titulo: e.title, detalhe: 'Feriado', cor: COR.feriado };
+          return { chave: `fe-${e.id}`, data: e.start, titulo: e.title, detalhe: 'Feriado', cor: COR.feriado, evento: e };
         }
-        return { chave: `fc-${e.id}`, data: e.start, titulo: e.title, detalhe: `Férias da empresa · ${periodo}`, cor: COR.ferias };
+        return { chave: `fc-${e.id}`, data: e.start, titulo: e.title, detalhe: `Férias da empresa · ${periodo}`, cor: COR.ferias, evento: e };
       });
     const doRh: Item[] = comunicados
       .filter((c) => new Date(c.datFimExibicao) >= hoje)
@@ -57,6 +60,13 @@ export default function CardProximos({ eventos }: { eventos: EventoCalendario[] 
         titulo: c.tituloComunicado,
         detalhe: `Comunicado do RH · ${c.dscComunicado}`,
         cor: COR.comunicado,
+        evento: {
+          id: `comunicado-${c.idComunicado}`,
+          title: c.tituloComunicado,
+          ...diaInteiro(new Date(c.datInicioExibicao)),
+          desc: 'comunicado',
+          descricao: c.dscComunicado,
+        },
       }));
     // Comunicados já em exibição aparecem com a data de hoje
     return [...doCalendario, ...doRh]
@@ -72,21 +82,28 @@ export default function CardProximos({ eventos }: { eventos: EventoCalendario[] 
       ) : (
         <ul className="flex flex-col gap-3.5">
           {itens.map((item) => (
-            <li key={item.chave} className="flex items-center gap-3">
-              <span className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[10px] leading-none ${item.cor}`}>
-                <b className="text-base">{String(item.data.getDate()).padStart(2, '0')}</b>
-                <span className="text-[10px] font-semibold uppercase">
-                  {item.data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
+            <li key={item.chave}>
+              <button
+                type="button"
+                onClick={() => setAberto(item.evento)}
+                className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-[10px] px-2 py-1 text-left hover:bg-background"
+              >
+                <span className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-[10px] leading-none ${item.cor}`}>
+                  <b className="text-base">{String(item.data.getDate()).padStart(2, '0')}</b>
+                  <span className="text-[10px] font-semibold uppercase">
+                    {item.data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
+                  </span>
                 </span>
-              </span>
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <b className="truncate text-sm">{item.titulo}</b>
-                <span className="truncate text-xs text-muted">{item.detalhe}</span>
-              </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <b className="truncate text-sm">{item.titulo}</b>
+                  <span className="truncate text-xs text-muted">{item.detalhe}</span>
+                </span>
+              </button>
             </li>
           ))}
         </ul>
       )}
+      <DetalheEventoModal evento={aberto} onClose={() => setAberto(null)} />
     </Cartao>
   );
 }

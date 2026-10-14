@@ -11,6 +11,7 @@ import { tokenUtils } from '@/shared/lib/token';
 import { diaInteiro, EventoCalendario } from '@/shared/ui/Calendario';
 import CalendarioMensal, { COR_EVENTO } from '@/shared/ui/CalendarioMensal';
 import Cartao from '@/shared/ui/Cartao';
+import DetalheEventoModal from '@/shared/ui/DetalheEventoModal';
 
 /** Dias de férias por período aquisitivo (CLT) */
 const DIAS_POR_PERIODO = 30;
@@ -23,6 +24,7 @@ export default function CalendarioPage() {
   const [saldoFerias, setSaldoFerias] = useState<number | null>(null);
   const [data, setData] = useState(() => new Date());
   const [isFeriasModalOpen, setIsFeriasModalOpen] = useState(false);
+  const [aberto, setAberto] = useState<EventoCalendario | null>(null);
 
   useEffect(() => {
     comunicadoService
@@ -35,6 +37,7 @@ export default function CalendarioPage() {
             // No calendário, o comunicado aparece no dia em que começa a ser exibido
             ...diaInteiro(new Date(c.datInicioExibicao)),
             desc: 'comunicado',
+            descricao: c.dscComunicado,
           }))
         )
       )
@@ -58,14 +61,14 @@ export default function CalendarioPage() {
           const dias = differenceInCalendarDays(e.end, e.start);
           const quando = isSameDay(fim, e.start) ? diaCurto(e.start) : `${format(e.start, 'dd')} a ${format(fim, 'dd/MM')} · ${dias} dias`;
           const tipo = { feriado: 'Feriado', ferias: 'Férias da empresa', comunicado: 'Comunicado' }[e.desc];
-          return { chave: `${e.id}-${e.start.getTime()}`, titulo: e.title, detalhe: tipo ? `${tipo} · ${quando}` : quando, cor: (COR_EVENTO[e.desc] ?? COR_EVENTO.comunicado).ponto };
+          return { evento: e, chave: `${e.id}-${e.start.getTime()}`, titulo: e.title, detalhe: tipo ? `${tipo} · ${quando}` : quando, cor: (COR_EVENTO[e.desc] ?? COR_EVENTO.comunicado).ponto };
         }),
     [todos, data]
   );
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-      <CalendarioMensal eventos={todos} data={data} onDataChange={setData} />
+      <CalendarioMensal eventos={todos} data={data} onDataChange={setData} onEventoClick={setAberto} />
 
       <aside className="flex flex-col gap-4">
         <button
@@ -99,12 +102,18 @@ export default function CalendarioPage() {
           ) : (
             <ul className="flex flex-col gap-3.5">
               {nesteMes.map((item) => (
-                <li key={item.chave} className="flex items-start gap-2.5">
-                  <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-[2px] ${item.cor}`} aria-hidden />
-                  <span className="flex min-w-0 flex-col gap-px">
-                    <b className="truncate text-[13px]">{item.titulo}</b>
-                    <span className="text-xs text-muted">{item.detalhe}</span>
-                  </span>
+                <li key={item.chave}>
+                  <button
+                    type="button"
+                    onClick={() => setAberto(item.evento)}
+                    className="-mx-2 flex w-[calc(100%+1rem)] items-start gap-2.5 rounded-lg px-2 py-1 text-left hover:bg-background"
+                  >
+                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-[2px] ${item.cor}`} aria-hidden />
+                    <span className="flex min-w-0 flex-col gap-px">
+                      <b className="truncate text-[13px]">{item.titulo}</b>
+                      <span className="text-xs text-muted">{item.detalhe}</span>
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -112,6 +121,7 @@ export default function CalendarioPage() {
         </Cartao>
       </aside>
 
+      <DetalheEventoModal evento={aberto} onClose={() => setAberto(null)} />
       <FeriasModal isOpen={isFeriasModalOpen} onClose={() => setIsFeriasModalOpen(false)} onSuccess={recarregar} />
     </div>
   );
