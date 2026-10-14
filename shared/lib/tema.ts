@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-/** Preferência de tema: claro, escuro ou seguir o sistema (padrão). */
+/** Preferência de tema: claro (padrão), escuro ou seguir o sistema. */
 export type Tema = 'claro' | 'escuro' | 'sistema';
 
 const CHAVE = 'tema';
@@ -11,14 +11,15 @@ const CHAVE = 'tema';
  * Roda no <head>, antes da primeira pintura, para a página já abrir no tema
  * certo (sem piscar o claro). Mantém a mesma regra de aplicarTema.
  */
-export const SCRIPT_TEMA = `try{var t=localStorage.getItem('${CHAVE}');if(t==='escuro'||(t!=='claro'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
+export const SCRIPT_TEMA = `try{var t=localStorage.getItem('${CHAVE}');if(t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
 
+// Sem escolha salva, o app abre no claro
 const lerTema = (): Tema => {
   try {
     const t = localStorage.getItem(CHAVE);
-    return t === 'claro' || t === 'escuro' ? t : 'sistema';
+    return t === 'escuro' || t === 'sistema' ? t : 'claro';
   } catch {
-    return 'sistema';
+    return 'claro';
   }
 };
 
@@ -31,7 +32,7 @@ function aplicarTema(tema: Tema) {
 
 /** Tema atual e como trocar; no modo sistema, acompanha a troca do sistema operacional. */
 export function useTema() {
-  const [tema, setTemaEstado] = useState<Tema>('sistema');
+  const [tema, setTemaEstado] = useState<Tema>('claro');
 
   useEffect(() => {
     setTemaEstado(lerTema());
@@ -47,7 +48,7 @@ export function useTema() {
 
   const setTema = useCallback((novo: Tema) => {
     try {
-      if (novo === 'sistema') localStorage.removeItem(CHAVE);
+      if (novo === 'claro') localStorage.removeItem(CHAVE);
       else localStorage.setItem(CHAVE, novo);
     } catch {
       // Sem armazenamento (aba anônima bloqueada): vale só nesta visita
