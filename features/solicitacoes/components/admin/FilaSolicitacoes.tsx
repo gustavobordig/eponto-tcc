@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format, isToday, isYesterday } from 'date-fns';
-import { Check, Inbox, Paperclip, X } from 'lucide-react';
+import { Check, Inbox, Paperclip, X, MessageSquare } from 'lucide-react';
 import { useFilaAprovacao, usePessoas } from '@/features/solicitacoes/hooks/useFilaAprovacao';
 import { Pedido, TipoPedido } from '@/features/solicitacoes/pedidos';
 import Avatar from '@/shared/ui/Avatar';
@@ -75,6 +75,8 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
   const [tipo, setTipo] = useState<TipoPedido | null>(null);
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [respondendo, setRespondendo] = useState<string | null>(null);
+  // Comentário opcional para o funcionário, só no pedido em destaque
+  const [comentario, setComentario] = useState('');
 
   const daTela = useMemo(() => pedidos.filter((p) => !tipos || tipos.includes(p.tipo)), [pedidos, tipos]);
   const daAba = useMemo(() => daTela.filter((p) => p.situacao === aba), [daTela, aba]);
@@ -87,11 +89,14 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
   const pendentes = daTela.filter((p) => p.situacao === 'analise').length;
 
   const destaque = visiveis.find((p) => p.chave === selecionado) ?? visiveis[0];
+  const chaveDestaque = destaque?.chave;
+  useEffect(() => setComentario(''), [chaveDestaque]);
   const resto = visiveis.filter((p) => p !== destaque);
 
-  const responder = async (pedido: PedidoNaFila, aprovar: boolean) => {
+  const responder = async (pedido: PedidoNaFila, aprovar: boolean, texto?: string) => {
     setRespondendo(pedido.chave);
-    await decidir(pedido, aprovar);
+    const ok = await decidir(pedido, aprovar, texto);
+    if (ok && texto) setComentario('');
     setRespondendo(null);
   };
 
@@ -211,11 +216,22 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
             )}
 
             {destaque.situacao === 'analise' ? (
-              <div className="flex flex-wrap justify-end gap-2.5">
+              <div className="flex flex-wrap items-center justify-end gap-2.5">
+                <label className="min-w-[220px] flex-1">
+                  <span className="sr-only">Comentário para o funcionário (opcional)</span>
+                  <input
+                    type="text"
+                    value={comentario}
+                    onChange={(e) => setComentario(e.target.value)}
+                    maxLength={500}
+                    placeholder="Comentário para o funcionário (opcional)"
+                    className="h-11 w-full rounded-[10px] border border-line-strong bg-surface px-3.5 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft"
+                  />
+                </label>
                 <button
                   type="button"
                   disabled={respondendo !== null}
-                  onClick={() => responder(destaque, false)}
+                  onClick={() => responder(destaque, false, comentario)}
                   className="flex h-11 items-center gap-1.5 rounded-[10px] border border-line bg-surface px-[18px] text-sm font-bold text-danger hover:bg-danger-soft disabled:opacity-50"
                 >
                   <X className="h-4 w-4" />
@@ -224,7 +240,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
                 <button
                   type="button"
                   disabled={respondendo !== null}
-                  onClick={() => responder(destaque, true)}
+                  onClick={() => responder(destaque, true, comentario)}
                   className="flex h-11 items-center gap-1.5 rounded-[10px] bg-primary px-5 text-sm font-bold text-white hover:bg-primary-dark disabled:opacity-50"
                 >
                   <Check className="h-4 w-4" />
@@ -232,7 +248,15 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
                 </button>
               </div>
             ) : (
-              <StatusPill situacao={destaque.situacao} className="w-fit" />
+              <div className="flex flex-col gap-2.5">
+                <StatusPill situacao={destaque.situacao} className="w-fit" />
+                {destaque.resposta && (
+                  <p className="flex items-start gap-2 rounded-[10px] bg-surface-2 px-3.5 py-2.5 text-sm text-ink-2">
+                    <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
+                    {destaque.resposta}
+                  </p>
+                )}
+              </div>
             )}
           </article>
 

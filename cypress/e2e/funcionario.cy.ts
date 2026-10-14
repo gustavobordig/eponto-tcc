@@ -80,6 +80,7 @@ describe('Área do funcionário', () => {
           idSolicitacaoAusencia: status + 1, idUsuario: 1, mensagemSolicitacao: `Pedido ${status}`,
           dataInicioAusencia: '2026-10-10T00:00:00', dataFimAusencia: '2026-10-10T00:00:00',
           statusSolicitacao: status, dataSolicitacao: '2026-10-05T00:00:00',
+          observacaoResposta: status === 2 ? 'Nesse dia temos a auditoria.' : null,
         })),
       },
     });
@@ -88,7 +89,8 @@ describe('Área do funcionário', () => {
     // Lista única de pedidos (ausências, ajustes e férias); 0 aparece como "Em análise"
     cy.contains('li', 'Pedido 0').should('contain', 'Em análise');
     cy.contains('li', 'Pedido 1').should('contain', 'Aprovada');
-    cy.contains('li', 'Pedido 2').should('contain', 'Reprovada');
+    cy.contains('li', 'Pedido 2').should('contain', 'Reprovada').and('contain', 'Nesse dia temos a auditoria.');
+    cy.contains('li', 'Pedido 1').should('not.contain', 'auditoria');
   });
 
   it('vê a resposta do feedback pela rota dos próprios feedbacks', () => {

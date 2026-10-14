@@ -34,10 +34,12 @@ export interface SolicitacaoAlteracao {
   dataRegistroAlteracao: string;
   /** Quando o pedido foi feito */
   dataSolicitacao?: string;
+  /** Comentário de quem aprovou ou reprovou */
+  observacaoResposta?: string | null;
   itens: ItemRegistro[];
 }
 
-export type NovaSolicitacaoAlteracao = Omit<SolicitacaoAlteracao, 'idSolicitacao' | 'statusSolicitacao' | 'dataSolicitacao'>;
+export type NovaSolicitacaoAlteracao = Omit<SolicitacaoAlteracao, 'idSolicitacao' | 'statusSolicitacao' | 'dataSolicitacao' | 'observacaoResposta'>;
 
 export type RegistroPontoResponse = ApiResponse<{ registros?: RegistroPonto[] | null }>;
 export type SolicitacaoAlteracaoResponse = ApiResponse<{ solicitacoes?: SolicitacaoAlteracao[] | null }>;
@@ -62,6 +64,6 @@ export const registroPontoService = {
   listarSolicitacoesAlteracao: async () =>
     (await api.get<SolicitacaoAlteracaoResponse>('/api/RegistroPonto/ListarSolicitacoesAlteracao')).data,
 
-  validarSolicitacao: async (idSolicitacao: number, aprovado: boolean) =>
-    (await api.post<ApiResponse>(`/api/RegistroPonto/ValidarSolicitacao/${idSolicitacao}`, { aprovado })).data,
+  validarSolicitacao: async (idSolicitacao: number, aprovado: boolean, comentario?: string) =>
+    (await api.post<ApiResponse>(`/api/RegistroPonto/ValidarSolicitacao/${idSolicitacao}`, { aprovado, comentario: comentario || null })).data,
 };

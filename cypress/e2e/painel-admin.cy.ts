@@ -173,6 +173,22 @@ describe('Painel admin', () => {
       cy.wait('@decidir').its('request.url').should('include', 'idSolicitacao=4').and('include', 'indSituacao=2');
     });
 
+    it('envia o comentário opcional junto com a decisão', () => {
+      cy.intercept('POST', '**/api/Ferias/AtualizaSolicitacaoFerias*', { body: { sucesso: true, mensagem: null } }).as('decidir');
+      cy.intercept('PUT', '**/api/SolicitacaoAusencia/ResponderSolicitacao/*', { body: { sucesso: true, mensagem: null } }).as('responder');
+      cy.visit('/dashboard/solicitacoes');
+
+      // Ausência em destaque: com comentário
+      cy.get('article input[placeholder^="Comentário"]').type('Nesse dia temos a auditoria.');
+      cy.get('article').contains('button', 'Reprovar').click();
+      cy.wait('@responder').its('request.url').should('include', 'aprovar=false').and('include', 'comentario=Nesse');
+
+      // Férias: sem comentário, o parâmetro nem vai
+      cy.contains('button', 'Férias · 1').click();
+      cy.get('article').contains('button', 'Aprovar').click();
+      cy.wait('@decidir').its('request.url').should('include', 'indSituacao=1').and('not.include', 'comentario');
+    });
+
     it('mostra as já respondidas na aba Aprovadas, sem aprovar/reprovar', () => {
       cy.visit('/dashboard/solicitacoes');
       cy.contains('[role=tab]', 'Aprovadas').click();

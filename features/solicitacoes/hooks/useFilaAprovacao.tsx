@@ -16,7 +16,8 @@ interface FilaAprovacao {
   falhou: boolean;
   /** Pendentes por rota: alimenta os contadores do menu */
   pendentes: { total: number; ajustes: number };
-  decidir: (pedido: Pedido, aprovar: boolean) => Promise<boolean>;
+  /** Aprova ou reprova, com um comentário opcional para o funcionário */
+  decidir: (pedido: Pedido, aprovar: boolean, comentario?: string) => Promise<boolean>;
   recarregar: () => Promise<void>;
 }
 
@@ -63,13 +64,14 @@ export function FilaAprovacaoProvider({ children }: { children: ReactNode }) {
   }, [recarregar]);
 
   const decidir = useCallback(
-    async (pedido: Pedido, aprovar: boolean) => {
+    async (pedido: Pedido, aprovar: boolean, comentario?: string) => {
+      const texto = comentario?.trim() || undefined;
       try {
-        if (pedido.origem === 'ajuste') await registroPontoService.validarSolicitacao(pedido.id, aprovar);
+        if (pedido.origem === 'ajuste') await registroPontoService.validarSolicitacao(pedido.id, aprovar, texto);
         else if (pedido.origem === 'ausencia') {
-          const resposta = await solicitacaoAusenciaService.responderSolicitacao(pedido.id, aprovar);
+          const resposta = await solicitacaoAusenciaService.responderSolicitacao(pedido.id, aprovar, texto);
           if (!resposta.sucesso) throw new Error(resposta.mensagem ?? 'Falha ao responder');
-        } else await feriasService.atualizarStatusSolicitacao(pedido.id, aprovar ? 1 : 2);
+        } else await feriasService.atualizarStatusSolicitacao(pedido.id, aprovar ? 1 : 2, texto);
         showSuccessToast(MENSAGEM[pedido.origem][aprovar ? 0 : 1]);
         await recarregar();
         return true;

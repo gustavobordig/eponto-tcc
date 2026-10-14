@@ -32,6 +32,8 @@ export interface Pedido {
   situacao: Situacao;
   anexo?: string;
   observacao?: string;
+  /** Comentário de quem aprovou ou reprovou */
+  resposta?: string;
   campos: CampoPedido[];
 }
 
@@ -91,6 +93,7 @@ export function deAusencia(s: SolicitacaoAusencia): Pedido {
     situacao: situacaoDoStatus(s.statusSolicitacao),
     anexo: s.linkArquivo,
     observacao,
+    resposta: s.observacaoResposta ?? undefined,
     campos: [
       { rotulo: 'Início', valor: diaDaSemana(inicio) },
       { rotulo: 'Fim', valor: diaDaSemana(fim) },
@@ -115,6 +118,7 @@ export function deAjuste(s: SolicitacaoAlteracao): Pedido {
     enviadoEm: data(s.dataSolicitacao),
     situacao: situacaoDoStatus(s.statusSolicitacao),
     observacao: s.justificativa,
+    resposta: s.observacaoResposta ?? undefined,
     campos: [
       { rotulo: 'Dia', valor: diaDaSemana(new Date(s.dataRegistroAlteracao)) },
       ...s.itens.map((i) => ({ rotulo: etapa(i.idTipoRegistroPonto), valor: hora(i.horaRegistro), hora: true })),
@@ -136,6 +140,7 @@ export function deFerias(s: SolicitacaoFerias): Pedido {
     enviadoEm: data(s.datSolicitacaoFerias),
     situacao: situacaoDoStatus(s.indSituacao),
     observacao: s.dscObservacao,
+    resposta: s.observacaoResposta ?? undefined,
     campos: [
       { rotulo: 'Início', valor: diaDaSemana(inicio) },
       { rotulo: 'Fim', valor: diaDaSemana(fim) },

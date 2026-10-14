@@ -22,6 +22,8 @@ export interface SolicitacaoFerias {
   datSolicitacaoFerias: string;
   /** 0 pendente, 1 aprovada, 2 reprovada */
   indSituacao: number;
+  /** Comentário de quem aprovou ou reprovou */
+  observacaoResposta?: string | null;
 }
 
 export interface SaldoFerias {
@@ -72,8 +74,8 @@ export const feriasService = {
     return data.listarSolicitacoesFerias || [];
   },
 
-  atualizarStatusSolicitacao: async (idSolicitacao: number, indSituacao: number) =>
+  atualizarStatusSolicitacao: async (idSolicitacao: number, indSituacao: number, comentario?: string) =>
     (await api.post<ApiResponse>('/api/Ferias/AtualizaSolicitacaoFerias', null, {
-      params: { idSolicitacao, indSituacao },
+      params: { idSolicitacao, indSituacao, ...(comentario ? { comentario } : {}) },
     })).data,
 };

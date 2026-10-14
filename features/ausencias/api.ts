@@ -9,6 +9,8 @@ export interface SolicitacaoAusencia {
   dataFimAusencia: string;
   linkArquivo?: string;
   statusSolicitacao: number;
+  /** Comentário de quem aprovou ou reprovou */
+  observacaoResposta?: string | null;
   dataSolicitacao: string;
 }
 
@@ -54,10 +56,10 @@ export const solicitacaoAusenciaService = {
   },
 
   // Aprovar ou reprovar
-  responderSolicitacao: async (id: number, aprovar: boolean) =>
+  responderSolicitacao: async (id: number, aprovar: boolean, comentario?: string) =>
     (await api.put<SolicitacaoAusenciaResponse>(
       `/api/SolicitacaoAusencia/ResponderSolicitacao/${id}`,
       null,
-      { params: { aprovar } }
+      { params: { aprovar, ...(comentario ? { comentario } : {}) } }
     )).data,
 };

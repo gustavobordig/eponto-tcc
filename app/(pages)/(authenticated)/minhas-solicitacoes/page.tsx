@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CalendarOff, Clock, LucideIcon, Paperclip, Plane, Plus, Stethoscope } from 'lucide-react';
+import { CalendarOff, Clock, LucideIcon, Paperclip, Plane, Plus, Stethoscope, MessageSquare } from 'lucide-react';
 import { useAreaFuncionario } from '@/app/(pages)/(authenticated)/_components/AreaFuncionario';
 import NovaAusencia from '@/features/ausencias/components/NovaAusencia';
 import { TipoPedido } from '@/features/solicitacoes/pedidos';
@@ -108,6 +108,15 @@ export default function MinhasSolicitacoesPage() {
                     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <b className="text-sm">{p.titulo}</b>
                       <span className="truncate text-[13px] text-muted" title={p.observacao}>{p.detalhe}</span>
+                      {p.resposta && (
+                        <span className="mt-1 flex items-start gap-1.5 text-[13px] text-ink-2">
+                          <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+                          <span className="line-clamp-2">
+                            <span className="sr-only">Resposta do RH: </span>
+                            {p.resposta}
+                          </span>
+                        </span>
+                      )}
                     </div>
                     {p.anexo && (
                       <a href={p.anexo} target="_blank" rel="noreferrer" className="hidden items-center gap-1 text-xs font-semibold text-primary hover:underline sm:flex">
