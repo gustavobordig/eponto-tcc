@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
-import { ArrowLeft, ArrowRight, ChevronRight, Clock, Lock, Mail, ShieldCheck, WifiOff, AlertCircle } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, Lock, Mail, ShieldCheck, WifiOff, AlertCircle } from "lucide-react";
 import { authService, PerfilUsuario } from "@/features/auth/api";
 import { CONTAS_DEMO, DEMO_ATIVA } from "@/features/auth/demo";
 import PainelMarca from "@/features/auth/components/PainelMarca";
@@ -55,13 +55,13 @@ export default function Form() {
         }
     };
 
-    // 2ª etapa: pede o token com o perfil escolhido
-    const entrarComPerfil = async (idPerfil: number, credenciais = { email: formData.email, senha: formData.password }) => {
+    // 2ª etapa: pede o token com o perfil escolhido. Admin vai direto para o painel RH.
+    const entrarComPerfil = async (perfil: PerfilUsuario, credenciais = { email: formData.email, senha: formData.password }) => {
         try {
             setIsLoading(true);
             setErro(null);
-            await authService.autenticarPerfil(credenciais, idPerfil);
-            router.push('/home');
+            await authService.autenticarPerfil(credenciais, perfil.idPerfil);
+            router.push(ehAdmin(perfil) ? '/dashboard' : '/home');
         } catch (error: unknown) {
             mostrarErro(error);
             setIsLoading(false);
@@ -81,7 +81,7 @@ export default function Form() {
                 return;
             }
             if (perfisUsuario.length === 1) {
-                await entrarComPerfil(perfisUsuario[0].idPerfil, credenciais);
+                await entrarComPerfil(perfisUsuario[0], credenciais);
                 return;
             }
             setPerfis(perfisUsuario);
@@ -160,7 +160,7 @@ export default function Form() {
                                         key={perfil.idPerfil}
                                         type="button"
                                         disabled={isLoading}
-                                        onClick={() => entrarComPerfil(perfil.idPerfil)}
+                                        onClick={() => entrarComPerfil(perfil)}
                                         className="group flex items-center gap-4 rounded-[14px] border border-line p-5 text-left transition-colors hover:border-primary hover:bg-primary-tint disabled:opacity-60"
                                     >
                                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary transition-colors group-hover:bg-primary group-hover:text-white">
@@ -213,20 +213,18 @@ export default function Form() {
                                 autoComplete="current-password"
                                 placeholder="Digite sua senha"
                                 icon={<Lock />}
-                                labelAction={
-                                    <Link href="/forgot-password" className="text-[13px] font-semibold text-primary hover:text-primary-dark">
-                                        Esqueci minha senha
-                                    </Link>
-                                }
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
+                            <Link href="/forgot-password" className="-mt-1 self-end text-[13px] font-semibold text-primary hover:text-primary-dark">
+                                Esqueci minha senha
+                            </Link>
                         </div>
 
                         <Button
                             type="submit"
                             text="Entrar"
-                            icon={<ArrowRight className="h-[17px] w-[17px]" />}
+                            icon={<ChevronRight className="h-[17px] w-[17px]" />}
                             iconPosition="right"
                             className="h-[50px] text-[15px]"
                             isLoading={isLoading}

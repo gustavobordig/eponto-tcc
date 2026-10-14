@@ -48,6 +48,19 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* O Tailwind 4 deixou o cursor padrão nos botões; o que é clicável volta a ter a mãozinha */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+select:not(:disabled),
+summary,
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Foco visível para quem navega pelo teclado */
 :focus-visible {
   outline: 2px solid var(--color-primary);

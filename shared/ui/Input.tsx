@@ -14,8 +14,6 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   onInputChange?: (value: string) => void;
   regexErrorMessage?: string;
-  /** Link ou ação à direita do rótulo ("Esqueci minha senha") */
-  labelAction?: React.ReactNode;
 }
 
 const Input = ({
@@ -29,7 +27,6 @@ const Input = ({
   onInputChange,
   regex,
   regexErrorMessage = 'Valor inválido',
-  labelAction,
   type,
   ...props
 }: InputProps) => {
@@ -52,15 +49,10 @@ const Input = ({
 
   return (
     <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`}>
-      {(label || labelAction) && (
-        <div className="flex items-baseline justify-between gap-3">
-          {label && (
-            <label htmlFor={props.id} className={`text-[13px] font-semibold text-foreground ${labelClassName}`}>
-              {label}
-            </label>
-          )}
-          {labelAction}
-        </div>
+      {label && (
+        <label htmlFor={props.id} className={`text-[13px] font-semibold text-foreground ${labelClassName}`}>
+          {label}
+        </label>
       )}
 
       <div className="relative w-full">
