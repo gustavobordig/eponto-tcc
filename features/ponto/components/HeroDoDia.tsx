@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Fingerprint, MapPin } from 'lucide-react';
+import { formatarMinutos } from '@/shared/lib/format';
 import { ETAPAS_DO_DIA, minutosDeAtraso } from '@/features/ponto/etapas';
 import { usePontosDoDia } from '@/features/ponto/hooks/usePontosDoDia';
 import { useLocalizacao } from '@/features/ponto/hooks/useLocalizacao';
@@ -87,7 +88,8 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
           {ETAPAS_DO_DIA.map((etapa) => {
             const marcado = marcados.find((m) => m.etapa.tipo === etapa.tipo);
             const ehProxima = proxima?.tipo === etapa.tipo;
-            const atraso = marcado && minutosDeAtraso(etapa, marcado.hora) > TOLERANCIA_MIN;
+            const minutosAtraso = marcado ? minutosDeAtraso(etapa, marcado.hora) : 0;
+            const atraso = minutosAtraso > TOLERANCIA_MIN;
             return (
               <li key={etapa.tipo} className="relative flex flex-col items-center gap-2.5 text-center">
                 {marcado ? (
@@ -109,7 +111,7 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
                     {marcado?.hora ?? etapa.referencia}
                   </span>
                   <span className={`text-[11px] ${marcado ? (atraso ? 'text-[#ffc876]' : 'text-white/70') : ehProxima ? 'text-white' : 'text-white/50'}`}>
-                    {marcado ? (atraso ? 'Atraso' : 'Registrado') : ehProxima ? 'Próximo' : 'Previsto'}
+                    {marcado ? (atraso ? `Atraso de ${formatarMinutos(minutosAtraso)}` : 'Registrado') : ehProxima ? 'Próximo' : 'Previsto'}
                   </span>
                 </span>
               </li>
