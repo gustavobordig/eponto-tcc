@@ -22,7 +22,7 @@ export default function Cartao({
       acao
     );
   return (
-    <section className={`flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-card ${className}`}>
+    <section className={`flex flex-col gap-4 rounded-2xl bg-surface p-6 shadow-card ${className}`}>
       {(titulo || link) && (
         <div className="flex items-center justify-between gap-3">
           {titulo && <h2 className="text-[15px] font-bold">{titulo}</h2>}

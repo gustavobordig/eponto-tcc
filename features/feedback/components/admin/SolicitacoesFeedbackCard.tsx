@@ -16,15 +16,15 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
   const respondidas = solicitacoes.filter((s) => s.status === STATUS_RESPONDIDA).length;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 m-4 mb-6">
+    <div className="bg-surface rounded-lg shadow-sm p-6 m-4 mb-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
+          <div className="p-2 bg-primary-soft rounded-lg">
             <MessageSquare className="text-primary" size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Solicitações de Feedback</h1>
-            <p className="text-gray-600">Gerencie as solicitações de feedback dos usuários</p>
+            <h1 className="text-2xl font-bold text-foreground">Solicitações de Feedback</h1>
+            <p className="text-muted">Gerencie as solicitações de feedback dos usuários</p>
           </div>
         </div>
       </div>
@@ -37,23 +37,23 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
 
       {solicitacoes.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-line">
+            <thead className="bg-surface-2">
               <tr>
                 {COLUNAS.map((coluna) => (
-                  <th key={coluna} className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                  <th key={coluna} className="px-6 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                     {coluna}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-surface divide-y divide-line">
               {solicitacoes.map((solicitacao) => (
-                <tr key={solicitacao.idSolicitacaoFeedback} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr key={solicitacao.idSolicitacaoFeedback} className="hover:bg-surface-2 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {solicitacao.nomeUsuarioSolicitacao}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {formatDate(solicitacao.dataSolicitacao, true)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -61,7 +61,7 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
                       {getStatusLabel(solicitacao.status)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-foreground">
                     {truncateText(solicitacao.mensagemSolicitacao, 60)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -89,9 +89,9 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
         </div>
       ) : (
         <div className="text-center py-12">
-          <MessageSquare className="mx-auto text-gray-400" size={48} />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhuma solicitação encontrada</h3>
-          <p className="mt-2 text-gray-500">Não há solicitações de feedback para exibir.</p>
+          <MessageSquare className="mx-auto text-subtle" size={48} />
+          <h3 className="mt-4 text-lg font-medium text-foreground">Nenhuma solicitação encontrada</h3>
+          <p className="mt-2 text-muted">Não há solicitações de feedback para exibir.</p>
         </div>
       )}
     </div>
@@ -100,9 +100,9 @@ export default function SolicitacoesFeedbackCard({ solicitacoes, onView, onRespo
 
 // Classes completas por cor para o Tailwind encontrar no build
 const CORES = {
-  blue: ['bg-blue-50', 'text-primary', 'text-blue-900'],
-  yellow: ['bg-yellow-50', 'text-yellow-600', 'text-yellow-900'],
-  green: ['bg-green-50', 'text-green-600', 'text-green-900'],
+  blue: ['bg-primary-soft', 'text-primary', 'text-primary'],
+  yellow: ['bg-warn-soft', 'text-warn-ink', 'text-warn-ink'],
+  green: ['bg-ok-soft', 'text-ok-ink', 'text-ok-ink'],
 } as const;
 
 function Stat({ cor, label, valor }: { cor: keyof typeof CORES; label: string; valor: number }) {

@@ -32,7 +32,7 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
   const data = agora?.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).replace('-feira', '');
 
   return (
-    <section className="grid items-center gap-8 rounded-[18px] bg-primary px-6 py-7 text-white sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
+    <section className="grid items-center gap-8 rounded-[18px] bg-marca px-6 py-7 text-white sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
       <div className="flex flex-col gap-[18px]">
         <div className="flex flex-col gap-1">
           <p className="text-[15px] text-white/85" suppressHydrationWarning>
@@ -82,7 +82,7 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
 
         <ol className="relative grid grid-cols-4">
           <span className="absolute left-[12.5%] right-[12.5%] top-[21px] h-0.5 bg-white/18" aria-hidden />
-          <span className="absolute left-[12.5%] top-[21px] h-0.5 bg-white transition-[width] duration-400" style={{ width: `${progresso}%` }} aria-hidden />
+          <span className="absolute left-[12.5%] top-[21px] h-0.5 bg-surface transition-[width] duration-400" style={{ width: `${progresso}%` }} aria-hidden />
 
           {ETAPAS_DO_DIA.map((etapa) => {
             const marcado = marcados.find((m) => m.etapa.tipo === etapa.tipo);
@@ -95,7 +95,7 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
                     <Check className="h-5 w-5" />
                   </span>
                 ) : ehProxima ? (
-                  <span className="flex h-11 w-11 animate-[pulso_1.6s_infinite] items-center justify-center rounded-full border-2 border-white bg-primary">
+                  <span className="flex h-11 w-11 animate-[pulso_1.6s_infinite] items-center justify-center rounded-full border-2 border-white bg-marca">
                     {etapa.icone('h-[18px] w-[18px]')}
                   </span>
                 ) : (

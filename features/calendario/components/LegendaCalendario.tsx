@@ -7,7 +7,7 @@ const ITENS = [
 
 export default function LegendaCalendario({ semMinhasFerias = false }: { semMinhasFerias?: boolean }) {
   return (
-    <ul className="flex flex-wrap items-center gap-4 text-sm text-gray-600" aria-label="Legenda">
+    <ul className="flex flex-wrap items-center gap-4 text-sm text-muted" aria-label="Legenda">
       {ITENS.filter((i) => !(semMinhasFerias && i.label === 'Minhas férias')).map(({ cor, label }) => (
         <li key={label} className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: cor }} aria-hidden />

@@ -122,7 +122,7 @@ export default function Table<T extends object = TableRow>({
           <button
             type="button"
             onClick={() => handleEdit(item)}
-            className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-muted hover:bg-[#f1f2f6] hover:text-primary"
+            className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-muted hover:bg-surface-2 hover:text-primary"
           >
             <Pencil className="h-[15px] w-[15px]" />
             Editar
@@ -172,7 +172,7 @@ export default function Table<T extends object = TableRow>({
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder={searchPlaceholder}
-              className="h-[42px] w-full rounded-[10px] border border-line bg-white pl-10 pr-3.5 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft"
+              className="h-[42px] w-full rounded-[10px] border border-line bg-surface pl-10 pr-3.5 text-sm placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft"
             />
           </label>
           {filtros.map((f) => (
@@ -181,7 +181,7 @@ export default function Table<T extends object = TableRow>({
               <select
                 value={valoresFiltro[f.rotulo] ?? ""}
                 onChange={(e) => setValoresFiltro((v) => ({ ...v, [f.rotulo]: e.target.value }))}
-                className="h-[42px] appearance-none rounded-[10px] border border-line bg-white pl-3.5 pr-9 text-sm font-semibold focus:border-primary focus:outline-none"
+                className="h-[42px] appearance-none rounded-[10px] border border-line bg-surface pl-3.5 pr-9 text-sm font-semibold focus:border-primary focus:outline-none"
               >
                 <option value="">{f.rotulo}: todos</option>
                 {f.opcoes.map((o) => (
@@ -197,16 +197,16 @@ export default function Table<T extends object = TableRow>({
       )}
 
       {filtradas.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line-strong bg-white py-10 text-center text-sm text-muted">
+        <p className="rounded-2xl border border-dashed border-line-strong bg-surface py-10 text-center text-sm text-muted">
           {linhas.length === 0 ? `Nenhum registro em ${title.toLowerCase()}.` : busca ? `Nada encontrado para “${busca}”.` : "Nada com esses filtros."}
         </p>
       ) : (
         <>
           {/* Tabela a partir do tablet */}
-          <div className="hidden overflow-hidden rounded-2xl bg-white shadow-card md:block">
+          <div className="hidden overflow-hidden rounded-2xl bg-surface shadow-card md:block">
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-primary">
+                <thead className="bg-marca">
                   <tr>
                     {columns.map((column) => (
                       <th key={column.key} scope="col" className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[.4px] text-white first:pl-6">
@@ -222,7 +222,7 @@ export default function Table<T extends object = TableRow>({
                 </thead>
                 <tbody>
                   {filtradas.map((item, index) => (
-                    <tr key={(item as TableRow).id || `row-${index}`} className="border-b border-surface-2 last:border-b-0 hover:bg-[#eef1f8]">
+                    <tr key={(item as TableRow).id || `row-${index}`} className="border-b border-surface-2 last:border-b-0 hover:bg-surface-2">
                       {columns.map((column) => (
                         <td key={column.key} className="whitespace-nowrap px-4 py-3.5 text-sm first:pl-6">
                           {renderCell(item, column)}
@@ -239,7 +239,7 @@ export default function Table<T extends object = TableRow>({
           {/* No celular, cada linha vira um card; antes a tabela rolava de lado e escondia as ações */}
           <ul className="space-y-3 md:hidden">
             {filtradas.map((item, index) => (
-              <li key={(item as TableRow).id || `card-${index}`} className="rounded-2xl bg-white p-4 shadow-card">
+              <li key={(item as TableRow).id || `card-${index}`} className="rounded-2xl bg-surface p-4 shadow-card">
                 <dl className="space-y-1.5">
                   {columns.map((column) => (
                     <div key={column.key} className="flex justify-between gap-4 text-sm">

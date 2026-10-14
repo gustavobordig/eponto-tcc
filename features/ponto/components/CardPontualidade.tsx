@@ -10,9 +10,9 @@ const ESTILO: Record<SituacaoDia, string> = {
   ok: 'bg-ok text-white',
   atraso: 'bg-warn text-white',
   'sem-registro': 'bg-danger-soft text-danger-ink',
-  folga: 'bg-surface-2 text-[#a5aabd]',
+  folga: 'bg-surface-2 text-subtle',
   hoje: 'bg-primary-soft text-primary ring-1 ring-primary/30',
-  futuro: 'bg-surface-2 text-[#a5aabd]',
+  futuro: 'bg-surface-2 text-subtle',
 };
 
 const LEGENDA: [string, string][] = [

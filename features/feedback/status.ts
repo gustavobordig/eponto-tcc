@@ -6,10 +6,10 @@ export const getStatusLabel = (status: number) =>
 
 export const getStatusColor = (status: number) =>
   status === 0
-    ? 'bg-yellow-100 text-yellow-800'
+    ? 'bg-warn-soft text-warn-ink'
     : status === 1
-      ? 'bg-green-100 text-green-800'
-      : 'bg-gray-100 text-gray-800';
+      ? 'bg-ok-soft text-ok-ink'
+      : 'bg-surface-2 text-foreground';
 
 export const truncateText = (text: string | null | undefined, maxLength = 50) => {
   if (!text) return '';

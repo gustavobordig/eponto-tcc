@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   User,
 } from 'lucide-react';
+import SeletorTema from '@/shared/ui/SeletorTema';
 import Avatar from '@/shared/ui/Avatar';
 import Logo from '@/shared/ui/Logo';
 import ConfirmationModal from '@/shared/ui/ConfirmationModal';
@@ -84,7 +85,7 @@ export default function BarraFuncionario() {
   const nome = usuario?.nome ?? '';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#e6e8f0] bg-white">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface">
       <div className="mx-auto flex h-[60px] max-w-7xl items-center gap-3 px-4 sm:gap-5 sm:px-8">
         <Link href="/home" className="shrink-0" aria-label="Ir para o início">
           <Logo altura={24} />
@@ -99,7 +100,7 @@ export default function BarraFuncionario() {
             <span className={`h-2 w-2 rounded-full ${COR_STATUS[status.situacao].ponto}`} aria-hidden />
             {status.texto}
             {status.situacao !== 'nao-iniciado' && (
-              <span className="rounded-full bg-white px-2.5 py-1 font-mono text-xs" title="Trabalhado hoje">
+              <span className="rounded-full bg-surface px-2.5 py-1 font-mono text-xs" title="Trabalhado hoje">
                 {horasCurtas(status.minutosTrabalhados)}
               </span>
             )}
@@ -117,7 +118,7 @@ export default function BarraFuncionario() {
           </button>
         )}
 
-        <div ref={menuRef} className="relative border-l border-[#e6e8f0] pl-3 sm:pl-4">
+        <div ref={menuRef} className="relative border-l border-line pl-3 sm:pl-4">
           <button
             type="button"
             onClick={() => setMenuAberto((v) => !v)}
@@ -136,7 +137,7 @@ export default function BarraFuncionario() {
 
           {/* Menu do avatar (2e): perfil, painel RH e sair saem da barra */}
           {menuAberto && (
-            <div role="menu" className="absolute right-0 top-[calc(100%+10px)] w-[300px] rounded-xl bg-white p-2 shadow-[0_1px_2px_rgba(14,20,48,.06),0_12px_40px_rgba(14,20,48,.12)]">
+            <div role="menu" className="absolute right-0 top-[calc(100%+10px)] w-[300px] rounded-xl bg-surface p-2 shadow-[0_1px_2px_rgba(14,20,48,.06),0_12px_40px_rgba(14,20,48,.12)]">
               <div className="flex items-center gap-3 p-3">
                 <Avatar nome={nome} foto={usuario?.foto} />
                 <div className="flex min-w-0 flex-col leading-tight">
@@ -155,6 +156,11 @@ export default function BarraFuncionario() {
                   <ArrowRight className="h-[15px] w-[15px] text-primary" />
                 </Link>
               )}
+              <div className="my-1 h-px bg-surface-2" />
+              <div className="flex flex-col gap-2 px-3 py-2">
+                <span className="text-xs font-semibold text-muted">Tema</span>
+                <SeletorTema />
+              </div>
               <div className="my-1 h-px bg-surface-2" />
               <button
                 role="menuitem"

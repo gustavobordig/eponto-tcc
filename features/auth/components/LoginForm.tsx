@@ -116,7 +116,7 @@ export default function Form() {
     const inicial = formData.email.trim()[0]?.toUpperCase() ?? '?';
 
     return (
-        <div className="grid min-h-screen bg-white md:grid-cols-2">
+        <div className="grid min-h-screen bg-surface md:grid-cols-2">
             {escolhendoPerfil ? (
                 <PainelMarca>
                     <div className="flex flex-col gap-4">

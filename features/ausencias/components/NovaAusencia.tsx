@@ -77,7 +77,7 @@ export default function NovaAusencia({ onEnviado, onFechar }: Props) {
   };
 
   return (
-    <section className="flex flex-col gap-[18px] rounded-2xl bg-white p-6 shadow-[0_8px_30px_rgba(14,20,48,.08)]" aria-labelledby="titulo-nova-ausencia">
+    <section className="flex flex-col gap-[18px] rounded-2xl bg-surface p-6 shadow-[0_8px_30px_rgba(14,20,48,.08)]" aria-labelledby="titulo-nova-ausencia">
       <div className="flex items-center justify-between">
         <h2 id="titulo-nova-ausencia" className="text-[17px] font-bold">Novo pedido de ausência</h2>
         {onFechar && (
@@ -124,7 +124,7 @@ export default function NovaAusencia({ onEnviado, onFechar }: Props) {
             setArrastando(false);
             escolherArquivo(e.dataTransfer.files[0]);
           }}
-          className={`flex flex-col items-center gap-1.5 rounded-xl border-[1.5px] border-dashed p-5 text-center ${arrastando ? 'border-primary bg-primary-tint' : erros.arquivo ? 'border-danger bg-[#fff5f4]' : 'border-[#c7ccda] bg-[#fafbfd]'}`}
+          className={`flex flex-col items-center gap-1.5 rounded-xl border-[1.5px] border-dashed p-5 text-center ${arrastando ? 'border-primary bg-primary-tint' : erros.arquivo ? 'border-danger bg-danger-soft/50' : 'border-line-strong bg-surface-2/50'}`}
         >
           {arquivo ? (
             <>

@@ -104,7 +104,7 @@ const EditModal: React.FC<EditModalProps> = ({
   const erro = (field: EditModalField) =>
     showValidations[field.fieldName || ''] && validations[field.fieldName || ''] && !validations[field.fieldName || ''].isValid;
   const classeCampo = (field: EditModalField) =>
-    `h-11 w-full rounded-[10px] border bg-white px-3.5 text-[15px] font-medium text-foreground focus:outline-none focus:ring-4 ${
+    `h-11 w-full rounded-[10px] border bg-surface px-3.5 text-[15px] font-medium text-foreground focus:outline-none focus:ring-4 ${
       field.readOnly ? 'cursor-not-allowed bg-background text-muted' : ''
     } ${erro(field) ? 'border-danger focus:ring-danger-soft' : 'border-line-strong focus:border-primary focus:ring-primary-soft'}`;
 

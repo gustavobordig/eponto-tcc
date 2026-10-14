@@ -89,7 +89,7 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
           <h1 className="text-[28px] font-bold tracking-tight">Histórico</h1>
           <p className="text-sm text-muted">Suas marcações e o saldo de cada dia</p>
         </div>
-        <div className="flex items-center gap-1 rounded-[10px] border border-line bg-white p-1">
+        <div className="flex items-center gap-1 rounded-[10px] border border-line bg-surface p-1">
           <button type="button" onClick={() => setMes((m) => addMonths(m, -1))} aria-label="Mês anterior" className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-background">
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -108,16 +108,16 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
 
       <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {resumo.map((item) => (
-          <div key={item.rotulo} className="flex flex-col gap-1 rounded-[14px] bg-white px-5 py-[18px] shadow-card">
+          <div key={item.rotulo} className="flex flex-col gap-1 rounded-[14px] bg-surface px-5 py-[18px] shadow-card">
             <dt className="text-[13px] text-muted">{item.rotulo}</dt>
             <dd className={`font-mono text-2xl font-semibold ${item.cor}`}>{item.valor}</dd>
           </div>
         ))}
       </dl>
 
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-card">
+      <div className="overflow-x-auto rounded-2xl bg-surface shadow-card">
         <div className="min-w-[860px]" role="table" aria-label={`Marcações de ${nomeMes}`}>
-          <div role="row" className={`grid ${COLUNAS} gap-3 bg-primary px-6 py-3.5 text-xs font-bold uppercase tracking-[.4px] text-white`}>
+          <div role="row" className={`grid ${COLUNAS} gap-3 bg-marca px-6 py-3.5 text-xs font-bold uppercase tracking-[.4px] text-white`}>
             {["Data", "Entrada", "Almoço", "Volta", "Saída", "Trabalhado", "Saldo"].map((c) => (
               <span key={c} role="columnheader">{c}</span>
             ))}
@@ -133,7 +133,7 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
               <div
                 key={dia.chave}
                 role="row"
-                className={`grid ${COLUNAS} items-center gap-3 border-b border-surface-2 px-6 py-4 text-sm last:border-b-0 ${dia.incompleto ? "bg-[#fff5f4]" : ""}`}
+                className={`grid ${COLUNAS} items-center gap-3 border-b border-surface-2 px-6 py-4 text-sm last:border-b-0 ${dia.incompleto ? "bg-danger-soft/50" : ""}`}
               >
                 <div role="cell" className="flex flex-col gap-px">
                   <b>{format(dia.data, "dd/MM")}</b>
@@ -149,7 +149,7 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
                       key={m.tipo}
                       role="cell"
                       title={m.atraso ? `${ETAPAS_DO_DIA[i].label} com atraso` : undefined}
-                      className={`font-mono ${m.atraso ? "text-[#b4600a]" : faltaImportante ? "text-danger" : ""}`}
+                      className={`font-mono ${m.atraso ? "text-warn-ink" : faltaImportante ? "text-danger" : ""}`}
                     >
                       {m.hora ?? "—"}
                     </span>

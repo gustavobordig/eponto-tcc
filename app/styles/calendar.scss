@@ -2,20 +2,21 @@
 @import 'react-big-calendar/lib/sass/styles';
 
 // Variáveis personalizadas
-$calendar-bg: #ffffff;
-$calendar-border: #e2e8f0;
-$calendar-header-bg: #1a365d;
+// Tokens do tema (globals.css): acompanham o modo escuro
+$calendar-bg: var(--color-surface);
+$calendar-border: var(--color-line);
+$calendar-header-bg: var(--color-marca);
 $calendar-header-color: #ffffff;
-$calendar-today-bg: #e2e8f0;
-$calendar-event-bg: #4299e1;
-$calendar-event-hover-bg: #2b6cb0;
-$calendar-toolbar-btn-color: #1a365d;
-$calendar-toolbar-btn-border: #1a365d;
-$calendar-toolbar-btn-hover-bg: #1a365d;
+$calendar-today-bg: var(--color-primary-soft);
+$calendar-event-bg: var(--color-primary);
+$calendar-event-hover-bg: var(--color-primary-dark);
+$calendar-toolbar-btn-color: var(--color-foreground);
+$calendar-toolbar-btn-border: var(--color-line-strong);
+$calendar-toolbar-btn-hover-bg: var(--color-primary);
 $calendar-toolbar-btn-hover-color: #ffffff;
-$calendar-toolbar-label-color: #1a365d;
-$calendar-off-range-bg: #f7fafc;
-$calendar-selected-bg: #e2e8f0;
+$calendar-toolbar-label-color: var(--color-foreground);
+$calendar-off-range-bg: var(--color-surface-2);
+$calendar-selected-bg: var(--color-primary-soft);
 
 // Sobrescrevendo estilos do calendário
 .rbc-calendar {
@@ -141,7 +142,7 @@ $calendar-selected-bg: #e2e8f0;
   cursor: pointer;
   
   &:hover {
-    background-color: rgba($calendar-toolbar-btn-color, 0.1);
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
   }
 }
 
@@ -151,7 +152,7 @@ button.rbc-button-link,
 .rbc-agenda-date-cell,
 .rbc-agenda-time-cell,
 .rbc-agenda-empty{
-    color:black;
+    color: var(--color-foreground);
 }
 
 .rbc-row.rbc-time-header-cell button.rbc-button-link{
@@ -159,5 +160,5 @@ button.rbc-button-link,
 }
 
 .rbc-events-container{
-    background-color: white;
+    background-color: var(--color-surface);
 }

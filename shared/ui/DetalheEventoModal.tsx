@@ -49,7 +49,7 @@ export default function DetalheEventoModal({ evento, onClose }: { evento: Evento
           <CalendarDays className="h-4 w-4 text-muted" />
           {quando}
         </p>
-        {evento.descricao && <p className="whitespace-pre-line text-sm leading-relaxed text-[#2b3252]">{evento.descricao}</p>}
+        {evento.descricao && <p className="whitespace-pre-line text-sm leading-relaxed text-ink-2">{evento.descricao}</p>}
       </div>
     </Modal>
   );

@@ -69,7 +69,7 @@ export default function ForgotPassword() {
     const etapa = etapas[step - 1];
 
     return (
-        <div className="grid min-h-screen bg-white md:grid-cols-2">
+        <div className="grid min-h-screen bg-surface md:grid-cols-2">
             <PainelMarca>
                 <div className="flex flex-col gap-4">
                     <span className="flex h-18 w-18 items-center justify-center rounded-full bg-white text-primary" aria-hidden>

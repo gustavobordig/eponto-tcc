@@ -25,8 +25,8 @@ interface LineChartProps {
 const LineChart = ({ data, color = "#2563eb", title, description }: LineChartProps) => {
   return (
     <div className="w-full h-[300px]">
-      {title && <h3 className="text-lg font-semibold mb-1 text-black">{title}</h3>}
-      {description && <p className="text-sm mb-2 text-black">{description}</p>}
+      {title && <h3 className="text-lg font-semibold mb-1 text-foreground">{title}</h3>}
+      {description && <p className="text-sm mb-2 text-foreground">{description}</p>}
       <ResponsiveContainer width="100%" height="100%">
         <RechartsLineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />

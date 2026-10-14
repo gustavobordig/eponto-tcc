@@ -46,14 +46,14 @@ export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit 
   return (
     <ModalShell
       titulo="Inserir Feedback"
-      icone={<Send className="text-green-600" size={20} />}
-      corIcone="bg-green-100"
+      icone={<Send className="text-ok-ink" size={20} />}
+      corIcone="bg-ok-soft"
       onClose={onClose}
       rodape={
         <>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-2 transition-colors"
           >
             Cancelar
           </button>
@@ -61,9 +61,9 @@ export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit 
         </>
       }
     >
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <h4 className="font-semibold text-gray-900 mb-2">Solicitação de {solicitacao.nomeUsuarioSolicitacao}</h4>
-        <p className="text-gray-600 text-sm">{solicitacao.mensagemSolicitacao}</p>
+      <div className="bg-primary-soft p-4 rounded-lg">
+        <h4 className="font-semibold text-foreground mb-2">Solicitação de {solicitacao.nomeUsuarioSolicitacao}</h4>
+        <p className="text-muted text-sm">{solicitacao.mensagemSolicitacao}</p>
       </div>
 
       <div className="space-y-4">
@@ -76,11 +76,11 @@ export default function ResponderFeedbackModal({ solicitacao, onClose, onSubmit 
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Avaliação (1-5)</label>
+          <label className="block text-sm font-medium text-foreground mb-2">Avaliação (1-5)</label>
           <select
             value={resposta.estrelas}
             onChange={(e) => setResposta((prev) => ({ ...prev, estrelas: Number(e.target.value) }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            className="w-full px-3 py-2 border border-line-strong rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
           >
             {AVALIACOES.map(({ estrelas, label }) => (
               <option key={estrelas} value={estrelas}>

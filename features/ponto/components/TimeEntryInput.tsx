@@ -26,7 +26,7 @@ export const TimeEntryInput: React.FC<TimeEntryInputProps> = ({ label, value, on
         type="time"
         value={value.time}
         onChange={(e) => onChange({ ...value, time: e.target.value })}
-        className="h-11 w-full rounded-[10px] border border-line-strong bg-white px-3 font-mono text-[15px] focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft"
+        className="h-11 w-full rounded-[10px] border border-line-strong bg-surface px-3 font-mono text-[15px] focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft"
       />
     </div>
   );

@@ -114,7 +114,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
               : `${pendentes} ${pendentes === 1 ? 'pedido aguardando' : 'pedidos aguardando'} sua decisão`}
           </p>
         </div>
-        <div role="tablist" aria-label="Situação" className="flex rounded-[9px] bg-[#e6e8ef] p-[3px] text-[13px] font-semibold">
+        <div role="tablist" aria-label="Situação" className="flex rounded-[9px] bg-surface-2 p-[3px] text-[13px] font-semibold">
           {ABAS.map((a) => (
             <button
               key={a.valor}
@@ -122,7 +122,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
               role="tab"
               aria-selected={aba === a.valor}
               onClick={() => trocarAba(a.valor)}
-              className={`rounded-[7px] px-3.5 py-[7px] ${aba === a.valor ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'}`}
+              className={`rounded-[7px] px-3.5 py-[7px] ${aba === a.valor ? 'bg-surface text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'}`}
             >
               {a.rotulo}
             </button>
@@ -136,7 +136,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
             type="button"
             onClick={() => setTipo(null)}
             aria-pressed={tipo === null}
-            className={`rounded-full px-3.5 py-[7px] ${tipo === null ? 'bg-foreground text-white' : 'border border-line bg-white hover:border-line-strong'}`}
+            className={`rounded-full px-3.5 py-[7px] ${tipo === null ? 'bg-foreground text-background' : 'border border-line bg-surface hover:border-line-strong'}`}
           >
             Todos os tipos
           </button>
@@ -146,7 +146,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
               type="button"
               onClick={() => setTipo(t)}
               aria-pressed={tipo === t}
-              className={`rounded-full px-3.5 py-[7px] ${tipo === t ? 'bg-foreground text-white' : 'border border-line bg-white hover:border-line-strong'}`}
+              className={`rounded-full px-3.5 py-[7px] ${tipo === t ? 'bg-foreground text-background' : 'border border-line bg-surface hover:border-line-strong'}`}
             >
               {ROTULO_TIPO[t]} · {n}
             </button>
@@ -161,7 +161,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
       )}
 
       {!destaque ? (
-        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-surface px-6 py-14 text-center">
           <Inbox className="h-8 w-8 text-subtle" />
           <p className="font-semibold">
             {aba === 'analise' ? 'Tudo em dia' : aba === 'aprovada' ? 'Nenhum pedido aprovado' : 'Nenhum pedido reprovado'}
@@ -172,7 +172,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
         <>
           <article
             aria-label={`Pedido de ${destaque.nome}`}
-            className="flex flex-col gap-[18px] rounded-2xl border-[1.5px] border-primary bg-white px-5 py-5 sm:px-6"
+            className="flex flex-col gap-[18px] rounded-2xl border-[1.5px] border-primary bg-surface px-5 py-5 sm:px-6"
           >
             <div className="flex flex-wrap items-center gap-3.5">
               <Avatar nome={destaque.nome} tamanho="md" className="!h-11 !w-11" />
@@ -195,7 +195,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
             </dl>
 
             {destaque.observacao && (
-              <p className="border-l-2 border-line pl-3.5 text-sm leading-relaxed text-[#2b3252]">“{destaque.observacao}”</p>
+              <p className="border-l-2 border-line pl-3.5 text-sm leading-relaxed text-ink-2">“{destaque.observacao}”</p>
             )}
 
             {destaque.anexo && (
@@ -216,7 +216,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
                   type="button"
                   disabled={respondendo !== null}
                   onClick={() => responder(destaque, false)}
-                  className="flex h-11 items-center gap-1.5 rounded-[10px] border border-line bg-white px-[18px] text-sm font-bold text-danger hover:bg-danger-soft disabled:opacity-50"
+                  className="flex h-11 items-center gap-1.5 rounded-[10px] border border-line bg-surface px-[18px] text-sm font-bold text-danger hover:bg-danger-soft disabled:opacity-50"
                 >
                   <X className="h-4 w-4" />
                   Reprovar
@@ -237,7 +237,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
           </article>
 
           {resto.length > 0 && (
-            <ul className="overflow-hidden rounded-2xl bg-white shadow-card">
+            <ul className="overflow-hidden rounded-2xl bg-surface shadow-card">
               {resto.map((p) => (
                 <li key={p.chave} className="flex flex-wrap items-center gap-x-3.5 gap-y-2 border-b border-surface-2 px-4 py-4 last:border-b-0 sm:px-6">
                   <button
@@ -246,14 +246,14 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
                     className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3.5 gap-y-2 rounded-lg text-left md:flex-nowrap"
                   >
                     <span className="flex min-w-0 items-center gap-3.5 md:w-[240px] md:shrink-0">
-                      <Avatar nome={p.nome} tamanho="md" className="!bg-[#f1f2f6] !text-[#2b3252]" />
+                      <Avatar nome={p.nome} tamanho="md" className="!bg-surface-2 !text-ink-2" />
                       <span className="flex min-w-0 flex-col gap-px">
                         <b className="truncate text-sm">{p.nome}</b>
                         <span className="truncate text-xs text-muted">{p.cargo}</span>
                       </span>
                     </span>
                     <TipoPill tipo={p.tipo} className="md:w-[118px]" />
-                    <span className="order-last w-full text-[13px] text-[#2b3252] md:order-none md:w-auto md:min-w-0 md:flex-1 md:truncate">{p.detalhe}</span>
+                    <span className="order-last w-full text-[13px] text-ink-2 md:order-none md:w-auto md:min-w-0 md:flex-1 md:truncate">{p.detalhe}</span>
                     <span className="text-xs text-muted md:w-20">{quando(p.enviadoEm)}</span>
                   </button>
                   {p.situacao === 'analise' ? (
@@ -264,7 +264,7 @@ export default function FilaSolicitacoes({ titulo, tipos }: Props) {
                         onClick={() => responder(p, false)}
                         aria-label={`Reprovar pedido de ${p.nome}`}
                         title="Reprovar"
-                        className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-line bg-white text-danger hover:bg-danger-soft disabled:opacity-50"
+                        className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-line bg-surface text-danger hover:bg-danger-soft disabled:opacity-50"
                       >
                         <X className="h-4 w-4" />
                       </button>

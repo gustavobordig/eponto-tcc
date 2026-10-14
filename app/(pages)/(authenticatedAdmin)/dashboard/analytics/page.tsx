@@ -15,7 +15,7 @@ export default function DashboardPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-black">Estatísticas</h1>
+          <h1 className="text-3xl font-bold text-foreground">Estatísticas</h1>
           <DemoBadge label="Dados de exemplo: ainda não ligado à API" />
         </div>
         <FuncionarioFilter 

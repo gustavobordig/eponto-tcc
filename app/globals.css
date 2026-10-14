@@ -10,9 +10,15 @@
   --color-primary-dark: #021660;
   --color-primary-soft: #ebeffb;
   --color-primary-tint: #f6f8fe;
+  /* Superfícies grandes da marca (herói, menu do RH, cabeçalho das tabelas) */
+  --color-marca: #03218a;
 
   --color-background: #f4f5f9;
+  /* Fundo de cartões, tabelas e modais (branco no claro) */
+  --color-surface: #ffffff;
   --color-foreground: #0e1430;
+  /* Texto secundário forte (citações, detalhes) */
+  --color-ink-2: #2b3252;
   --color-muted: #5b6380;
   --color-subtle: #8a90a8;
   --color-line: #e1e4ec;
@@ -35,6 +41,43 @@
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --shadow-card: 0 1px 2px rgba(14, 20, 48, 0.06);
+}
+
+/*
+ * Modo escuro: a classe .dark no <html> (ver TemaScript) troca os tokens.
+ * O azul da marca fica mais claro para ter contraste no fundo escuro; o que
+ * fica sobre o azul (herói da home, menu do RH) continua branco.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.dark {
+  color-scheme: dark;
+  --color-primary: #5470f0;
+  --color-primary-dark: #4560dd;
+  --color-primary-soft: #1a2350;
+  --color-primary-tint: #161d3f;
+  --color-marca: #14287a;
+
+  --color-background: #0b0f1e;
+  --color-surface: #151a2e;
+  --color-foreground: #e8eaf3;
+  --color-ink-2: #c5cae0;
+  --color-muted: #9aa1bd;
+  --color-subtle: #6b7290;
+  --color-line: #262c45;
+  --color-line-strong: #333a5c;
+  --color-surface-2: #1e2440;
+
+  --color-ok-soft: #0f2e22;
+  --color-ok-ink: #5fd39a;
+  --color-warn-soft: #3a2a0f;
+  --color-warn-ink: #f0b65c;
+  --color-danger-soft: #3a1618;
+  --color-danger-ink: #f08a85;
+  --color-ferias: #a993ff;
+  --color-ferias-soft: #2a2150;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 body {

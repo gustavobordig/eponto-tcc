@@ -74,7 +74,7 @@ export default function MinhasSolicitacoesPage() {
                 role="tab"
                 aria-selected={filtro === valor}
                 onClick={() => setFiltro(valor)}
-                className={`rounded-full px-3.5 py-[7px] ${filtro === valor ? 'bg-foreground text-white' : 'border border-line bg-white hover:border-foreground/30'}`}
+                className={`rounded-full px-3.5 py-[7px] ${filtro === valor ? 'bg-foreground text-background' : 'border border-line bg-surface hover:border-foreground/30'}`}
               >
                 {rotulo}
                 {n > 0 && (valor === 'todas' || valor === 'analise') ? ` · ${n}` : ''}
@@ -89,7 +89,7 @@ export default function MinhasSolicitacoesPage() {
           </p>
         )}
 
-        <div className="overflow-hidden rounded-2xl bg-white shadow-card">
+        <div className="overflow-hidden rounded-2xl bg-surface shadow-card">
           {carregando ? (
             <p className="px-5 py-10 text-center text-sm text-muted">Carregando solicitações…</p>
           ) : visiveis.length === 0 ? (

@@ -83,11 +83,11 @@ export default function AdicionarJornada() {
 
   return (
     <Container className='h-screen flex items-center justify-center'>
-      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl text-black font-bold mb-6 text-center">Adicionar Nova Jornada</h1>
+      <div className="w-full max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
+        <h1 className="text-2xl text-foreground font-bold mb-6 text-center">Adicionar Nova Jornada</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="nome" className="block text-sm font-medium text-black">
+            <label htmlFor="nome" className="block text-sm font-medium text-foreground">
               Nome da Jornada *
             </label>
             <input
@@ -99,10 +99,10 @@ export default function AdicionarJornada() {
               value={formData.nome || ''}
               onChange={(e) => handleFieldChange('nome', e.target.value)}
               onBlur={(e) => handleFieldBlur('nome', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.nome && validations.nome && !validations.nome.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -113,7 +113,7 @@ export default function AdicionarJornada() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="horasDiarias" className="block text-sm font-medium text-black">
+            <label htmlFor="horasDiarias" className="block text-sm font-medium text-foreground">
               Quantidade de Horas Diárias *
             </label>
             <input
@@ -125,10 +125,10 @@ export default function AdicionarJornada() {
               value={formData.horasDiarias || ''}
               onChange={(e) => handleFieldChange('horasDiarias', e.target.value)}
               onBlur={(e) => handleFieldBlur('horasDiarias', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.horasDiarias && validations.horasDiarias && !validations.horasDiarias.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -144,7 +144,7 @@ export default function AdicionarJornada() {
             className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               isFormValid() 
                 ? 'bg-primary text-white hover:bg-primary-dark' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-line-strong text-muted cursor-not-allowed'
             }`}
           >
             Cadastrar Jornada

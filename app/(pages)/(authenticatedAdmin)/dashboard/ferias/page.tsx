@@ -42,7 +42,7 @@ export default function FeriasPage() {
   }
 
   const alternador = (
-    <div role="tablist" aria-label="Visualização" className="flex rounded-[9px] bg-[#e6e8ef] p-[3px] text-[13px] font-semibold">
+    <div role="tablist" aria-label="Visualização" className="flex rounded-[9px] bg-surface-2 p-[3px] text-[13px] font-semibold">
       {([
         ['table', 'Lista', List],
         ['calendar', 'Calendário', CalendarDays],
@@ -54,7 +54,7 @@ export default function FeriasPage() {
           aria-selected={view === valor}
           onClick={() => setView(valor)}
           className={`flex items-center gap-1.5 rounded-[7px] px-3.5 py-[7px] ${
-            view === valor ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'
+            view === valor ? 'bg-surface text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'
           }`}
         >
           <Icone className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default function FeriasPage() {
           }
         />
       ) : (
-        <div className="h-[calc(100vh-12rem)] rounded-2xl bg-white p-4 shadow-card">
+        <div className="h-[calc(100vh-12rem)] rounded-2xl bg-surface p-4 shadow-card">
           <Calendario
             events={eventos}
             mensagemVazio="Não existem férias para este período"

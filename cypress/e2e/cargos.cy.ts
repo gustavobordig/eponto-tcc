@@ -27,7 +27,7 @@ describe('CRUD de Cargos', () => {
       cy.get('form').submit();
       
       // Verificar se o botão está desabilitado
-      cy.get('button').should('have.class', 'bg-gray-300 text-gray-500 cursor-not-allowed');
+      cy.contains('button', 'Cadastrar Cargo').should('be.disabled').and('have.class', 'cursor-not-allowed');
     });
 
     it('deve mostrar erro ao tentar salvar sem formação mínima', () => {
@@ -37,7 +37,7 @@ describe('CRUD de Cargos', () => {
       cy.get('form').submit();
       
       // Verificar se o botão está desabilitado
-      cy.get('button').should('have.class', 'bg-gray-300 text-gray-500 cursor-not-allowed');
+      cy.contains('button', 'Cadastrar Cargo').should('be.disabled').and('have.class', 'cursor-not-allowed');
     });
 
     it('deve mostrar erro ao tentar salvar sem salário', () => {
@@ -493,7 +493,8 @@ describe('CRUD de Cargos', () => {
     it('exclui pelo id do cargo', () => {
       cy.intercept('PUT', '**/api/Cargo/Deletar/*', { body: { sucesso: true, mensagem: null } }).as('deletar');
       cy.get('table tbody tr').contains('Analista').parents('tr').within(() => {
-        cy.contains('Excluir').click();
+        // O botão é só o ícone da lixeira, com o rótulo acessível "Excluir"
+        cy.get('button[aria-label="Excluir"]').click();
       });
       cy.contains('Confirmar exclusão').should('be.visible');
       cy.get('.fixed.inset-0 button').contains('Excluir').click();

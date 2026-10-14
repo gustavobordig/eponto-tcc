@@ -49,7 +49,7 @@ const TextArea = ({
       <textarea
         {...props}
         className={`
-          min-h-[76px] w-full resize-none rounded-[10px] border border-line-strong bg-white px-3.5 py-2.5 text-sm text-foreground
+          min-h-[76px] w-full resize-none rounded-[10px] border border-line-strong bg-surface px-3.5 py-2.5 text-sm text-foreground
           placeholder:text-subtle
           transition-[border-color,box-shadow]
           focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft

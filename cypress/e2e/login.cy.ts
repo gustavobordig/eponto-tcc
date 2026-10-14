@@ -44,14 +44,15 @@ describe('Login', () => {
     cy.get('a[href="/dashboard"]').should('not.exist');
   });
 
-  it('com role Admin no token, mostra o link do painel', () => {
+  it('com perfil Administrador, vai direto para o painel RH e tem o link de volta', () => {
     perfis([{ idPerfil: 1, dscPerfil: 'Administrador' }]);
     autenticar(1, 'Admin');
 
     preencher('rh@exemplo.com', 'senha-teste');
 
-    cy.location('pathname').should('eq', '/home');
+    cy.location('pathname').should('eq', '/dashboard');
     cy.getCookie('eponto_perfil').its('value').should('eq', 'admin');
+    cy.visit('/home');
     cy.get('button[aria-label="Menu da conta"]').click();
     cy.contains('a', 'Ir para o Painel RH').should('have.attr', 'href', '/dashboard');
   });
@@ -68,7 +69,7 @@ describe('Login', () => {
     cy.contains('Escolha o perfil').should('be.visible');
     cy.contains('button', 'Administrador').click();
     cy.wait('@autenticar').its('request.body.idPerfil').should('eq', 1);
-    cy.location('pathname').should('eq', '/home');
+    cy.location('pathname').should('eq', '/dashboard');
   });
 
   it('sem perfil, avisa e não entra', () => {

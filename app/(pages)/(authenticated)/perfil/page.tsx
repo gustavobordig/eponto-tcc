@@ -87,8 +87,8 @@ export default function PerfilPage() {
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <section className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card">
-        <div className="h-[88px] bg-primary" />
+      <section className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+        <div className="h-[88px] bg-marca" />
         <div className="-mt-12 flex flex-col items-center gap-3 px-6 pb-6 text-center">
           <div className="relative">
             <Avatar nome={usuario.nome} foto={usuario.fotoPerfil} tamanho="xl" className="border-4 border-white" />
@@ -97,7 +97,7 @@ export default function PerfilPage() {
               onClick={() => arquivoRef.current?.click()}
               disabled={salvando}
               aria-label="Trocar foto"
-              className="absolute bottom-0.5 right-0 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white text-primary shadow-[0_1px_4px_rgba(0,0,0,.15)] hover:bg-primary-soft"
+              className="absolute bottom-0.5 right-0 flex h-[30px] w-[30px] items-center justify-center rounded-full bg-surface text-primary shadow-[0_1px_4px_rgba(0,0,0,.15)] hover:bg-primary-soft"
             >
               <Camera className="h-[15px] w-[15px]" />
             </button>
@@ -157,7 +157,7 @@ export default function PerfilPage() {
                 />
               </div>
               <div className="flex flex-wrap justify-end gap-3">
-                <Button text="Cancelar" fullWidth={false} backgroundColor="bg-white" textColor="text-foreground" className="border border-line" onClick={() => setEditando(false)} />
+                <Button text="Cancelar" fullWidth={false} backgroundColor="bg-surface" textColor="text-foreground" className="border border-line" onClick={() => setEditando(false)} />
                 <Button text="Salvar alterações" type="submit" fullWidth={false} isLoading={salvando} />
               </div>
             </form>
@@ -200,7 +200,7 @@ export default function PerfilPage() {
           </ul>
         </Cartao>
 
-        <section className="flex flex-wrap items-center gap-4 rounded-2xl bg-white px-6 py-5 shadow-card">
+        <section className="flex flex-wrap items-center gap-4 rounded-2xl bg-surface px-6 py-5 shadow-card">
           <span className="flex h-[42px] w-[42px] items-center justify-center rounded-[11px] bg-primary-soft text-primary">
             <KeyRound className="h-[19px] w-[19px]" />
           </span>

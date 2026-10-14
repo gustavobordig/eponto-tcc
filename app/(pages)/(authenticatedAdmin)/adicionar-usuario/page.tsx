@@ -172,21 +172,21 @@ export default function AdicionarUsuario() {
     <div className="py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+          <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
             Adicionar Novo Usuário
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-muted">
             Preencha os dados do usuário com atenção às validações
           </p>
         </div>
         <div className="mt-8">
-          <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-            <h1 className="text-2xl text-black font-bold mb-6 text-center">Cadastro de Usuário</h1>
+          <div className="w-full max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
+            <h1 className="text-2xl text-foreground font-bold mb-6 text-center">Cadastro de Usuário</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
               
               {/* Campo Nome */}
               <div className="space-y-2">
-                <label htmlFor="name" className="block text-sm font-medium text-black">
+                <label htmlFor="name" className="block text-sm font-medium text-foreground">
                   Nome *
                 </label>
                 <input
@@ -198,10 +198,10 @@ export default function AdicionarUsuario() {
                   value={formData.name || ''}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   onBlur={(e) => handleFieldBlur('name', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                     (showValidations.name && validations.name && !validations.name.isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
+                      : 'border-line-strong focus:ring-primary/30'
                   }`}
                 />
                 <ValidationMessage
@@ -213,7 +213,7 @@ export default function AdicionarUsuario() {
 
               {/* Campo Email */}
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-black">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground">
                   E-mail *
                 </label>
                 <input
@@ -225,10 +225,10 @@ export default function AdicionarUsuario() {
                   value={formData.email || ''}
                   onChange={(e) => handleFieldChange('email', e.target.value)}
                   onBlur={(e) => handleFieldBlur('email', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                     (showValidations.email && validations.email && !validations.email.isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
+                      : 'border-line-strong focus:ring-primary/30'
                   }`}
                 />
                 <ValidationMessage
@@ -240,7 +240,7 @@ export default function AdicionarUsuario() {
 
               {/* Campo Data de Nascimento */}
               <div className="space-y-2">
-                <label htmlFor="dataNascimento" className="block text-sm font-medium text-black">
+                <label htmlFor="dataNascimento" className="block text-sm font-medium text-foreground">
                   Data de Nascimento *
                 </label>
                 <input
@@ -251,10 +251,10 @@ export default function AdicionarUsuario() {
                   value={formData.dataNascimento || ''}
                   onChange={(e) => handleFieldChange('dataNascimento', e.target.value)}
                   onBlur={(e) => handleFieldBlur('dataNascimento', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                     (showValidations.dataNascimento && validations.dataNascimento && !validations.dataNascimento.isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
+                      : 'border-line-strong focus:ring-primary/30'
                   }`}
                 />
                 <ValidationMessage
@@ -266,7 +266,7 @@ export default function AdicionarUsuario() {
 
               {/* Campo Telefone */}
               <div className="space-y-2">
-                <label htmlFor="telefone" className="block text-sm font-medium text-black">
+                <label htmlFor="telefone" className="block text-sm font-medium text-foreground">
                   Telefone (opcional)
                 </label>
                 <input
@@ -277,10 +277,10 @@ export default function AdicionarUsuario() {
                   value={formData.telefone || ''}
                   onChange={(e) => handleFieldChange('telefone', e.target.value)}
                   onBlur={(e) => handleFieldBlur('telefone', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                     (showValidations.telefone && validations.telefone && !validations.telefone.isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
+                      : 'border-line-strong focus:ring-primary/30'
                   }`}
                 />
                 <ValidationMessage
@@ -292,14 +292,14 @@ export default function AdicionarUsuario() {
 
               {/* Campo Cargo */}
               <div className="space-y-2">
-                <label htmlFor="cargo" className="block text-sm font-medium text-black">
+                <label htmlFor="cargo" className="block text-sm font-medium text-foreground">
                   Cargo *
                 </label>
                 <Select
                   value={selectedCargo}
                   onValueChange={(value) => handleSelectChange('cargo', value)}
                 >
-                  <SelectTrigger className="w-full text-gray-600">
+                  <SelectTrigger className="w-full text-muted">
                     <SelectValue placeholder="Selecione o cargo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -319,14 +319,14 @@ export default function AdicionarUsuario() {
 
               {/* Campo Jornada */}
               <div className="space-y-2">
-                <label htmlFor="jornada" className="block text-sm font-medium text-black">
+                <label htmlFor="jornada" className="block text-sm font-medium text-foreground">
                   Jornada de Trabalho *
                 </label>
                 <Select
                   value={selectedJornada}
                   onValueChange={(value) => handleSelectChange('jornada', value)}
                 >
-                  <SelectTrigger className="w-full text-gray-600">
+                  <SelectTrigger className="w-full text-muted">
                     <SelectValue placeholder="Selecione a jornada de trabalho" />
                   </SelectTrigger>
                   <SelectContent>
@@ -346,7 +346,7 @@ export default function AdicionarUsuario() {
 
               {/* Campo Senha */}
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium text-black">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">
                   Senha *
                 </label>
                 <input
@@ -358,10 +358,10 @@ export default function AdicionarUsuario() {
                   value={formData.password || ''}
                   onChange={(e) => handleFieldChange('password', e.target.value)}
                   onBlur={(e) => handleFieldBlur('password', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                     (showValidations.password && validations.password && !validations.password.isValid)
                       ? 'border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:ring-primary/30'
+                      : 'border-line-strong focus:ring-primary/30'
                   }`}
                 />
                 <ValidationMessage
@@ -369,22 +369,22 @@ export default function AdicionarUsuario() {
                   message={validations.password?.message ?? ''}
                   show={!!(showValidations.password && validations.password)}
                 />
-                <div className="mt-2 text-xs text-gray-600">
+                <div className="mt-2 text-xs text-muted">
                   <p>A senha deve conter:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li className='text-gray-500'>
+                    <li className='text-muted'>
                       Pelo menos 8 caracteres
                     </li>
-                    <li className='text-gray-500'>
+                    <li className='text-muted'>
                       Uma letra minúscula
                     </li>
-                    <li className='text-gray-500'>
+                    <li className='text-muted'>
                       Uma letra maiúscula
                     </li>
-                    <li className='text-gray-500'>
+                    <li className='text-muted'>
                       Um número
                     </li>
-                    <li className='text-gray-500'>
+                    <li className='text-muted'>
                       Um caractere especial (@$!%*?&)
                     </li>
                   </ul>
@@ -397,7 +397,7 @@ export default function AdicionarUsuario() {
                 className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                   isFormValid() 
                     ? 'bg-primary text-white hover:bg-primary-dark' 
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-line-strong text-muted cursor-not-allowed'
                 }`}
               >
                 Cadastrar

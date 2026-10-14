@@ -23,6 +23,7 @@ import {
 import { FilaAprovacaoProvider, useFilaAprovacao } from '@/features/solicitacoes/hooks/useFilaAprovacao';
 import ConfirmationModal from '@/shared/ui/ConfirmationModal';
 import Logo from '@/shared/ui/Logo';
+import SeletorTema from '@/shared/ui/SeletorTema';
 import { tokenUtils } from '@/shared/lib/token';
 
 interface Item {
@@ -110,6 +111,9 @@ function Navegacao({ pathname, onSair }: { pathname: string; onSair: () => void 
       </nav>
 
       <div className="flex flex-col gap-0.5 border-t border-white/[.14] px-3.5 py-3 text-sm font-semibold">
+        <div className="px-2.5 pb-2">
+          <SeletorTema sobreMarca />
+        </div>
         <Link href="/home" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-white hover:bg-white/[.08]">
           <ArrowLeft className="h-4 w-4" />
           Voltar ao meu ponto
@@ -146,7 +150,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <FilaAprovacaoProvider>
       <div className="min-h-screen bg-background">
         {/* Menu lateral marinho no desktop */}
-        <aside className="fixed inset-y-0 left-0 hidden w-[248px] flex-col bg-primary pt-5 lg:flex">
+        <aside className="fixed inset-y-0 left-0 hidden w-[248px] flex-col bg-marca pt-5 lg:flex">
           <div className="px-6 pb-5 pt-1">
             <Marca />
           </div>
@@ -154,7 +158,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </aside>
 
         {/* Barra e gaveta no celular e tablet */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-primary px-4 lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-marca px-4 lg:hidden">
           <Marca />
           <button
             type="button"
@@ -170,7 +174,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {menuAberto && (
           <div className="lg:hidden" role="dialog" aria-modal="true" aria-label="Menu do painel RH">
             <div className="fixed inset-0 z-40 bg-[#0e1430]/45" onClick={() => setMenuAberto(false)} />
-            <aside className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-primary shadow-xl">
+            <aside className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-marca shadow-xl">
               <div className="flex h-16 items-center justify-between px-6">
                 <Marca />
                 <button

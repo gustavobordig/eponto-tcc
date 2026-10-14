@@ -66,7 +66,7 @@ const Input = ({
           {...props}
           type={isPassword && showPassword ? 'text' : type}
           className={`
-            h-12 w-full rounded-[10px] border border-line-strong bg-white px-3.5 text-[15px] font-medium text-foreground
+            h-12 w-full rounded-[10px] border border-line-strong bg-surface px-3.5 text-[15px] font-medium text-foreground
             placeholder:font-normal placeholder:text-subtle
             transition-[border-color,box-shadow]
             focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft

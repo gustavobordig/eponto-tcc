@@ -46,7 +46,7 @@ export default function Modal({ isOpen, onClose, titulo, descricao, icone, rodap
       <div
         role="dialog"
         aria-modal="true"
-        className={`flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-[0_24px_60px_rgba(14,20,48,.25)] sm:rounded-2xl ${LARGURA[largura]}`}
+        className={`flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-surface shadow-[0_24px_60px_rgba(14,20,48,.25)] sm:rounded-2xl ${LARGURA[largura]}`}
       >
         <div className="flex items-start gap-3 px-6 pb-2 pt-5">
           {icone && <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] bg-primary-soft text-primary">{icone}</span>}
@@ -87,7 +87,7 @@ export function BotaoModal({
 }) {
   const estilo = {
     primario: 'bg-primary text-white hover:bg-primary-dark',
-    secundario: 'border border-line bg-white text-foreground hover:bg-background',
+    secundario: 'border border-line bg-surface text-foreground hover:bg-background',
     perigo: 'bg-danger text-white hover:brightness-95',
   }[variante];
   return (

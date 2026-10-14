@@ -84,11 +84,11 @@ export default function AdicionarFeriado() {
 
   return (
     <Container className='h-screen flex items-center justify-center'>
-      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl text-black font-bold mb-6 text-center">Adicionar Novo Feriado</h1>
+      <div className="w-full max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
+        <h1 className="text-2xl text-foreground font-bold mb-6 text-center">Adicionar Novo Feriado</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="descricao" className="block text-sm font-medium text-black">
+            <label htmlFor="descricao" className="block text-sm font-medium text-foreground">
               Descrição *
             </label>
             <input
@@ -100,10 +100,10 @@ export default function AdicionarFeriado() {
               value={formData.descricao || ''}
               onChange={(e) => handleFieldChange('descricao', e.target.value)}
               onBlur={(e) => handleFieldBlur('descricao', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.descricao && validations.descricao && !validations.descricao.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -114,7 +114,7 @@ export default function AdicionarFeriado() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="dataFeriado" className="block text-sm font-medium text-black">
+            <label htmlFor="dataFeriado" className="block text-sm font-medium text-foreground">
               Data do Feriado *
             </label>
             <input
@@ -125,10 +125,10 @@ export default function AdicionarFeriado() {
               value={formData.dataFeriado || ''}
               onChange={(e) => handleFieldChange('dataFeriado', e.target.value)}
               onBlur={(e) => handleFieldBlur('dataFeriado', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.dataFeriado && validations.dataFeriado && !validations.dataFeriado.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -139,14 +139,14 @@ export default function AdicionarFeriado() {
           </div>
           
           <div className="space-y-2">
-            <label htmlFor="tipoFeriado" className="block text-sm font-medium text-black">
+            <label htmlFor="tipoFeriado" className="block text-sm font-medium text-foreground">
               Tipo de Feriado *
             </label>
             <Select value={selectedTipo} onValueChange={handleSelectChange}>
-              <SelectTrigger className={`w-full text-gray-600 ${
+              <SelectTrigger className={`w-full text-muted ${
                 (showValidations.tipoFeriado && !selectedTipo)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}>
                 <SelectValue placeholder="Selecione o tipo de feriado" />
               </SelectTrigger>
@@ -168,7 +168,7 @@ export default function AdicionarFeriado() {
             className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               isFormValid() 
                 ? 'bg-primary text-white hover:bg-primary-dark' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-line-strong text-muted cursor-not-allowed'
             }`}
           >
             Cadastrar Feriado

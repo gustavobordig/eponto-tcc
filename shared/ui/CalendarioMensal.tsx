@@ -70,7 +70,7 @@ export default function CalendarioMensal({
   const titulo = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(' de ', ' ');
 
   return (
-    <section className="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-card">
+    <section className="flex flex-col gap-4 rounded-2xl bg-surface p-5 shadow-card">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="flex-1 text-2xl font-bold capitalize tracking-tight">{titulo}</h1>
         <button type="button" onClick={() => onDataChange(new Date())} className="h-9 rounded-lg border border-line px-3.5 text-[13px] font-semibold hover:bg-background">
@@ -84,7 +84,7 @@ export default function CalendarioMensal({
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex rounded-[9px] bg-[#f1f2f6] p-[3px] text-[13px] font-semibold" role="tablist" aria-label="Visualização">
+        <div className="flex rounded-[9px] bg-surface-2 p-[3px] text-[13px] font-semibold" role="tablist" aria-label="Visualização">
           {([['mes', 'Mês'], ['semana', 'Semana'], ['lista', 'Lista']] as const).map(([valor, rotulo]) => (
             <button
               key={valor}
@@ -92,7 +92,7 @@ export default function CalendarioMensal({
               role="tab"
               aria-selected={visao === valor}
               onClick={() => setVisao(valor)}
-              className={`rounded-[7px] px-3.5 py-[7px] ${visao === valor ? 'bg-white shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'}`}
+              className={`rounded-[7px] px-3.5 py-[7px] ${visao === valor ? 'bg-surface shadow-[0_1px_2px_rgba(0,0,0,.08)]' : 'text-muted hover:text-foreground'}`}
             >
               {rotulo}
             </button>
@@ -141,10 +141,10 @@ export default function CalendarioMensal({
               return (
                 <div
                   key={dia.toISOString()}
-                  className={`flex min-w-0 flex-col gap-1 border-b border-r border-surface-2 p-1.5 sm:p-2 ${visao === 'semana' ? 'h-60' : 'h-20 sm:h-[104px]'} ${fora ? 'bg-[#fafbfd]' : fimDeSemana ? 'bg-[#fcfcfe]' : 'bg-white'}`}
+                  className={`flex min-w-0 flex-col gap-1 border-b border-r border-surface-2 p-1.5 sm:p-2 ${visao === 'semana' ? 'h-60' : 'h-20 sm:h-[104px]'} ${fora ? 'bg-surface-2/50' : fimDeSemana ? 'bg-surface-2/25' : 'bg-surface'}`}
                 >
                   <span
-                    className={`flex h-[26px] min-w-[26px] items-center justify-center self-start rounded-full px-1.5 text-[13px] font-semibold ${ehHoje ? 'bg-primary text-white' : fora ? 'text-[#a5aabd]' : ''}`}
+                    className={`flex h-[26px] min-w-[26px] items-center justify-center self-start rounded-full px-1.5 text-[13px] font-semibold ${ehHoje ? 'bg-primary text-white' : fora ? 'text-subtle' : ''}`}
                     aria-current={ehHoje ? 'date' : undefined}
                   >
                     {format(dia, 'dd')}

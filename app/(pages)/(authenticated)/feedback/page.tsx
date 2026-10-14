@@ -52,7 +52,7 @@ export default function FeedbackPage() {
 
   return (
     <div className="grid gap-5 lg:h-[calc(100vh-170px)] lg:min-h-[560px] lg:grid-cols-[340px_minmax(0,1fr)]">
-      <section className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-card" aria-label="Conversas">
+      <section className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card" aria-label="Conversas">
         <div className="flex items-center justify-between border-b border-surface-2 p-5">
           <h1 className="text-[17px] font-bold">Feedbacks</h1>
           <button
@@ -104,13 +104,13 @@ export default function FeedbackPage() {
         </div>
       </section>
 
-      <section className="flex min-h-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-card" aria-label="Conversa">
+      <section className="flex min-h-[420px] flex-col overflow-hidden rounded-2xl bg-surface shadow-card" aria-label="Conversa">
         {!atual ? (
           <div className="flex flex-1 items-center justify-center p-8 text-sm text-muted">Escolha uma conversa.</div>
         ) : (
           <>
             <div className="flex items-center gap-3 border-b border-surface-2 px-6 py-[18px]">
-              <Avatar nome={atual.com ?? 'Gestor'} className="bg-foreground! text-white!" />
+              <Avatar nome={atual.com ?? 'Gestor'} className="bg-foreground! text-background!" />
               <div className="flex flex-1 flex-col gap-px">
                 <b className="text-[15px]">{tituloDa(atual)}</b>
                 <span className="text-xs text-muted">com {atual.com ?? 'seu gestor'}</span>
@@ -118,7 +118,7 @@ export default function FeedbackPage() {
               {etiquetaAtual && <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${etiquetaAtual[1]}`}>{etiquetaAtual[0]}</span>}
             </div>
 
-            <div className="flex flex-1 flex-col gap-4 overflow-y-auto bg-[#fafbfd] p-6">
+            <div className="flex flex-1 flex-col gap-4 overflow-y-auto bg-surface-2/50 p-6">
               {atual.pedido && (
                 <div className="flex max-w-[70%] flex-col gap-1 self-end">
                   <p className="rounded-[14px] bg-primary px-4 py-3 text-sm leading-normal text-white">{atual.pedido.mensagemSolicitacao}</p>
@@ -127,7 +127,7 @@ export default function FeedbackPage() {
               )}
               {atual.feedback ? (
                 <div className="flex max-w-[70%] flex-col gap-1 self-start">
-                  <div className="flex flex-col gap-2 rounded-[14px] border border-line bg-white px-4 py-3 text-sm leading-normal">
+                  <div className="flex flex-col gap-2 rounded-[14px] border border-line bg-surface px-4 py-3 text-sm leading-normal">
                     <p>{atual.feedback.mensagemFeedback}</p>
                     <RatingStars avaliacao={atual.feedback.avaliacao} />
                   </div>

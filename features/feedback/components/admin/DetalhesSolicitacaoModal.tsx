@@ -12,9 +12,9 @@ interface Props {
 
 const StatusIcon = ({ status }: { status: number }) =>
   status === STATUS_RESPONDIDA ? (
-    <CheckCircle className="text-green-600" size={16} />
+    <CheckCircle className="text-ok-ink" size={16} />
   ) : (
-    <AlertCircle className={status === 0 ? 'text-yellow-600' : 'text-gray-600'} size={16} />
+    <AlertCircle className={status === 0 ? 'text-warn-ink' : 'text-muted'} size={16} />
   );
 
 export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onResponder }: Props) {
@@ -22,7 +22,7 @@ export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onRespo
     <ModalShell
       titulo="Detalhes da Solicitação"
       icone={<MessageCircle className="text-primary" size={20} />}
-      corIcone="bg-blue-100"
+      corIcone="bg-primary-soft"
       onClose={onClose}
       rodape={
         <>
@@ -40,7 +40,7 @@ export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onRespo
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-foreground bg-surface border border-line-strong rounded-lg hover:bg-surface-2 transition-colors"
           >
             Fechar
           </button>
@@ -54,51 +54,51 @@ export default function DetalhesSolicitacaoModal({ solicitacao, onClose, onRespo
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <div className="bg-gradient-to-r from-primary-soft to-primary-tint p-6 rounded-xl border border-primary-soft">
+        <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <User size={18} className="text-primary" />
           Informações do Solicitante
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-600">Nome:</label>
-            <p className="text-gray-900 font-medium">{solicitacao.nomeUsuarioSolicitacao}</p>
+            <label className="text-sm font-medium text-muted">Nome:</label>
+            <p className="text-foreground font-medium">{solicitacao.nomeUsuarioSolicitacao}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
-        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Clock size={18} className="text-green-600" />
+      <div className="bg-gradient-to-r from-ok-soft to-emerald-50 p-6 rounded-xl border border-ok-soft">
+        <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+          <Clock size={18} className="text-ok-ink" />
           Informações da Solicitação
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-600">Data da Solicitação:</label>
-            <p className="text-gray-900 font-medium">{formatDate(solicitacao.dataSolicitacao, true)}</p>
+            <label className="text-sm font-medium text-muted">Data da Solicitação:</label>
+            <p className="text-foreground font-medium">{formatDate(solicitacao.dataSolicitacao, true)}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
-        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <MessageCircle size={18} className="text-purple-600" />
+      <div className="bg-gradient-to-r from-ferias-soft to-pink-50 p-6 rounded-xl border border-ferias-soft">
+        <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+          <MessageCircle size={18} className="text-ferias" />
           Mensagem da Solicitação
         </h4>
-        <div className="bg-white p-4 rounded-lg border border-purple-200">
-          <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{solicitacao.mensagemSolicitacao}</p>
+        <div className="bg-surface p-4 rounded-lg border border-ferias-soft">
+          <p className="text-foreground whitespace-pre-wrap leading-relaxed">{solicitacao.mensagemSolicitacao}</p>
         </div>
       </div>
 
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-100">
-        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h4 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <User size={18} className="text-orange-600" />
           Responsável
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-600">Nome:</label>
-            <p className="text-gray-900 font-medium">{solicitacao.nomeResponsavelFeedback}</p>
+            <label className="text-sm font-medium text-muted">Nome:</label>
+            <p className="text-foreground font-medium">{solicitacao.nomeResponsavelFeedback}</p>
           </div>
         </div>
       </div>

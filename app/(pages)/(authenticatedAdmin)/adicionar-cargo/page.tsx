@@ -85,11 +85,11 @@ export default function AdicionarCargo() {
 
   return (
     <Container className='h-screen flex items-center justify-center'>
-      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl text-black font-bold mb-6 text-center">Adicionar Novo Cargo</h1>
+      <div className="w-full max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
+        <h1 className="text-2xl text-foreground font-bold mb-6 text-center">Adicionar Novo Cargo</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="nome" className="block text-sm font-medium text-black">
+            <label htmlFor="nome" className="block text-sm font-medium text-foreground">
               Nome do Cargo *
             </label>
             <input
@@ -101,10 +101,10 @@ export default function AdicionarCargo() {
               value={formData.nome || ''}
               onChange={(e) => handleFieldChange('nome', e.target.value)}
               onBlur={(e) => handleFieldBlur('nome', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.nome && validations.nome && !validations.nome.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -115,7 +115,7 @@ export default function AdicionarCargo() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="formacaoMinima" className="block text-sm font-medium text-black">
+            <label htmlFor="formacaoMinima" className="block text-sm font-medium text-foreground">
               Formação Mínima *
             </label>
             <input
@@ -127,10 +127,10 @@ export default function AdicionarCargo() {
               value={formData.formacaoMinima || ''}
               onChange={(e) => handleFieldChange('formacaoMinima', e.target.value)}
               onBlur={(e) => handleFieldBlur('formacaoMinima', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.formacaoMinima && validations.formacaoMinima && !validations.formacaoMinima.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -141,7 +141,7 @@ export default function AdicionarCargo() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="salario" className="block text-sm font-medium text-black">
+            <label htmlFor="salario" className="block text-sm font-medium text-foreground">
               Salário *
             </label>
             <input
@@ -153,10 +153,10 @@ export default function AdicionarCargo() {
               value={formData.salario || ''}
               onChange={(e) => handleFieldChange('salario', e.target.value)}
               onBlur={(e) => handleFieldBlur('salario', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-gray-600 placeholder:text-gray-600 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-muted placeholder:text-subtle ${
                 (showValidations.salario && validations.salario && !validations.salario.isValid)
                   ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-primary/30'
+                  : 'border-line-strong focus:ring-primary/30'
               }`}
             />
             <ValidationMessage
@@ -172,7 +172,7 @@ export default function AdicionarCargo() {
             className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
               isFormValid() 
                 ? 'bg-primary text-white hover:bg-primary-dark' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-line-strong text-muted cursor-not-allowed'
             }`}
           >
             Cadastrar Cargo
