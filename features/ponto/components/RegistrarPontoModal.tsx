@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Check, CheckCircle2, Fingerprint, MapPin } from 'lucide-react';
+import { Check, CheckCircle2, Fingerprint, MapPin, RotateCw } from 'lucide-react';
 import { showErrorToast, showSuccessToast } from '@/shared/lib/toast';
 import { useLocalizacao } from '@/features/ponto/hooks/useLocalizacao';
 import { usePontosDoDia } from '@/features/ponto/hooks/usePontosDoDia';
@@ -20,7 +20,7 @@ interface Props {
  */
 export function RegistrarPontoModal({ isOpen, onClose, ponto }: Props) {
   const [registrando, setRegistrando] = useState(false);
-  const { endereco, texto: textoLocal } = useLocalizacao(isOpen);
+  const { endereco, texto: textoLocal, falhou, tentarDeNovo } = useLocalizacao(isOpen);
   const agora = useAgora();
   const { proxima, marcados, registrar } = ponto;
 
@@ -70,6 +70,17 @@ export function RegistrarPontoModal({ isOpen, onClose, ponto }: Props) {
           <p className="mt-1 flex max-w-full items-center gap-1.5 text-xs text-white/80">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{textoLocal}</span>
+            {falhou && (
+              <button
+                type="button"
+                onClick={tentarDeNovo}
+                aria-label="Tentar obter a localização de novo"
+                title="Tentar de novo"
+                className="ml-0.5 shrink-0 rounded-full p-1 text-white hover:bg-white/[.14]"
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+              </button>
+            )}
           </p>
         </div>
 

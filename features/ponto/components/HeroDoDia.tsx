@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Fingerprint, MapPin } from 'lucide-react';
+import { Check, Fingerprint, MapPin, RotateCw } from 'lucide-react';
 import { formatarMinutos } from '@/shared/lib/format';
 import { ETAPAS_DO_DIA, minutosDeAtraso } from '@/features/ponto/etapas';
 import { usePontosDoDia } from '@/features/ponto/hooks/usePontosDoDia';
@@ -23,7 +23,7 @@ interface Props {
 /** Herói marinho do início (1c): relógio, localização, ação de ponto e a linha do dia. */
 export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistrar }: Props) {
   const agora = useAgora();
-  const { texto: localizacao } = useLocalizacao();
+  const local = useLocalizacao();
   const { marcados, proxima, carregando } = ponto;
 
   const status = agora ? statusDoDia(marcados, agora) : null;
@@ -45,10 +45,26 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
           </p>
         </div>
 
-        <p className="flex min-w-0 items-center gap-2 text-[13px] text-white/85">
-          <MapPin className="h-[15px] w-[15px] shrink-0" />
-          <span className="truncate">{localizacao}</span>
-        </p>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-white/85">
+          <p className="flex min-w-0 items-center gap-2">
+            <MapPin className="h-[15px] w-[15px] shrink-0" />
+            <span className="truncate">{local.texto}</span>
+          </p>
+          {local.falhou && (
+            <button
+              type="button"
+              onClick={local.tentarDeNovo}
+              title={local.negada ? 'Libere a localização para este site nas configurações do navegador e tente de novo' : undefined}
+              className="flex items-center gap-1.5 rounded-full bg-white/[.14] px-3 py-1 text-xs font-semibold text-white hover:bg-white/[.22]"
+            >
+              <RotateCw className="h-3.5 w-3.5" />
+              Tentar de novo
+            </button>
+          )}
+        </div>
+        {local.negada && (
+          <p className="-mt-3 text-xs text-white/60">Para liberar, toque no cadeado ao lado do endereço do site e permita a localização.</p>
+        )}
 
         <div>
           {!carregando && (
