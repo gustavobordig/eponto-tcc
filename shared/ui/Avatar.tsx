@@ -24,9 +24,12 @@ export default function Avatar({
       .map((p) => p[0]?.toUpperCase())
       .join('') || '?';
 
-  if (foto) {
+  // A API guarda o base64 puro; o app às vezes já manda com o prefixo data:
+  const src = foto && !/^(data:|https?:|blob:)/.test(foto) ? `data:image/jpeg;base64,${foto}` : foto;
+
+  if (src) {
     // eslint-disable-next-line @next/next/no-img-element -- foto em base64 vinda da API
-    return <img src={foto} alt={nome} className={`${classes} shrink-0 rounded-full object-cover ${className}`} />;
+    return <img src={src} alt={nome} className={`${classes} shrink-0 rounded-full object-cover ${className}`} />;
   }
   return (
     <span
