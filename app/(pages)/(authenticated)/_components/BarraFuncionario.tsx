@@ -156,11 +156,7 @@ export default function BarraFuncionario() {
                   <ArrowRight className="h-[15px] w-[15px] text-primary" />
                 </Link>
               )}
-              <div className="my-1 h-px bg-surface-2" />
-              <div className="flex flex-col gap-2 px-3 py-2">
-                <span className="text-xs font-semibold text-muted">Tema</span>
-                <SeletorTema />
-              </div>
+              <SeletorTema />
               <div className="my-1 h-px bg-surface-2" />
               <button
                 role="menuitem"

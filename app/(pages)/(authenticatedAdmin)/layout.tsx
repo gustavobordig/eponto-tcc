@@ -111,9 +111,7 @@ function Navegacao({ pathname, onSair }: { pathname: string; onSair: () => void 
       </nav>
 
       <div className="flex flex-col gap-0.5 border-t border-white/[.14] px-3.5 py-3 text-sm font-semibold">
-        <div className="px-2.5 pb-2">
-          <SeletorTema sobreMarca />
-        </div>
+        <SeletorTema sobreMarca />
         <Link href="/home" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-white hover:bg-white/[.08]">
           <ArrowLeft className="h-4 w-4" />
           Voltar ao meu ponto

@@ -2,35 +2,27 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-/** Preferência de tema: claro (padrão), escuro ou seguir o sistema. */
-export type Tema = 'claro' | 'escuro' | 'sistema';
+/** Tema do app: claro (padrão) ou escuro. */
+export type Tema = 'claro' | 'escuro';
 
 const CHAVE = 'tema';
 
 /**
- * Roda no <head>, antes da primeira pintura, para a página já abrir no tema
- * certo (sem piscar o claro). Mantém a mesma regra de aplicarTema.
+ * Roda antes da hidratação para a página já abrir no tema certo (sem piscar
+ * o claro). Mantém a mesma regra de lerTema.
  */
-export const SCRIPT_TEMA = `try{var t=localStorage.getItem('${CHAVE}');if(t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
+export const SCRIPT_TEMA = `try{if(localStorage.getItem('${CHAVE}')==='escuro')document.documentElement.classList.add('dark')}catch(e){}`;
 
-// Sem escolha salva, o app abre no claro
+// Sem escolha salva (ou com o antigo "sistema"), o app abre no claro
 const lerTema = (): Tema => {
   try {
-    const t = localStorage.getItem(CHAVE);
-    return t === 'escuro' || t === 'sistema' ? t : 'claro';
+    return localStorage.getItem(CHAVE) === 'escuro' ? 'escuro' : 'claro';
   } catch {
     return 'claro';
   }
 };
 
-const sistemaEscuro = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-function aplicarTema(tema: Tema) {
-  const escuro = tema === 'escuro' || (tema === 'sistema' && sistemaEscuro());
-  document.documentElement.classList.toggle('dark', escuro);
-}
-
-/** Tema atual e como trocar; no modo sistema, acompanha a troca do sistema operacional. */
+/** Tema atual e como trocar. */
 export function useTema() {
   const [tema, setTemaEstado] = useState<Tema>('claro');
 
@@ -38,22 +30,14 @@ export function useTema() {
     setTemaEstado(lerTema());
   }, []);
 
-  useEffect(() => {
-    if (tema !== 'sistema') return;
-    const consulta = window.matchMedia('(prefers-color-scheme: dark)');
-    const mudou = () => aplicarTema('sistema');
-    consulta.addEventListener('change', mudou);
-    return () => consulta.removeEventListener('change', mudou);
-  }, [tema]);
-
   const setTema = useCallback((novo: Tema) => {
     try {
-      if (novo === 'claro') localStorage.removeItem(CHAVE);
-      else localStorage.setItem(CHAVE, novo);
+      if (novo === 'escuro') localStorage.setItem(CHAVE, 'escuro');
+      else localStorage.removeItem(CHAVE);
     } catch {
       // Sem armazenamento (aba anônima bloqueada): vale só nesta visita
     }
-    aplicarTema(novo);
+    document.documentElement.classList.toggle('dark', novo === 'escuro');
     setTemaEstado(novo);
   }, []);
 
