@@ -1,3 +1,4 @@
+import { agoraReal } from '@/shared/lib/relogioSimulado';
 import {
   Perfil,
   SESSION_COOKIES,
@@ -42,7 +43,7 @@ export const tokenUtils = {
   // Os três cookies expiram junto com o token
   setSession({ token, id, perfil }: { token: string; id: string; perfil: Perfil }): void {
     if (!isBrowser()) return;
-    const maxAge = tokenMaxAge(token);
+    const maxAge = tokenMaxAge(token, agoraReal());
     writeCookie(SESSION_COOKIES.token, token, maxAge);
     writeCookie(SESSION_COOKIES.id, id, maxAge);
     writeCookie(SESSION_COOKIES.perfil, perfil, maxAge);

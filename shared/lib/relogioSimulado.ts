@@ -15,5 +15,15 @@ var R=Date,p=${JSON.stringify(hora)}.split(':'),alvo=new R();alvo.setHours(+p[0]
 var desvio=alvo.getTime()-R.now();
 var D=function(){var a=Array.prototype.slice.call(arguments);if(!(this instanceof D))return new R(R.now()+desvio).toString();return a.length?new (Function.prototype.bind.apply(R,[null].concat(a)))():new R(R.now()+desvio);};
 D.prototype=R.prototype;D.now=function(){return R.now()+desvio};D.parse=R.parse;D.UTC=R.UTC;
+window.__agoraReal=function(){return R.now()};
 window.Date=D;
 }catch(e){}`;
+
+/**
+ * Milissegundos reais, ignorando o horário simulado. A validade da sessão
+ * depende do relógio real: com o simulado adiantado, o cookie nascia vencido.
+ */
+export const agoraReal = (): number =>
+  typeof window !== 'undefined' && typeof (window as { __agoraReal?: () => number }).__agoraReal === 'function'
+    ? (window as unknown as { __agoraReal: () => number }).__agoraReal()
+    : Date.now();
