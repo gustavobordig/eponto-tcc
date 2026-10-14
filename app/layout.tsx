@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Toaster } from 'react-hot-toast';
 import "@/app/globals.css";
 import { SCRIPT_TEMA } from "@/shared/lib/tema";
+import { HORA_SIMULADA, scriptRelogioSimulado } from "@/shared/lib/relogioSimulado";
 
 // Plus Jakarta Sans fica próxima do logotipo; JetBrains Mono nos horários
 const jakarta = Plus_Jakarta_Sans({
@@ -39,6 +40,12 @@ export default function RootLayout({
         <Script id="tema" strategy="beforeInteractive">
           {SCRIPT_TEMA}
         </Script>
+        {/* TEMPORÁRIO: NEXT_PUBLIC_HORA_SIMULADA simula o horário (gravação de vídeo) */}
+        {HORA_SIMULADA && (
+          <Script id="relogio-simulado" strategy="beforeInteractive">
+            {scriptRelogioSimulado(HORA_SIMULADA)}
+          </Script>
+        )}
         {children}
         <Toaster />
       </body>
