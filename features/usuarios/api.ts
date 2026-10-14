@@ -16,6 +16,13 @@ export interface UserData {
   idChefe?: number | null;
 }
 
+/** Pessoa na lista de quem pode receber um pedido de feedback */
+export interface PessoaResumo {
+  idUsuario: number;
+  nome: string;
+  idChefe?: number | null;
+}
+
 /** /api/Usuario/Contrato/{id}: dados do contrato, liberado para o próprio funcionário */
 export interface ContratoUsuario {
   idUsuario: number;
@@ -43,6 +50,10 @@ export const userService = {
     (await api.post<UserResponse>('/api/Usuario/Inserir', userData)).data,
 
   getById: async (id: number) => (await api.get<UserResponse>(`/api/Usuario/${id}`)).data,
+
+  /** Todas as pessoas (id, nome e chefe), liberado para qualquer usuário logado */
+  pessoas: async () =>
+    (await api.get<ApiResponse<{ usuarios: PessoaResumo[] | null }>>('/api/Usuario/Hierarquia')).data.usuarios ?? [],
 
   update: async (userData: UserData) =>
     (await api.put<UserResponse>(`/api/Usuario/Atualizar/${userData.idUsuario}`, userData)).data,

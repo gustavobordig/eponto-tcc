@@ -124,18 +124,46 @@ describe('Área do funcionário', () => {
     cy.get('@todos.all').should('have.length', 0);
   });
 
-  it('manda o pedido de feedback para o chefe do usuário', () => {
-    cy.intercept('GET', '**/api/Feedback/ListarSolicitacoesUsuario/1', { body: { sucesso: true, mensagem: null, solicitacoesFeedback: [] } });
-    cy.intercept('POST', '**/api/Feedback/InserirSolicitacao', { body: { sucesso: true, mensagem: null } }).as('inserir');
-    cy.visit('/feedback');
+  describe('Pedir feedback', () => {
+    beforeEach(() => {
+      cy.intercept('GET', '**/api/Feedback/ListarSolicitacoesUsuario/1', { body: { sucesso: true, mensagem: null, solicitacoesFeedback: [] } });
+      cy.intercept('POST', '**/api/Feedback/InserirSolicitacao', { body: { sucesso: true, mensagem: null } }).as('inserir');
+      // Rota liberada para qualquer usuário: id, nome e chefe de cada pessoa
+      cy.intercept('GET', '**/api/Usuario/Hierarquia', {
+        body: {
+          sucesso: true,
+          mensagem: null,
+          usuarios: [
+            { idUsuario: 4, nome: 'Marcos Prado', idChefe: null },
+            { idUsuario: 1, nome: 'Ana Souza', idChefe: 4 },
+            { idUsuario: 7, nome: 'Júlia Ramos', idChefe: 4 },
+          ],
+        },
+      });
+      cy.visit('/feedback');
+      cy.contains('button', 'Novo').click();
+    });
 
-    cy.contains('button', 'Novo').click();
-    cy.get('textarea').type('Queria um retorno sobre o último projeto.');
-    cy.contains('button', 'Enviar Solicitação').click();
+    it('já vem com o gestor escolhido', () => {
+      cy.get('[aria-haspopup="listbox"]').should('contain', 'Marcos Prado').and('contain', 'Seu gestor');
+      cy.get('textarea').type('Queria um retorno sobre o último projeto.');
+      cy.contains('button', 'Enviar Solicitação').click();
 
-    cy.wait('@inserir').its('request.body').should('deep.include', {
-      idUsuarioSolicitacao: 1,
-      idResponsavelFeedback: 4,
+      cy.wait('@inserir').its('request.body').should('deep.include', {
+        idUsuarioSolicitacao: 1,
+        idResponsavelFeedback: 4,
+      });
+    });
+
+    it('busca outra pessoa pelo nome, sem acento, e manda para ela', () => {
+      cy.get('[aria-haspopup="listbox"]').click();
+      cy.get('[role="listbox"]').should('not.contain', 'Ana Souza'); // não pede para si mesma
+      cy.get('[role="combobox"]').type('julia');
+      cy.get('[role="option"]').should('have.length', 1).and('contain', 'Júlia Ramos').click();
+      cy.get('textarea').type('Pode me dar um retorno sobre a apresentação?');
+      cy.contains('button', 'Enviar Solicitação').click();
+
+      cy.wait('@inserir').its('request.body').should('deep.include', { idResponsavelFeedback: 7 });
     });
   });
 });

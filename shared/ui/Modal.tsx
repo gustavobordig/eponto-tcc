@@ -26,7 +26,8 @@ const LARGURA = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
 export default function Modal({ isOpen, onClose, titulo, descricao, icone, rodape, children, largura = 'md', bloqueado = false }: ModalProps) {
   useEffect(() => {
     if (!isOpen) return;
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && !bloqueado && onClose();
+    // Ignora o Esc que um campo de dentro já usou (ex.: fechar a lista do BuscaPessoa)
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && !e.defaultPrevented && !bloqueado && onClose();
     document.addEventListener('keydown', esc);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
