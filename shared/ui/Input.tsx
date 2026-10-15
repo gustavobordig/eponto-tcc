@@ -3,6 +3,14 @@
 import { InputHTMLAttributes, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
+/**
+ * Data e hora no iPhone: o Safari dá ao campo uma largura própria, que ignora o
+ * w-full e estoura a coluna, e centraliza o texto.
+ */
+const CAMPO_NATIVO = new Set(['date', 'time', 'datetime-local', 'month']);
+const CLASSES_CAMPO_NATIVO =
+  'block min-w-0 appearance-none [&::-webkit-date-and-time-value]:min-h-[1.5em] [&::-webkit-date-and-time-value]:text-left';
+
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   icon?: React.ReactNode;
@@ -72,6 +80,7 @@ const Input = ({
             focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-soft
             ${icon ? 'pl-10' : ''}
             ${isPassword ? 'pr-11' : ''}
+            ${CAMPO_NATIVO.has(type ?? '') ? CLASSES_CAMPO_NATIVO : ''}
             ${inputClassName}
             ${error ? 'border-danger focus:border-danger focus:ring-danger-soft' : ''}
           `}
