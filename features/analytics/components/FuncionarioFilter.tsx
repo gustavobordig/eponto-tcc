@@ -11,12 +11,12 @@ interface FuncionarioFilterProps {
 export function FuncionarioFilter({ selectedFuncionario, onFuncionarioChange }: FuncionarioFilterProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-foreground">Funcionário:</span>
+      <span className="shrink-0 text-sm font-medium text-foreground">Funcionário:</span>
       <Select
         value={selectedFuncionario.toString()}
         onValueChange={(value: string) => onFuncionarioChange(Number(value))}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder="Selecione um funcionário" />
         </SelectTrigger>
         <SelectContent>

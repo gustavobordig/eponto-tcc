@@ -175,7 +175,7 @@ export default function BarraFuncionario() {
       </div>
 
       {/* Abas; no celular rolam de lado */}
-      <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-2 sm:px-6" aria-label="Principal">
+      <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-2 [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden" aria-label="Principal">
         {ITENS.map((item) => {
           const Icone = item.icone;
           const atual = ativo(item);

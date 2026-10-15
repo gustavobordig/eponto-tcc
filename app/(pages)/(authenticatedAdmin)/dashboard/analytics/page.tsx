@@ -13,8 +13,8 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-bold text-foreground">Estatísticas</h1>
           <DemoBadge label="Dados de exemplo: ainda não ligado à API" />
         </div>

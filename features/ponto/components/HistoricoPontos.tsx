@@ -82,6 +82,36 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
     };
   }, [diaAjuste]);
 
+  const diaDaSemana = (dia: DiaDoHistorico) =>
+    dia.evento ?? dia.data.toLocaleDateString("pt-BR", { weekday: "long" }).replace("-feira", "");
+
+  // Sem entrada ou sem saída num dia útil fica em vermelho
+  const corDaMarcacao = (dia: DiaDoHistorico, i: number) => {
+    const m = dia.marcacoes[i];
+    const faltaImportante = !m.hora && dia.incompleto && (i === 0 || i === 3);
+    return m.atraso ? "text-warn-ink" : faltaImportante ? "text-danger" : "";
+  };
+
+  const botaoAjuste = (dia: DiaDoHistorico) =>
+    dia.evento ? null : dia.incompleto ? (
+      <button
+        type="button"
+        onClick={() => setDiaAjuste(dia)}
+        className="h-8 rounded-lg bg-danger-soft px-3 text-xs font-bold text-danger-ink hover:brightness-95"
+      >
+        Pedir ajuste
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={() => setDiaAjuste(dia)}
+        aria-label={`Ajustar o ponto de ${format(dia.data, "dd/MM")}`}
+        className="text-[13px] font-semibold text-muted hover:text-primary"
+      >
+        Ajustar
+      </button>
+    );
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -115,7 +145,46 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
         ))}
       </dl>
 
-      <div className="overflow-x-auto rounded-2xl bg-surface shadow-card">
+      {/* Celular: um cartão por dia no lugar da tabela larga */}
+      <ul className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card md:hidden" aria-label={`Marcações de ${nomeMes}`}>
+        {loading ? (
+          <li className="px-5 py-10 text-center text-sm text-muted">Carregando registros…</li>
+        ) : dias.length === 0 ? (
+          <li className="px-5 py-10 text-center text-sm text-muted">Nenhum registro em {nomeMes}.</li>
+        ) : (
+          dias.map((dia) => (
+            <li
+              key={dia.chave}
+              className={`flex flex-col gap-3 border-b border-surface-2 px-5 py-4 text-sm last:border-b-0 ${dia.incompleto ? "bg-danger-soft/50" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-px">
+                  <b>{format(dia.data, "dd/MM")}</b>
+                  <span className="truncate text-xs text-muted first-letter:uppercase">{diaDaSemana(dia)}</span>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  {dia.saldo !== null && (
+                    <span className={`font-mono font-semibold ${corDoSaldo(dia.saldo)}`}>{saldoCurto(dia.saldo)}</span>
+                  )}
+                  {botaoAjuste(dia)}
+                </div>
+              </div>
+              <dl className="grid grid-cols-4 gap-2">
+                {dia.marcacoes.map((m, i) => (
+                  <div key={m.tipo} className="flex flex-col gap-0.5">
+                    <dt className="text-[11px] text-muted">{["Entrada", "Almoço", "Volta", "Saída"][i]}</dt>
+                    <dd className={`font-mono ${corDaMarcacao(dia, i)}`} title={m.atraso ? `${ETAPAS_DO_DIA[i].label} com atraso` : undefined}>
+                      {m.hora ?? "—"}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </li>
+          ))
+        )}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-2xl bg-surface shadow-card md:block">
         <div className="min-w-[860px]" role="table" aria-label={`Marcações de ${nomeMes}`}>
           <div role="row" className={`grid ${COLUNAS} gap-3 bg-marca px-6 py-3.5 text-xs font-bold uppercase tracking-[.4px] text-white`}>
             {["Data", "Entrada", "Almoço", "Volta", "Saída", "Trabalhado", "Saldo"].map((c) => (
@@ -137,48 +206,23 @@ export default function HistoricoContainer({ onAjusteEnviado }: { onAjusteEnviad
               >
                 <div role="cell" className="flex flex-col gap-px">
                   <b>{format(dia.data, "dd/MM")}</b>
-                  <span className="truncate text-xs text-muted first-letter:uppercase">
-                    {dia.evento ?? dia.data.toLocaleDateString("pt-BR", { weekday: "long" }).replace("-feira", "")}
-                  </span>
+                  <span className="truncate text-xs text-muted first-letter:uppercase">{diaDaSemana(dia)}</span>
                 </div>
-                {dia.marcacoes.map((m, i) => {
-                  // Sem entrada ou sem saída num dia útil fica em vermelho
-                  const faltaImportante = !m.hora && dia.incompleto && (i === 0 || i === 3);
-                  return (
-                    <span
-                      key={m.tipo}
-                      role="cell"
-                      title={m.atraso ? `${ETAPAS_DO_DIA[i].label} com atraso` : undefined}
-                      className={`font-mono ${m.atraso ? "text-warn-ink" : faltaImportante ? "text-danger" : ""}`}
-                    >
-                      {m.hora ?? "—"}
-                    </span>
-                  );
-                })}
+                {dia.marcacoes.map((m, i) => (
+                  <span
+                    key={m.tipo}
+                    role="cell"
+                    title={m.atraso ? `${ETAPAS_DO_DIA[i].label} com atraso` : undefined}
+                    className={`font-mono ${corDaMarcacao(dia, i)}`}
+                  >
+                    {m.hora ?? "—"}
+                  </span>
+                ))}
                 <span role="cell" className="font-mono">{dia.trabalhado === null ? "—" : saldoCurto(dia.trabalhado).replace("+", "")}</span>
                 <span role="cell" className={`font-mono font-semibold ${corDoSaldo(dia.saldo)}`}>
                   {dia.saldo === null ? "—" : saldoCurto(dia.saldo)}
                 </span>
-                <div role="cell" className="flex justify-end">
-                  {dia.evento ? null : dia.incompleto ? (
-                    <button
-                      type="button"
-                      onClick={() => setDiaAjuste(dia)}
-                      className="h-8 rounded-lg bg-danger-soft px-3 text-xs font-bold text-danger-ink hover:brightness-95"
-                    >
-                      Pedir ajuste
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setDiaAjuste(dia)}
-                      aria-label={`Ajustar o ponto de ${format(dia.data, "dd/MM")}`}
-                      className="text-[13px] font-semibold text-muted hover:text-primary"
-                    >
-                      Ajustar
-                    </button>
-                  )}
-                </div>
+                <div role="cell" className="flex justify-end">{botaoAjuste(dia)}</div>
               </div>
             ))
           )}
