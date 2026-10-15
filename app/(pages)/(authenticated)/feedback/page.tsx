@@ -51,7 +51,7 @@ export default function FeedbackPage() {
   const etiquetaAtual = atual?.feedback ? etiqueta(atual.feedback.avaliacao) : null;
 
   return (
-    <div className="grid gap-5 lg:h-[calc(100vh-170px)] lg:min-h-[560px] lg:grid-cols-[340px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-5 lg:h-[calc(100vh-170px)] lg:min-h-[560px] lg:grid-cols-[340px_minmax(0,1fr)]">
       <section className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card" aria-label="Conversas">
         <div className="flex items-center justify-between border-b border-surface-2 p-5">
           <h1 className="text-[17px] font-bold">Feedbacks</h1>

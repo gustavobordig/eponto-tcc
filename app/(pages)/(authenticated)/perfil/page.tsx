@@ -86,7 +86,7 @@ export default function PerfilPage() {
   ];
 
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
       <section className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
         <div className="h-[88px] bg-marca" />
         <div className="-mt-12 flex flex-col items-center gap-3 px-6 pb-6 text-center">
@@ -137,7 +137,7 @@ export default function PerfilPage() {
               }}
               className="flex flex-col gap-5"
             >
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Input id="nome" label="Nome completo" value={rascunho.nome} onChange={(e) => setRascunho({ ...rascunho, nome: e.target.value })} />
                 <Input
                   id="dataNascimento"

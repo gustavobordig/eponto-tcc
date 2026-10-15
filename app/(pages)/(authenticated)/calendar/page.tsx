@@ -67,7 +67,7 @@ export default function CalendarioPage() {
   );
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
       <CalendarioMensal eventos={todos} data={data} onDataChange={setData} onEventoClick={setAberto} />
 
       <aside className="flex flex-col gap-4">

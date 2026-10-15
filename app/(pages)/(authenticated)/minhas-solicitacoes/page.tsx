@@ -46,7 +46,7 @@ export default function MinhasSolicitacoesPage() {
   ];
 
   return (
-    <div className={`grid items-start gap-5 ${formAberto ? 'lg:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
+    <div className={`grid grid-cols-1 items-start gap-5 ${formAberto ? 'lg:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-col gap-1">

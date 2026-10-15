@@ -33,7 +33,7 @@ export default function HeroDoDia({ primeiroNome, horasDiarias, ponto, onRegistr
   const data = agora?.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).replace('-feira', '');
 
   return (
-    <section className="grid items-center gap-8 rounded-[18px] bg-marca px-6 py-7 text-white sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
+    <section className="grid grid-cols-1 items-center gap-8 rounded-[18px] bg-marca px-6 py-7 text-white sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-12">
       <div className="flex flex-col gap-[18px]">
         <div className="flex flex-col gap-1">
           <p className="text-[15px] text-white/85" suppressHydrationWarning>

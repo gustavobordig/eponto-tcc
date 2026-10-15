@@ -20,7 +20,7 @@ export default function Home() {
         onRegistrar={abrirRegistro}
       />
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)]">
         <CardBancoHoras />
         <CardPontualidade registros={ponto.todos} eventos={eventos} />
         <CardProximos eventos={eventos} />
